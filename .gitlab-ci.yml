@@ -69,7 +69,7 @@ setup:
 test:
   stage: test
   image: $DOCKER_IMAGE
-  coverage: "^total:\s+\(statements\)\s+\d+\.\d+\%$"
+  coverage: '/^total:\s+\(statements\)\s+\d+\.\d+\%$/'
   script:
     - mkdir -p testdata
 
