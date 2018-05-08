@@ -1,0 +1,10 @@
+package: gitlab.com/privategrity/user-discovery-bot
+import:
+- package: gitlab.com/privategrity/client
+  version: master
+  repo: git@gitlab.com:privategrity/client
+  vcs: git
+- package: github.com/spf13/cobra
+  version: ^0.0.1
+  subpackages:
+  - cobra
