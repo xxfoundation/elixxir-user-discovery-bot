@@ -34,7 +34,7 @@ var RootCmd = &cobra.Command{
 		if !validConfig {
 			jww.WARN.Println("Invalid Config File")
 		}
-		StartBot()
+		//StartBot()
 	},
 }
 
@@ -61,7 +61,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	RootCmd.Flags().StringVarP(&cfgFile, "config", "", "",
-		"config file (default is $HOME/.privategrity/udb.yaml)")
+		"config file (default is $PWD/udb.yaml)")
 	RootCmd.Flags().BoolVarP(&verbose, "verbose", "v", false,
 		"Verbose mode for debugging")
 	RootCmd.Flags().BoolVarP(&showVer, "version", "V", false,
@@ -70,34 +70,26 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	//Use default config location if none is passed
-	if cfgFile == "" {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			jww.WARN.Println(err)
+	// Default search paths
+	searchDirs := []string{}
+	searchDirs = append(searchDirs, "./") // $PWD
+	// $HOME
+	home, _ := homedir.Dir()
+	searchDirs = append(searchDirs, home+"/.privategrity/")
+	// /etc/privategrity
+	searchDirs = append(searchDirs, "/etc/privategrity")
+	jww.DEBUG.Println("Configuration search directories: %v", searchDirs)
+
+	validConfig = false
+	for i := range searchDirs {
+		cfgFile := searchDirs[i] + "udb.yaml"
+		_, err := os.Stat(cfgFile)
+		if !os.IsNotExist(err) {
+			validConfig = true
+			viper.SetConfigFile(cfgFile)
+			break
 		}
-
-		cfgFile = home + "/.privategrity/user-discovery-bot.yaml"
-
 	}
-
-	f, err := os.Open(cfgFile)
-
-	_, err = f.Stat()
-
-	validConfig = true
-
-	if err != nil {
-		jww.WARN.Printf("Invalid config file (%s): %s", cfgFile,
-			err.Error())
-		validConfig = false
-	}
-
-	f.Close()
-
-	viper.SetConfigFile(cfgFile)
-
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
