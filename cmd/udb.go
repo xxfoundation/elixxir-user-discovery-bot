@@ -61,6 +61,10 @@ func StartBot(serverAddr string, numNodes uint) {
 
 	// Start message receiver, which parses and runs commands
 	clientGlobals.SetReceiver(commands.ReceiveMessage)
+
+	// Block forever as a keepalive
+	quit := make(chan bool)
+	<-quit
 }
 
 // Initialize a session using the given session file and other info
@@ -72,7 +76,8 @@ func Init(sessionFile, nick string, regCode uint64) uint64 {
 	// then init that file, then register optionally based on that check?
 	_, err := os.Stat(sessionFile)
 	// Init regardless, wow this is broken...
-	initErr := client.InitClient(&clientGlobals.DefaultStorage{}, sessionFile, nil)
+	initErr := client.InitClient(&clientGlobals.DefaultStorage{}, sessionFile,
+		nil)
 	if initErr != nil {
 		jww.FATAL.Panicf("Could not initialize: %v", initErr)
 	}

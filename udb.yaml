@@ -1,2 +1,4 @@
 #No config options yet
 logPath: "logfile.log"
+numNodes: 1
+serverAddr: "localhost:11420"
