@@ -19,9 +19,9 @@ func printVersion() {
 }
 
 var versionCmd = &cobra.Command{
-	Use:	 "version",
+	Use:   "version",
 	Short: "Print the version number of Privategrity UDB",
-	Long:	 `Print the version number of Privategrity User Discovery bot. This
+	Long: `Print the version number of Privategrity User Discovery bot. This
 also prints the glide cache versions of all of its dependencies.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		printVersion()

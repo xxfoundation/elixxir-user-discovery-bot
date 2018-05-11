@@ -10,17 +10,17 @@
 
 // This program generates cmd/version_vars.go. It can be invoked by running
 // go generate
-package main
+package cmd
 
 import (
 	"bufio"
-	"log"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
+	"strings"
 	"text/template"
 	"time"
-	"strings"
 )
 
 func GenerateGitVersion() string {
@@ -31,7 +31,7 @@ func GenerateGitVersion() string {
 	}
 	scanner := bufio.NewScanner(strings.NewReader(string(stdoutStderr)))
 	for scanner.Scan() {
-    return scanner.Text()
+		return scanner.Text()
 	}
 	return "UNKNOWNVERSION"
 }
@@ -51,8 +51,8 @@ func main() {
 
 	packageTemplate.Execute(f, struct {
 		Timestamp time.Time
-		GITVER       string
-		GLIDEDEPS    string
+		GITVER    string
+		GLIDEDEPS string
 	}{
 		Timestamp: time.Now(),
 		GITVER:    gitversion,

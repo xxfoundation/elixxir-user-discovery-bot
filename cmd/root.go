@@ -8,11 +8,11 @@
 package cmd
 
 import (
-	"os"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
+	"os"
 )
 
 var cfgFile string
@@ -24,8 +24,8 @@ var validConfig bool
 var RootCmd = &cobra.Command{
 	Use:   "user-discovery-bot",
 	Short: "Runs a user discovery bot for cMix",
-	Long: `This bot provides user lookup and search functions on cMix`,
-	Args: cobra.NoArgs,
+	Long:  `This bot provides user lookup and search functions on cMix`,
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		if showVer {
 			printVersion()
@@ -34,7 +34,7 @@ var RootCmd = &cobra.Command{
 		if !validConfig {
 			jww.WARN.Println("Invalid Config File")
 		}
-		// StartBot()
+		StartBot()
 	},
 }
 
@@ -61,7 +61,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	RootCmd.Flags().StringVarP(&cfgFile, "config", "", "",
-		"config file (default is $HOME/.privategrity/server.yaml)")
+		"config file (default is $HOME/.privategrity/udb.yaml)")
 	RootCmd.Flags().BoolVarP(&verbose, "verbose", "v", false,
 		"Verbose mode for debugging")
 	RootCmd.Flags().BoolVarP(&showVer, "version", "V", false,
