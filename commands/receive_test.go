@@ -7,10 +7,9 @@
 package commands
 
 import (
-	"testing"
 	"gitlab.com/privategrity/crypto/format" // <-- FIXME: this is annoying, WHY?
+	"testing"
 )
-
 
 func TestReceiveMessage(t *testing.T) {
 	msg, err := format.NewMessage(1, 2, "Hello, World!")
