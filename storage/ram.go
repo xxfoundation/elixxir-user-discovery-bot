@@ -32,64 +32,64 @@ func NewRamStorage() *RamStorage {
 }
 
 // Addkey - Add a key stream, return the fingerprint
-func (RamStore RamStorage) AddKey(value []byte) (string, error) {
+func (rs RamStorage) AddKey(value []byte) (string, error) {
 	keyFingerprint := fingerprint.Fingerprint(value)
 
 	// Error out if the key exists already
-	_, ok := RamStore.Keys[keyFingerprint]
+	_, ok := rs.Keys[keyFingerprint]
 	if ok {
 		return "", fmt.Errorf("Fingerprint already exists: %s", keyFingerprint)
 	}
 
-	RamStore.Keys[keyFingerprint] = value
+	rs.Keys[keyFingerprint] = value
 	return keyFingerprint, nil
 }
 
 // GetKey - Get a key based on the key id (retval of AddKey)
-func (RamStore RamStorage) GetKey(keyId string) ([]byte, bool) {
-	publicKey, ok := RamStore.Keys[keyId]
+func (rs RamStorage) GetKey(keyId string) ([]byte, bool) {
+	publicKey, ok := rs.Keys[keyId]
 	return publicKey, ok
 }
 
 // AddUserKey - Add a user id to keyId (not used in high security)
-func (RamStore RamStorage) AddUserKey(userId uint64, keyId string) error {
-	_, ok := RamStore.Users[userId]
+func (rs RamStorage) AddUserKey(userId uint64, keyId string) error {
+	_, ok := rs.Users[userId]
 	if ok {
 		return fmt.Errorf("UserId already exists: %d", userId)
 	}
-	RamStore.Users[userId] = keyId
+	rs.Users[userId] = keyId
 	return nil
 }
 
 // GetUserKey - Get a user's keyId (not used in high security)
-func (RamStore RamStorage) GetUserKey(userId uint64) (string, bool) {
-	keyId, ok := RamStore.Users[userId]
+func (rs RamStorage) GetUserKey(userId uint64) (string, bool) {
+	keyId, ok := rs.Users[userId]
 	return keyId, ok
 }
 
 // AddValue - Add a searchable value (e-mail, nickname, etc)
-func (RamStore RamStorage) AddValue(value string, valType ValueType,
+func (rs RamStorage) AddValue(value string, valType ValueType,
 	keyId string) error {
-	_, ok := RamStore.KeyVal[valType]
+	_, ok := rs.KeyVal[valType]
 	if ! ok {
-		RamStore.KeyVal[valType] = make(map[string][]string)
+		rs.KeyVal[valType] = make(map[string][]string)
 	}
-	_, ok = RamStore.KeyVal[valType][value]
+	_, ok = rs.KeyVal[valType][value]
 	if ! ok {
-		RamStore.KeyVal[valType][value] = make([]string, 1)
+		rs.KeyVal[valType][value] = make([]string, 1)
 	}
-	keyIds, _ := RamStore.KeyVal[valType][value]
+	keyIds, _ := rs.KeyVal[valType][value]
 	keyIds = append(keyIds, keyId)
-	RamStore.KeyVal[valType][value] = keyIds
+	rs.KeyVal[valType][value] = keyIds
 	return nil
 }
 
 // GetKeys - Returns all values that match the search criteria
-func (RamStore RamStorage) GetKeys(value string, valType ValueType) (
+func (rs RamStorage) GetKeys(value string, valType ValueType) (
 	[]string, bool) {
-	_, ok := RamStore.KeyVal[valType]
+	_, ok := rs.KeyVal[valType]
 	if ok {
-		keyIds, ok := RamStore.KeyVal[valType][value]
+		keyIds, ok := rs.KeyVal[valType][value]
 		if ok {
 			return keyIds, ok
 		}
