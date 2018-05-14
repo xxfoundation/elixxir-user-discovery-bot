@@ -94,5 +94,5 @@ func (RamStore RamStorage) GetKeys(value string, valType ValueType) (
 			return keyIds, ok
 		}
 	}
-	return nil, ok
+	return nil, false
 }

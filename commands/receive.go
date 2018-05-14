@@ -12,6 +12,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/privategrity/crypto/cyclic" // <-- FIXME: this is annoying, WHY?
 	"gitlab.com/privategrity/crypto/format" // <-- FIXME: this is annoying, WHY?
+	shellwords "github.com/mattn/go-shellwords"
 )
 
 // Parse the command and run the corresponding function
@@ -36,7 +37,17 @@ func UnknownCommand(userId uint64, args []string) {
 // ParseCommand parses the message payload and return the function with it's
 // arguments
 func ParseCommand(cmdMsg string) (func(uint64, []string), []string) {
-	args := []string{}
-	args = append(args, cmdMsg)
-	return UnknownCommand, args
+	args, err := shellwords.Parse(cmdMsg)
+	if err != nil {
+		return UnknownCommand, []string{"Received error while parsing command: ",
+			cmdMsg, err.Error()}
+	}
+	for i := range args {
+		switch args[i] {
+		case "REGISTER":
+			return Register, args[i+1:]
+		}
+	}
+
+	return UnknownCommand, []string{cmdMsg}
 }
