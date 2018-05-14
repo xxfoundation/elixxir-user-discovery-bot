@@ -84,7 +84,7 @@ func TestValueAndKeyStore(t *testing.T) {
 	if ! ok {
 		t.Errorf("Ram storage could not GetKeys!")
 	}
-	if retKeys[0] == KeyId {
+	if retKeys[0] != KeyId {
 		t.Errorf("Ram storage GetKeys returned bad result - Got: %s, Expected: %s",
 			retKeys, KeyId)
 	}

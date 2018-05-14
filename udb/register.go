@@ -30,15 +30,19 @@ const REGISTER_USAGE = ("Usage: 'REGISTER [EMAIL] [email-address] " +
 // Registration fails if the KEYID is not already pushed and confirmed.
 func Register(userId uint64, args []string) {
 	jww.INFO.Printf("Register %d: %v", userId, args)
-	regType := args[0]
-	regVal := args[1]
-	keyFp := args[2]
-
 	RegErr := func(msg string) {
 		Send(userId, msg)
 		Send(userId, REGISTER_USAGE)
 		jww.INFO.Printf("User %d error: %s", userId, msg)
 	}
+	if len(args) != 3 {
+		RegErr("Invalid command syntax!")
+		return
+	}
+
+	regType := args[0]
+	regVal := args[1]
+	keyFp := args[2]
 
 	// Verify that regType == EMAIL
 	if regType != "EMAIL" {
@@ -87,15 +91,19 @@ var tempKeysState map[string][]bool = make(map[string][]bool)
 // once it receives all pieces of the key.
 func PushKey(userId uint64, args []string) {
 	jww.INFO.Printf("PushKey %d:, %v", userId, args)
-	keyId := args[0]
-	keyIdxStr := args[1]
-	keyMat := args[2]
-
 	PushErr := func(msg string) {
 		Send(userId, msg)
 		Send(userId, PUSHKEY_USAGE)
 		jww.INFO.Printf("User %d error: %s", userId, msg)
 	}
+	if len(args) != 3 {
+		PushErr("Invalid command syntax!")
+		return
+	}
+
+	keyId := args[0]
+	keyIdxStr := args[1]
+	keyMat := args[2]
 
 	// Decode keyMat
 	// FIXME: Not sure I like having to base64 stuff here, but it's this or hex
