@@ -55,7 +55,7 @@ func Search(userId uint64, args []string) {
 	}
 
 	for i := range keyFingerprints {
-		msg := fmt.Sprintf("SEARCH %s FOUND %s", keyFingerprints[i])
+		msg := fmt.Sprintf("SEARCH %s FOUND %s", regVal, keyFingerprints[i])
 		jww.INFO.Printf("User %s: %s", msg)
 		Send(userId, msg)
 	}
