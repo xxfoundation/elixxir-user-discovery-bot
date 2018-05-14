@@ -37,6 +37,7 @@ func UnknownCommand(userId uint64, args []string) {
 // ParseCommand parses the message payload and return the function with it's
 // arguments
 func ParseCommand(cmdMsg string) (func(uint64, []string), []string) {
+	jww.INFO.Println("Received Command to Parse: %s", cmdMsg)
 	args, err := shellwords.Parse(cmdMsg)
 	if err != nil {
 		return UnknownCommand, []string{"Received error while parsing command: ",
@@ -46,6 +47,8 @@ func ParseCommand(cmdMsg string) (func(uint64, []string), []string) {
 		switch args[i] {
 		case "REGISTER":
 			return Register, args[i+1:]
+		case "PUSHKEY":
+			return PushKey, args[i+1:]
 		}
 	}
 

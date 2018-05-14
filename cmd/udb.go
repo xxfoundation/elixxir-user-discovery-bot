@@ -14,6 +14,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	client "gitlab.com/privategrity/client/api"
 	clientGlobals "gitlab.com/privategrity/client/globals"
+	"gitlab.com/privategrity/user-discovery-bot/storage"
 	"gitlab.com/privategrity/user-discovery-bot/udb"
 	"os"
 )
@@ -36,6 +37,9 @@ const UDB_SESSIONFILE = ".udb-cMix-session"
 //  - Start the main loop
 func StartBot(serverAddr string, numNodes uint) {
 	jww.DEBUG.Printf("Starting User Discovery Bot...")
+
+	// Use RAM storage for now
+	udb.DataStore = storage.NewRamStorage()
 
 	// Globals we need to set
 	NUM_NODES = numNodes
