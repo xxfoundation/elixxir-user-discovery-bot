@@ -25,3 +25,10 @@ func TestReceiveMessage(t *testing.T) {
 	}
 	ReceiveMessage(msg)
 }
+
+func TestBrokenMessage(t *testing.T) {
+	brokenMsg := "foo '" // From shellwords test cases
+	msg, _ := NewMessage(brokenMsg)
+	ReceiveMessage(msg)
+	// We are only making sure this doesn't crash the program.
+}
