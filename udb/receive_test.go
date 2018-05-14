@@ -11,10 +11,17 @@ import (
 	"testing"
 )
 
+// Hack around the interface for client to do what we need for testing.
+func NewMessage(msg string) (format.MessageInterface, error) {
+	msgs, err := format.NewMessage(1, 2, msg)
+	return msgs[0], err
+}
+
+// Test with an unknown function
 func TestReceiveMessage(t *testing.T) {
-	msg, err := format.NewMessage(1, 2, "Hello, World!")
+	msg, err := NewMessage("Hello, World!")
 	if err != nil {
 		t.Errorf("Could not smoke test ReceiveMessage: %v", err)
 	}
-	ReceiveMessage(msg[0])
+	ReceiveMessage(msg)
 }

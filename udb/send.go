@@ -25,7 +25,7 @@ func Send(userId uint64, msg string) {
 	for i := range messages {
 		sendErr := client.Send(messages[i])
 		if sendErr != nil {
-			jww.ERROR.Println("Error responding to %d", userId)
+			jww.ERROR.Printf("Error responding to %d", userId)
 		}
 	}
 }

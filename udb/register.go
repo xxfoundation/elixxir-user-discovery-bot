@@ -66,9 +66,9 @@ func Register(userId uint64, args []string) {
 		RegErr(err.Error())
 	}
 
-	Send(userId, "REGISTRATION COMPLETE")
 	jww.INFO.Printf("User %d registered successfully with %s, %s",
 		userId, regVal, keyFp)
+	Send(userId, "REGISTRATION COMPLETE")
 }
 
 const PUSHKEY_USAGE = ("Usage: 'PUSHKEY [temp-key-id] [starting-byte-index] " +
@@ -139,7 +139,9 @@ func PushKey(userId uint64, args []string) {
 	if missingCnt != 0 {
 		tempKeys[keyId] = key
 		tempKeysState[keyId] = keyState
-		Send(userId, fmt.Sprintf("PUSHKEY ACK NEED %d", missingCnt))
+		msg := fmt.Sprintf("PUSHKEY ACK NEED %d", missingCnt)
+		jww.INFO.Printf("User %d: %s", userId, msg)
+		Send(userId, msg)
 		return
 	}
 
@@ -150,5 +152,7 @@ func PushKey(userId uint64, args []string) {
 	if err != nil {
 		PushErr(err.Error())
 	}
-	Send(userId, fmt.Sprintf("PUSHKEY COMPLETE %s", fingerprint))
+	msg := fmt.Sprintf("PUSHKEY COMPLETE %s", fingerprint)
+	jww.INFO.Printf("User %d: %s", userId, msg)
+	Send(userId, msg)
 }
