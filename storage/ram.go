@@ -76,7 +76,7 @@ func (rs RamStorage) AddValue(value string, valType ValueType,
 	}
 	_, ok = rs.KeyVal[valType][value]
 	if ! ok {
-		rs.KeyVal[valType][value] = make([]string, 1)
+		rs.KeyVal[valType][value] = make([]string, 0)
 	}
 	keyIds, _ := rs.KeyVal[valType][value]
 	keyIds = append(keyIds, keyId)
