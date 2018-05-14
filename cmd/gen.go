@@ -10,7 +10,7 @@
 
 // This program generates cmd/version_vars.go. It can be invoked by running
 // go generate
-package cmd
+package main
 
 import (
 	"bufio"
