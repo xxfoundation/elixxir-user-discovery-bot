@@ -164,3 +164,45 @@ func PushKey(userId uint64, args []string) {
 	jww.INFO.Printf("User %d: %s", userId, msg)
 	Send(userId, msg)
 }
+
+
+const GETKEY_USAGE = "GETKEY [KEYFP]"
+
+// GetKey retrieves a key based on its fingerprint
+// The GetKey command has the form GETKEY KEYFP
+// WHERE:
+//  - KEYFP - The Key Fingerprint
+// GetKey returns KEYFP IDX KEYMAT, where:
+//  - KEYFP - The Key Fingerprint
+//  - IDX - byte index of the following key material
+//  - KEYMAT - Key material in BASE64 encoding
+// It sends these messages until the entire key is transmitted.
+func GetKey(userId uint64, args []string) {
+	jww.INFO.Printf("GetKey %d:, %v", userId, args)
+	GetErr := func(msg string) {
+		Send(userId, msg)
+		Send(userId, GETKEY_USAGE)
+		jww.INFO.Printf("User %d error: %s", userId, msg)
+	}
+	if len(args) != 1 {
+		GetErr("Invalid command syntax!")
+		return
+	}
+
+	keyFp := args[0]
+
+	key, ok := DataStore.GetKey(keyFp)
+	if ! ok {
+		msg := fmt.Sprintf("GETKEY %s NOTFOUND", keyFp)
+		jww.INFO.Printf("UserId %d: %s", userId, msg)
+		Send(userId, msg)
+		return
+	}
+
+	for i := 0; i < len(key); i += 128 {
+		keymat := base64.StdEncoding.EncodeToString(key[i:i+128])
+		msg := fmt.Sprintf("GETKEY %s %d %s", keyFp, i, keymat)
+		jww.INFO.Printf("UserId %d: %s", userId, msg)
+		Send(userId, msg)
+	}
+}
