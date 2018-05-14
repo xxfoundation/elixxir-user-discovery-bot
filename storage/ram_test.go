@@ -51,7 +51,7 @@ func TestRamAddAndGetUserKey(t *testing.T) {
 	// Add key
 	err := RS.AddUserKey(userId, keyId)
 	if err != nil {
-		t.Errorf("Ram storage AddUserKey faile to add a user: %v", err)
+		t.Errorf("Ram storage AddUserKey failed to add a user: %v", err)
 	}
 	// Add duplicate
 	err2 := RS.AddUserKey(userId, keyId)
