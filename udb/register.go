@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // Registration Commands (Register, PushKey, GetKey)
-package commands
+package udb
 
 import (
 	jww "github.com/spf13/jwalterweatherman"

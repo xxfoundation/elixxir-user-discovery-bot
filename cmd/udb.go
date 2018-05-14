@@ -14,7 +14,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	client "gitlab.com/privategrity/client/api"
 	clientGlobals "gitlab.com/privategrity/client/globals"
-	"gitlab.com/privategrity/user-discovery-bot/commands"
+	"gitlab.com/privategrity/user-discovery-bot/udb"
 	"os"
 )
 
@@ -26,11 +26,6 @@ var SERVER_ADDRESS string
 
 // Message rate limit in ms (100 = 10 msg per second)
 const RATE_LIMIT = 100
-
-// The User Discovery Bot's userid & registrationn code
-// (this is global in cMix systems)
-const UDB_USERID = 13
-const UDB_NICK = "UDB"
 
 // The Session file used by UDB (hard coded)
 const UDB_SESSIONFILE = ".udb-cMix-session"
@@ -53,14 +48,14 @@ func StartBot(serverAddr string, numNodes uint) {
 	client.SetRateLimiting(uint32(RATE_LIMIT))
 
 	// Initialize the client
-	regCode := clientGlobals.UserHash(UDB_USERID)
-	userId := Init(UDB_SESSIONFILE, UDB_NICK, regCode)
+	regCode := clientGlobals.UserHash(udb.UDB_USERID)
+	userId := Init(UDB_SESSIONFILE, udb.UDB_NICK, regCode)
 
 	// Log into the server
 	Login(userId)
 
 	// Start message receiver, which parses and runs commands
-	clientGlobals.SetReceiver(commands.ReceiveMessage)
+	clientGlobals.SetReceiver(udb.ReceiveMessage)
 
 	// Block forever as a keepalive
 	quit := make(chan bool)
@@ -69,7 +64,7 @@ func StartBot(serverAddr string, numNodes uint) {
 
 // Initialize a session using the given session file and other info
 func Init(sessionFile, nick string, regCode uint64) uint64 {
-	userId := uint64(UDB_USERID)
+	userId := uint64(udb.UDB_USERID)
 
 	// We only register when the session file does not exist
 	// FIXME: this is super weird -- why have to check for a file,

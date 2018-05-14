@@ -5,18 +5,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // Wrapper for Send command
-package commands
+package udb
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
 	client "gitlab.com/privategrity/client/api"
-	clientGlobals "gitlab.com/privategrity/client/globals"
 	"gitlab.com/privategrity/crypto/format" // <-- FIXME: this is annoying, WHY?
 )
 
 // Wrap the API Send function (useful for mock tests)
 func Send(userId uint64, msg string) {
-	myId := clientGlobals.Session.GetCurrentUser().UserID
+	myId := uint64(UDB_USERID)
 	messages, err := format.NewMessage(myId, userId, msg)
 	if err != nil {
 		jww.FATAL.Panicf("Error creating message: %d, %d, %s",

@@ -6,7 +6,7 @@
 
 // Receive and parse user discovery bot messages, and run the appropriate
 // command
-package commands
+package udb
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
