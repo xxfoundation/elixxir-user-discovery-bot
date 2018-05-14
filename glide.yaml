@@ -12,3 +12,5 @@ import:
   version: ^0.0.1
   subpackages:
   - cobra
+- package: github.com/mattn/go-shellwords
+  version: master
