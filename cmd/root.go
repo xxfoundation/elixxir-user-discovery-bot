@@ -34,7 +34,10 @@ var RootCmd = &cobra.Command{
 		if !validConfig {
 			jww.WARN.Println("Invalid Config File")
 		}
-		//StartBot()
+
+		serverAddr := viper.GetString("serverAddr")
+		numNodes := uint(viper.GetInt("numNodes"))
+		StartBot(serverAddr, numNodes)
 	},
 }
 

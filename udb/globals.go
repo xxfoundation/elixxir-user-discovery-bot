@@ -4,18 +4,15 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-package commands
+package udb
 
 import (
-	"testing"
-	"gitlab.com/privategrity/crypto/format" // <-- FIXME: this is annoying, WHY?
+	"gitlab.com/privategrity/user-discovery-bot/storage"
 )
 
+// The User Discovery Bot's userid & registrationn code
+// (this is global in cMix systems)
+const UDB_USERID = 13
+const UDB_NICK = "UDB"
 
-func TestReceiveMessage(t *testing.T) {
-	msg, err := format.NewMessage(1, 2, "Hello, World!")
-	ReceiveMessage(msg[0])
-	if err != nil {
-		t.Errorf("Could not smoke test ReceiveMessage")
-	}
-}
+var DataStore storage.Storage

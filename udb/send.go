@@ -4,18 +4,28 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// Receive and parse user discovery bot messages, and run the appropriate
-// command
-package commands
+// Wrapper for Send command
+package udb
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/privategrity/crypto/cyclic" // <-- FIXME: this is annoying, WHY?
+	client "gitlab.com/privategrity/client/api"
 	"gitlab.com/privategrity/crypto/format" // <-- FIXME: this is annoying, WHY?
 )
 
-func ReceiveMessage(message format.MessageInterface) {
-	payload := message.GetPayload()
-	sender := cyclic.NewIntFromBytes(message.GetSender()).Uint64()
-	jww.INFO.Printf("Sender: %d, Receiver: %v", sender, payload)
+// Wrap the API Send function (useful for mock tests)
+func Send(userId uint64, msg string) {
+	myId := uint64(UDB_USERID)
+	messages, err := format.NewMessage(myId, userId, msg)
+	if err != nil {
+		jww.FATAL.Panicf("Error creating message: %d, %d, %s",
+			myId, userId, msg)
+	}
+
+	for i := range messages {
+		sendErr := client.Send(messages[i])
+		if sendErr != nil {
+			jww.ERROR.Printf("Error responding to %d", userId)
+		}
+	}
 }
