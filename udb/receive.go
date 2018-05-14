@@ -9,10 +9,10 @@
 package udb
 
 import (
+	shellwords "github.com/mattn/go-shellwords"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/privategrity/crypto/cyclic" // <-- FIXME: this is annoying, WHY?
 	"gitlab.com/privategrity/crypto/format" // <-- FIXME: this is annoying, WHY?
-	shellwords "github.com/mattn/go-shellwords"
 )
 
 // Parse the command and run the corresponding function

@@ -8,11 +8,11 @@
 package udb
 
 import (
+	"encoding/base64"
+	"fmt"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/privategrity/user-discovery-bot/storage"
-	"fmt"
 	"strconv"
-	"encoding/base64"
 )
 
 const REGISTER_USAGE = ("Usage: 'REGISTER [EMAIL] [email-address] " +
@@ -55,7 +55,7 @@ func Register(userId uint64, args []string) {
 
 	// Verify the key is accounted for
 	_, ok := DataStore.GetKey(keyFp)
-	if ! ok {
+	if !ok {
 		msg := fmt.Sprintf("Could not find keyFp: %s", keyFp)
 		RegErr(msg)
 		return
@@ -76,7 +76,7 @@ func Register(userId uint64, args []string) {
 }
 
 const PUSHKEY_USAGE = ("Usage: 'PUSHKEY [temp-key-id] [starting-byte-index] " +
-	"[base64-encoded-bytestream]'")
+				"[base64-encoded-bytestream]'")
 const PUSHKEY_SIZE = 256 // 2048 bits
 var tempKeys map[string][]byte = make(map[string][]byte)
 var tempKeysState map[string][]bool = make(map[string][]bool)
@@ -124,7 +124,7 @@ func PushKey(userId uint64, args []string) {
 	// Does it exist yet?
 	key, ok := tempKeys[keyId]
 	keyState, _ := tempKeysState[keyId]
-	if ! ok {
+	if !ok {
 		key = make([]byte, PUSHKEY_SIZE)
 		keyState = make([]bool, PUSHKEY_SIZE)
 	}
@@ -139,7 +139,7 @@ func PushKey(userId uint64, args []string) {
 	// Calculate how many more bytes are needed
 	missingCnt := 0
 	for i := 0; i < PUSHKEY_SIZE; i++ {
-		if ! keyState[i] {
+		if !keyState[i] {
 			missingCnt += 1
 		}
 	}

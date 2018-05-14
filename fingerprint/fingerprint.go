@@ -14,7 +14,7 @@ import (
 // Creates a fingerprint of a public key
 // NOTE: This is just a hash for now
 func Fingerprint(publicKey []byte) string {
-	h,_ := hash.NewCMixHash()
+	h, _ := hash.NewCMixHash()
 	h.Write(publicKey)
 	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }

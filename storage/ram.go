@@ -13,16 +13,16 @@ import (
 )
 
 type RamStorage struct {
-	Keys map[string][]byte // keyId -> publicKey
-	Users map[uint64]string // cMix UID -> keyId
+	Keys   map[string][]byte                 // keyId -> publicKey
+	Users  map[uint64]string                 // cMix UID -> keyId
 	KeyVal map[ValueType]map[string][]string // ValType -> search string -> keyIds
 }
 
 // Create a blank ram storage object
 func NewRamStorage() *RamStorage {
 	RS := RamStorage{
-		Keys: make(map[string][]byte),
-		Users: make(map[uint64]string),
+		Keys:   make(map[string][]byte),
+		Users:  make(map[uint64]string),
 		KeyVal: make(map[ValueType]map[string][]string),
 	}
 	// NOTE: We could init all the KeyVal maps here, but I
@@ -71,11 +71,11 @@ func (rs RamStorage) GetUserKey(userId uint64) (string, bool) {
 func (rs RamStorage) AddValue(value string, valType ValueType,
 	keyId string) error {
 	_, ok := rs.KeyVal[valType]
-	if ! ok {
+	if !ok {
 		rs.KeyVal[valType] = make(map[string][]string)
 	}
 	_, ok = rs.KeyVal[valType][value]
-	if ! ok {
+	if !ok {
 		rs.KeyVal[valType][value] = make([]string, 0)
 	}
 	keyIds, _ := rs.KeyVal[valType][value]

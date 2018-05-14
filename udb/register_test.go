@@ -6,13 +6,12 @@
 
 package udb
 
-
 import (
-	"testing"
+	"encoding/base64"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/privategrity/user-discovery-bot/storage"
 	"os"
-	"encoding/base64"
+	"testing"
 )
 
 func TestMain(m *testing.M) {
@@ -37,7 +36,7 @@ func TestRegisterHappyPath(t *testing.T) {
 	for i := range pubKeyBits {
 		bytes, _ := base64.StdEncoding.DecodeString(pubKeyBits[i])
 		for j := range bytes {
-			pubKey[j + i*128] = bytes[j]
+			pubKey[j+i*128] = bytes[j]
 		}
 	}
 
@@ -58,7 +57,7 @@ func TestRegisterHappyPath(t *testing.T) {
 
 	// Assert expected state
 	k, ok := DataStore.GetKey(fingerprint)
-	if ! ok {
+	if !ok {
 		t.Errorf("Could not retrieve key %s", fingerprint)
 	}
 	for i := range k {
@@ -68,7 +67,7 @@ func TestRegisterHappyPath(t *testing.T) {
 	}
 
 	u, ok2 := DataStore.GetUserKey(uint64(1))
-	if ! ok2 {
+	if !ok2 {
 		t.Errorf("Could not retriever user key 1!")
 	}
 	if u != fingerprint {

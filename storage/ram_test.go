@@ -21,12 +21,12 @@ func TestRamAddAndGetKey(t *testing.T) {
 	}
 	// Verify it made it
 	retKey, ok := RS.GetKey(fingerprint)
-	if ! ok {
+	if !ok {
 		t.Errorf("Ram storage error GetKey: %v", err)
 	}
 	for i := range testKey {
 		if retKey[i] != testKey[i] {
-			t.Errorf("Ram Storage cannot store and load keys at index %d - " +
+			t.Errorf("Ram Storage cannot store and load keys at index %d - "+
 				"Expected: %v, Got: %v", testKey[i], retKey[i])
 		}
 	}
@@ -61,7 +61,7 @@ func TestRamAddAndGetUserKey(t *testing.T) {
 
 	// Get Key
 	retrievedKeyId, ok := RS.GetUserKey(userId)
-	if ! ok {
+	if !ok {
 		t.Errorf("Ram storage GetUserKey could not retrieve key!")
 	}
 	if retrievedKeyId != keyId {
@@ -69,7 +69,6 @@ func TestRamAddAndGetUserKey(t *testing.T) {
 			retrievedKeyId, keyId)
 	}
 }
-
 
 func TestValueAndKeyStore(t *testing.T) {
 	RS := NewRamStorage()
@@ -81,7 +80,7 @@ func TestValueAndKeyStore(t *testing.T) {
 	}
 
 	retKeys, ok := RS.GetKeys(value, Email)
-	if ! ok {
+	if !ok {
 		t.Errorf("Ram storage could not GetKeys!")
 	}
 	if retKeys[0] != KeyId {
