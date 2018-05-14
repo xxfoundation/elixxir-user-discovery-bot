@@ -1,4 +1,4 @@
-#No config options yet
+# Sample config file for UDB
 logPath: "logfile.log"
 numNodes: 1
 serverAddr: "localhost:11420"
