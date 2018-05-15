@@ -8,9 +8,9 @@
 package udb
 
 import (
+	"fmt"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/privategrity/user-discovery-bot/storage"
-	"fmt"
 )
 
 const SEARCH_USAGE = ("Usage: 'SEARCH [EMAIL] [email-address]'")

@@ -165,7 +165,6 @@ func PushKey(userId uint64, args []string) {
 	Send(userId, msg)
 }
 
-
 const GETKEY_USAGE = "GETKEY [KEYFP]"
 
 // GetKey retrieves a key based on its fingerprint
@@ -192,7 +191,7 @@ func GetKey(userId uint64, args []string) {
 	keyFp := args[0]
 
 	key, ok := DataStore.GetKey(keyFp)
-	if ! ok {
+	if !ok {
 		msg := fmt.Sprintf("GETKEY %s NOTFOUND", keyFp)
 		jww.INFO.Printf("UserId %d: %s", userId, msg)
 		Send(userId, msg)
@@ -200,7 +199,7 @@ func GetKey(userId uint64, args []string) {
 	}
 
 	for i := 0; i < len(key); i += 128 {
-		keymat := base64.StdEncoding.EncodeToString(key[i:i+128])
+		keymat := base64.StdEncoding.EncodeToString(key[i : i+128])
 		msg := fmt.Sprintf("GETKEY %s %d %s", keyFp, i, keymat)
 		jww.INFO.Printf("UserId %d: %s", userId, msg)
 		Send(userId, msg)
