@@ -47,8 +47,12 @@ func ParseCommand(cmdMsg string) (func(uint64, []string), []string) {
 		switch args[i] {
 		case "REGISTER":
 			return Register, args[i+1:]
+		case "SEARCH":
+			return Search, args[i+1:]
 		case "PUSHKEY":
 			return PushKey, args[i+1:]
+		case "GETKEY":
+			return GetKey, args[i+1:]
 		}
 	}
 

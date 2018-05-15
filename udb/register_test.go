@@ -45,6 +45,7 @@ func TestRegisterHappyPath(t *testing.T) {
 		"PUSHKEY myKeyId 0 " + pubKeyBits[0],
 		"PUSHKEY myKeyId 128 " + pubKeyBits[1],
 		"REGISTER EMAIL rick@privategrity.com " + fingerprint,
+		"GETKEY " + fingerprint,
 	}
 
 	for i := range msgs {
