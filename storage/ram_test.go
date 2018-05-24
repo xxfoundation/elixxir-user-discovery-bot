@@ -27,7 +27,7 @@ func TestRamAddAndGetKey(t *testing.T) {
 	for i := range testKey {
 		if retKey[i] != testKey[i] {
 			t.Errorf("Ram Storage cannot store and load keys at index %d - "+
-				"Expected: %v, Got: %v", testKey[i], retKey[i])
+				"Expected: %v, Got: %v", i, testKey[i], retKey[i])
 		}
 	}
 

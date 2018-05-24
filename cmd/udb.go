@@ -25,6 +25,9 @@ var NUM_NODES uint
 // Regular globals
 var SERVER_ADDRESS string
 
+// TODO should this be configured in cobra/viper?
+var GATEWAY_ADDRESS string
+
 // Message rate limit in ms (100 = 10 msg per second)
 const RATE_LIMIT = 100
 
@@ -53,7 +56,7 @@ func StartBot(serverAddr string, numNodes uint) {
 
 	// Initialize the client
 	regCode := clientGlobals.UserHash(udb.UDB_USERID)
-	userId := Init(UDB_SESSIONFILE, udb.UDB_NICK, regCode)
+	userId := Init(UDB_SESSIONFILE, regCode)
 
 	// Log into the server
 	Login(userId)
@@ -67,7 +70,7 @@ func StartBot(serverAddr string, numNodes uint) {
 }
 
 // Initialize a session using the given session file and other info
-func Init(sessionFile, nick string, regCode uint64) uint64 {
+func Init(sessionFile string, regCode uint64) uint64 {
 	userId := uint64(udb.UDB_USERID)
 
 	// We only register when the session file does not exist
@@ -81,7 +84,8 @@ func Init(sessionFile, nick string, regCode uint64) uint64 {
 		jww.FATAL.Panicf("Could not initialize: %v", initErr)
 	}
 	if os.IsNotExist(err) {
-		userId, err = client.Register(regCode, nick, SERVER_ADDRESS, NUM_NODES)
+		userId, err = client.Register(regCode, SERVER_ADDRESS,
+			GATEWAY_ADDRESS, NUM_NODES)
 		if err != nil {
 			jww.FATAL.Panicf("Could not register: %v", err)
 		}
