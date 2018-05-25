@@ -49,14 +49,14 @@ func Search(userId uint64, args []string) {
 	keyFingerprints, ok := DataStore.GetKeys(regVal, regTypeEnum)
 	if !ok {
 		msg := fmt.Sprintf("SEARCH %s NOTFOUND", regVal)
-		jww.INFO.Printf("User %d: %s", msg)
+		jww.INFO.Printf("User %d: %s", userId, msg)
 		Send(userId, msg)
 		return
 	}
 
 	for i := range keyFingerprints {
 		msg := fmt.Sprintf("SEARCH %s FOUND %s", regVal, keyFingerprints[i])
-		jww.INFO.Printf("User %s: %s", msg)
+		jww.INFO.Printf("User %d: %s", userId, msg)
 		Send(userId, msg)
 	}
 }
