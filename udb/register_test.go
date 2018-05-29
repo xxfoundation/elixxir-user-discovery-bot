@@ -9,12 +9,22 @@ package udb
 import (
 	"encoding/base64"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/privategrity/crypto/format"
 	"gitlab.com/privategrity/user-discovery-bot/storage"
 	"os"
 	"testing"
 )
 
+type DummySender struct{}
+
+func (d DummySender) Send(messageInterface format.MessageInterface) error {
+	// do nothing
+	jww.INFO.Printf("DummySender!")
+	return nil
+}
+
 func TestMain(m *testing.M) {
+	UdbSender = DummySender{}
 	jww.SetStdoutThreshold(jww.LevelDebug)
 	os.Exit(m.Run())
 }
