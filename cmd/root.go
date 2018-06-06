@@ -8,6 +8,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
@@ -35,9 +36,17 @@ var RootCmd = &cobra.Command{
 			jww.WARN.Println("Invalid Config File")
 		}
 
-		serverAddr := viper.GetString("serverAddr")
-		numNodes := uint(viper.GetInt("numNodes"))
-		StartBot(serverAddr, numNodes)
+		gateways := viper.GetStringSlice("gateways")
+		if len(gateways) < 1 {
+			// No gateways in config file or passed via command line
+			fmt.Printf("Error: No gateway specified! Add to" +
+				" configuration file or pass via command line using -g!")
+			return
+		} else {
+			numNodes := uint(viper.GetInt("numNodes"))
+			// TODO: Temporarily only use the first gateway in the config
+			StartBot(gateways[0], numNodes)
+		}
 	},
 }
 
@@ -74,7 +83,7 @@ func init() {
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	// Default search paths
-	searchDirs := []string{}
+	var searchDirs []string
 	searchDirs = append(searchDirs, "./") // $PWD
 	// $HOME
 	home, _ := homedir.Dir()

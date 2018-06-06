@@ -23,9 +23,6 @@ import (
 var NUM_NODES uint
 
 // Regular globals
-var SERVER_ADDRESS string
-
-// TODO should this be configured in cobra/viper?
 var GATEWAY_ADDRESS string
 
 // Message rate limit in ms (100 = 10 msg per second)
@@ -38,7 +35,7 @@ const UDB_SESSIONFILE = ".udb-cMix-session"
 //  - Set up global variables
 //  - Log into the server
 //  - Start the main loop
-func StartBot(serverAddr string, numNodes uint) {
+func StartBot(gatewayAddr string, numNodes uint) {
 	jww.DEBUG.Printf("Starting User Discovery Bot...")
 
 	// Use RAM storage for now
@@ -46,7 +43,7 @@ func StartBot(serverAddr string, numNodes uint) {
 
 	// Globals we need to set
 	NUM_NODES = numNodes
-	SERVER_ADDRESS = serverAddr
+	GATEWAY_ADDRESS = gatewayAddr
 
 	// API Settings (hard coded)
 	client.DisableRatchet()              // Deprecated
@@ -84,8 +81,7 @@ func Init(sessionFile string, regCode uint64) uint64 {
 		jww.FATAL.Panicf("Could not initialize: %v", initErr)
 	}
 	if os.IsNotExist(err) {
-		userId, err = client.Register(regCode, SERVER_ADDRESS,
-			GATEWAY_ADDRESS, NUM_NODES)
+		userId, err = client.Register(regCode, GATEWAY_ADDRESS, NUM_NODES)
 		if err != nil {
 			jww.FATAL.Panicf("Could not register: %v", err)
 		}
@@ -96,5 +92,5 @@ func Init(sessionFile string, regCode uint64) uint64 {
 
 // Log into the server using the user id generated from Init
 func Login(userId uint64) {
-	client.Login(userId, SERVER_ADDRESS)
+	client.Login(userId, GATEWAY_ADDRESS)
 }
