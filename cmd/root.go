@@ -8,7 +8,6 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
@@ -38,10 +37,9 @@ var RootCmd = &cobra.Command{
 
 		gateways := viper.GetStringSlice("gateways")
 		if len(gateways) < 1 {
-			// No gateways in config file or passed via command line
-			fmt.Printf("Error: No gateway specified! Add to" +
-				" configuration file or pass via command line using -g!")
-			return
+			// No gateways in config file
+			jww.FATAL.Panicf("Error: No gateway specified! Add to" +
+				" configuration file.")
 		} else {
 			numNodes := uint(viper.GetInt("numNodes"))
 			// TODO: Temporarily only use the first gateway in the config
