@@ -1,7 +1,6 @@
 # Sample config file for UDB
 logPath: "logfile.log"
 numNodes: 1
-serverAddr: "localhost:11420"
 gateways:
     - "gateway-0.prod.cmix.rip:11420"
     - "gateway-1.prod.cmix.rip:11420"
