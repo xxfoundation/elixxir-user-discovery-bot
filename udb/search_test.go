@@ -32,5 +32,36 @@ func TestSearchHappyPath(t *testing.T) {
 		}
 		ReceiveMessage(msg)
 	}
+}
 
+// Test invalid search type
+func TestSearch_Invalid_Type(t *testing.T) {
+	fingerprint := "8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKhvcD8M="
+	msgs := []string{
+		"SEARCH INVALID test",
+		"GETKEY " + fingerprint,
+	}
+
+	for i := range msgs {
+		msg, err := NewMessage(msgs[i])
+		if err != nil {
+			t.Errorf("Error generating message: %v", err)
+		}
+		ReceiveMessage(msg)
+	}
+}
+
+// Test invalid user
+func TestSearch_Invalid_User(t *testing.T) {
+	msgs := []string{
+		"SEARCH EMAIL cat@privategrity.com",
+	}
+
+	for i := range msgs {
+		msg, err := NewMessage(msgs[i])
+		if err != nil {
+			t.Errorf("Error generating message: %v", err)
+		}
+		ReceiveMessage(msg)
+	}
 }
