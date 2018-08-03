@@ -15,8 +15,8 @@ import (
 	"strconv"
 )
 
-const REGISTER_USAGE = ("Usage: 'REGISTER [EMAIL] [email-address] " +
-	"[key-fingerprint]'")
+const REGISTER_USAGE = "Usage: 'REGISTER [EMAIL] [email-address] " +
+	"[key-fingerprint]'"
 
 // Add a user to the registry
 // The register command takes the form "REGISTER TYPE VALUE KEYID",
@@ -75,11 +75,11 @@ func Register(userId uint64, args []string) {
 	Send(userId, "REGISTRATION COMPLETE")
 }
 
-const PUSHKEY_USAGE = ("Usage: 'PUSHKEY [temp-key-id] [starting-byte-index] " +
-				"[base64-encoded-bytestream]'")
+const PUSHKEY_USAGE = "Usage: 'PUSHKEY [temp-key-id] [starting-byte-index] " +
+				"[base64-encoded-bytestream]'"
 const PUSHKEY_SIZE = 256 // 2048 bits
-var tempKeys map[string][]byte = make(map[string][]byte)
-var tempKeysState map[string][]bool = make(map[string][]bool)
+var tempKeys = make(map[string][]byte)
+var tempKeysState = make(map[string][]bool)
 
 // PushKey adds a key to the registration database and links it by fingerprint
 // The PushKey command has the form PUSHKEY KEYID IDX KEYMAT
@@ -173,7 +173,6 @@ const GETKEY_USAGE = "GETKEY [KEYFP]"
 //  - KEYFP - The Key Fingerprint
 // GetKey returns KEYFP IDX KEYMAT, where:
 //  - KEYFP - The Key Fingerprint
-//  - IDX - byte index of the following key material
 //  - KEYMAT - Key material in BASE64 encoding
 // It sends these messages until the entire key is transmitted.
 func GetKey(userId uint64, args []string) {
@@ -198,10 +197,8 @@ func GetKey(userId uint64, args []string) {
 		return
 	}
 
-	for i := 0; i < len(key); i += 128 {
-		keymat := base64.StdEncoding.EncodeToString(key[i : i+128])
-		msg := fmt.Sprintf("GETKEY %s %d %s", keyFp, i, keymat)
-		jww.INFO.Printf("UserId %d: %s", userId, msg)
-		Send(userId, msg)
-	}
+	keymat := base64.StdEncoding.EncodeToString(key)
+	msg := fmt.Sprintf("GETKEY %s %s", keyFp, keymat)
+	jww.INFO.Printf("UserId %d: %s", userId, msg)
+	Send(userId, msg)
 }
