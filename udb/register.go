@@ -11,6 +11,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/privategrity/client/parse"
 	"gitlab.com/privategrity/user-discovery-bot/storage"
 	"strconv"
 )
@@ -31,8 +32,8 @@ const REGISTER_USAGE = "Usage: 'REGISTER [EMAIL] [email-address] " +
 func Register(userId uint64, args []string) {
 	jww.INFO.Printf("Register %d: %v", userId, args)
 	RegErr := func(msg string) {
-		Send(userId, msg)
-		Send(userId, REGISTER_USAGE)
+		Send(userId, msg, parse.Type_UDB_REGISTER_RESPONSE)
+		Send(userId, REGISTER_USAGE, parse.Type_UDB_REGISTER_RESPONSE)
 		jww.INFO.Printf("User %d error: %s", userId, msg)
 	}
 	if len(args) != 3 {
@@ -72,7 +73,7 @@ func Register(userId uint64, args []string) {
 
 	jww.INFO.Printf("User %d registered successfully with %s, %s",
 		userId, regVal, keyFp)
-	Send(userId, "REGISTRATION COMPLETE")
+	Send(userId, "REGISTRATION COMPLETE", parse.Type_UDB_REGISTER_RESPONSE)
 }
 
 const PUSHKEY_USAGE = "Usage: 'PUSHKEY [temp-key-id] [starting-byte-index] " +
@@ -92,8 +93,8 @@ var tempKeysState = make(map[string][]bool)
 func PushKey(userId uint64, args []string) {
 	jww.INFO.Printf("PushKey %d:, %v", userId, args)
 	PushErr := func(msg string) {
-		Send(userId, msg)
-		Send(userId, PUSHKEY_USAGE)
+		Send(userId, msg, parse.Type_UDB_PUSH_KEY_RESPONSE)
+		Send(userId, PUSHKEY_USAGE, parse.Type_UDB_PUSH_KEY_RESPONSE)
 		jww.INFO.Printf("User %d error: %s", userId, msg)
 	}
 	if len(args) != 3 {
@@ -149,7 +150,7 @@ func PushKey(userId uint64, args []string) {
 		tempKeysState[keyId] = keyState
 		msg := fmt.Sprintf("PUSHKEY ACK NEED %d", missingCnt)
 		jww.INFO.Printf("User %d: %s", userId, msg)
-		Send(userId, msg)
+		Send(userId, msg, parse.Type_UDB_PUSH_KEY_RESPONSE)
 		return
 	}
 
@@ -162,7 +163,7 @@ func PushKey(userId uint64, args []string) {
 	}
 	msg := fmt.Sprintf("PUSHKEY COMPLETE %s", fingerprint)
 	jww.INFO.Printf("User %d: %s", userId, msg)
-	Send(userId, msg)
+	Send(userId, msg, parse.Type_UDB_PUSH_KEY_RESPONSE)
 }
 
 const GETKEY_USAGE = "GETKEY [KEYFP]"
@@ -178,8 +179,8 @@ const GETKEY_USAGE = "GETKEY [KEYFP]"
 func GetKey(userId uint64, args []string) {
 	jww.INFO.Printf("GetKey %d:, %v", userId, args)
 	GetErr := func(msg string) {
-		Send(userId, msg)
-		Send(userId, GETKEY_USAGE)
+		Send(userId, msg, parse.Type_UDB_GET_KEY_RESPONSE)
+		Send(userId, GETKEY_USAGE, parse.Type_UDB_GET_KEY_RESPONSE)
 		jww.INFO.Printf("User %d error: %s", userId, msg)
 	}
 	if len(args) != 1 {
@@ -193,12 +194,12 @@ func GetKey(userId uint64, args []string) {
 	if !ok {
 		msg := fmt.Sprintf("GETKEY %s NOTFOUND", keyFp)
 		jww.INFO.Printf("UserId %d: %s", userId, msg)
-		Send(userId, msg)
+		Send(userId, msg, parse.Type_UDB_GET_KEY_RESPONSE)
 		return
 	}
 
 	keymat := base64.StdEncoding.EncodeToString(key)
 	msg := fmt.Sprintf("GETKEY %s %s", keyFp, keymat)
 	jww.INFO.Printf("UserId %d: %s", userId, msg)
-	Send(userId, msg)
+	Send(userId, msg, parse.Type_UDB_GET_KEY_RESPONSE)
 }

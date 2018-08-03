@@ -10,10 +10,11 @@ package udb
 import (
 	"fmt"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/privategrity/client/parse"
 	"gitlab.com/privategrity/user-discovery-bot/storage"
 )
 
-const SEARCH_USAGE = ("Usage: 'SEARCH [EMAIL] [email-address]'")
+const SEARCH_USAGE = "Usage: 'SEARCH [EMAIL] [email-address]'"
 
 // Search for an entry in the database
 // The search command takes the form "SEARCH TYPE VALUE"
@@ -24,8 +25,8 @@ const SEARCH_USAGE = ("Usage: 'SEARCH [EMAIL] [email-address]'")
 func Search(userId uint64, args []string) {
 	jww.INFO.Printf("Search %d: %v", userId, args)
 	SearchErr := func(msg string) {
-		Send(userId, msg)
-		Send(userId, SEARCH_USAGE)
+		Send(userId, msg, parse.Type_UDB_SEARCH_RESPONSE)
+		Send(userId, SEARCH_USAGE, parse.Type_UDB_SEARCH_RESPONSE)
 		jww.INFO.Printf("User %d, error: %s", userId, msg)
 	}
 	if len(args) != 2 {
@@ -50,13 +51,13 @@ func Search(userId uint64, args []string) {
 	if !ok {
 		msg := fmt.Sprintf("SEARCH %s NOTFOUND", regVal)
 		jww.INFO.Printf("User %d: %s", userId, msg)
-		Send(userId, msg)
+		Send(userId, msg, parse.Type_UDB_SEARCH_RESPONSE)
 		return
 	}
 
 	for i := range keyFingerprints {
 		msg := fmt.Sprintf("SEARCH %s FOUND %s", regVal, keyFingerprints[i])
 		jww.INFO.Printf("User %d: %s", userId, msg)
-		Send(userId, msg)
+		Send(userId, msg, parse.Type_UDB_SEARCH_RESPONSE)
 	}
 }

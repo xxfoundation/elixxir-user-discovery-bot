@@ -10,6 +10,7 @@ package udb
 
 import (
 	"github.com/mattn/go-shellwords"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/privategrity/client/parse"
 	"gitlab.com/privategrity/client/switchboard"
 	"gitlab.com/privategrity/client/user"
@@ -34,7 +35,7 @@ func (s SearchListener) Hear(message *parse.Message, isHeardElsewhere bool) {
 	sender := cyclic.NewIntFromBytes(message.GetSender()).Uint64()
 	args, err := shellwords.Parse(message.GetPayload())
 	if err != nil {
-
+		jww.ERROR.Printf("Error parsing message: %s", err)
 	}
 	Search(sender, args[1:])
 }
@@ -44,7 +45,7 @@ func (s RegisterListener) Hear(message *parse.Message, isHeardElsewhere bool) {
 	sender := cyclic.NewIntFromBytes(message.GetSender()).Uint64()
 	args, err := shellwords.Parse(message.GetPayload())
 	if err != nil {
-
+		jww.ERROR.Printf("Error parsing message: %s", err)
 	}
 	Register(sender, args[1:])
 }
@@ -54,7 +55,7 @@ func (s PushKeyListener) Hear(message *parse.Message, isHeardElsewhere bool) {
 	sender := cyclic.NewIntFromBytes(message.GetSender()).Uint64()
 	args, err := shellwords.Parse(message.GetPayload())
 	if err != nil {
-
+		jww.ERROR.Printf("Error parsing message: %s", err)
 	}
 	PushKey(sender, args[1:])
 }
@@ -64,7 +65,7 @@ func (s GetKeyListener) Hear(message *parse.Message, isHeardElsewhere bool) {
 	sender := cyclic.NewIntFromBytes(message.GetSender()).Uint64()
 	args, err := shellwords.Parse(message.GetPayload())
 	if err != nil {
-
+		jww.ERROR.Printf("Error parsing message: %s", err)
 	}
 	GetKey(sender, args[1:])
 }

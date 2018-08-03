@@ -10,6 +10,7 @@ package udb
 import (
 	jww "github.com/spf13/jwalterweatherman"
 	client "gitlab.com/privategrity/client/api"
+	"gitlab.com/privategrity/client/parse"
 	"gitlab.com/privategrity/crypto/format" // <-- FIXME: this is annoying, WHY?
 )
 
@@ -31,7 +32,12 @@ func (a APISender) Send(message format.MessageInterface) error {
 var UdbSender Sender = APISender{}
 
 // Wrap the API Send function (useful for mock tests)
-func Send(userID uint64, msg string) {
+func Send(userID uint64, msg string, msgType parse.Type) {
+	// Create the message body and assign its type
+	msgBody := &parse.TypedBody{
+		Type: msgType,
+		Body: []byte(msg),
+	}
 	myID := uint64(UDB_USERID)
 	messages, err := format.NewMessage(myID, userID, msg)
 	if err != nil {
