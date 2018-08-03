@@ -129,23 +129,6 @@ func PushKey(userId uint64, args []string) {
 		keyState[j] = true
 	}
 
-	// Calculate how many more bytes are needed
-	missingCnt := 0
-	for i := 0; i < PUSHKEY_SIZE; i++ {
-		if !keyState[i] {
-			missingCnt += 1
-		}
-	}
-
-	if missingCnt != 0 {
-		tempKeys[keyId] = key
-		tempKeysState[keyId] = keyState
-		msg := fmt.Sprintf("PUSHKEY ACK NEED %d", missingCnt)
-		jww.INFO.Printf("User %d: %s", userId, msg)
-		Send(userId, msg, parse.Type_UDB_PUSH_KEY_RESPONSE)
-		return
-	}
-
 	// Add key and remove from temporary storage
 	delete(tempKeys, keyId)
 	delete(tempKeysState, keyId)
