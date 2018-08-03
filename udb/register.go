@@ -13,7 +13,6 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/privategrity/client/parse"
 	"gitlab.com/privategrity/user-discovery-bot/storage"
-	"strconv"
 )
 
 const REGISTER_USAGE = "Usage: 'REGISTER [EMAIL] [email-address] " +
@@ -34,7 +33,7 @@ func Register(userId uint64, args []string) {
 	RegErr := func(msg string) {
 		Send(userId, msg, parse.Type_UDB_REGISTER_RESPONSE)
 		Send(userId, REGISTER_USAGE, parse.Type_UDB_REGISTER_RESPONSE)
-		jww.INFO.Printf("User %d error: %s", userId, msg)
+		jww.INFO.Printf("Register user %d error: %s", userId, msg)
 	}
 	if len(args) != 3 {
 		RegErr("Invalid command syntax!")
@@ -76,49 +75,42 @@ func Register(userId uint64, args []string) {
 	Send(userId, "REGISTRATION COMPLETE", parse.Type_UDB_REGISTER_RESPONSE)
 }
 
-const PUSHKEY_USAGE = "Usage: 'PUSHKEY [temp-key-id] [starting-byte-index] " +
+const PUSHKEY_USAGE = "Usage: 'PUSHKEY [temp-key-id] " +
 				"[base64-encoded-bytestream]'"
 const PUSHKEY_SIZE = 256 // 2048 bits
 var tempKeys = make(map[string][]byte)
 var tempKeysState = make(map[string][]bool)
 
 // PushKey adds a key to the registration database and links it by fingerprint
-// The PushKey command has the form PUSHKEY KEYID IDX KEYMAT
+// The PushKey command has the form PUSHKEY KEYID KEYMAT
 // WHERE:
 //  - KEYID = The Key ID -- not the same as the fingerprint
-//  - IDX = byte index of the key
 //  - KEYMAT = The part of the key corresponding to that index, in BASE64
 // PushKey returns an ACK that it received the command OR a success/failure
 // once it receives all pieces of the key.
 func PushKey(userId uint64, args []string) {
-	jww.INFO.Printf("PushKey %d:, %v", userId, args)
+	jww.INFO.Printf("PushKey %d, %v", userId, args)
 	PushErr := func(msg string) {
 		Send(userId, msg, parse.Type_UDB_PUSH_KEY_RESPONSE)
 		Send(userId, PUSHKEY_USAGE, parse.Type_UDB_PUSH_KEY_RESPONSE)
-		jww.INFO.Printf("User %d error: %s", userId, msg)
+		jww.INFO.Printf("PushKey user %d error: %s", userId, msg)
 	}
-	if len(args) != 3 {
+	if len(args) != 2 {
 		PushErr("Invalid command syntax!")
 		return
 	}
 
 	keyId := args[0]
-	keyIdxStr := args[1]
-	keyMat := args[2]
+	keyMat := args[1]
+	keyIdx := 0
 
 	// Decode keyMat
 	// FIXME: Not sure I like having to base64 stuff here, but it's this or hex
 	// Maybe add suppor to client for these pubkey conversions?
 	newKeyBytes, decErr := base64.StdEncoding.DecodeString(keyMat)
 	if decErr != nil {
-		PushErr("Could not decode new key bytes, it must be in base64!")
-		return
-	}
-
-	// Parse index
-	keyIdx, pErr := strconv.Atoi(keyIdxStr)
-	if pErr != nil || keyIdx < 0 || (keyIdx+len(newKeyBytes)) > PUSHKEY_SIZE {
-		PushErr("Invalid key index!")
+		PushErr(fmt.Sprintf("Could not decode new key bytes, "+
+			"it must be in base64! %s", decErr))
 		return
 	}
 
