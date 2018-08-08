@@ -67,7 +67,7 @@ func StartBot(gatewayAddr string, numNodes uint) {
 
 // Initialize a session using the given session file and other info
 func Init(sessionFile string, regCode string) user.ID {
-	userId := user.ID(udb.UDB_USERID)
+	userId := udb.UDB_USERID
 
 	// We only register when the session file does not exist
 	// FIXME: this is super weird -- why have to check for a file,
