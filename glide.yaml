@@ -1,7 +1,7 @@
 package: gitlab.com/privategrity/user-discovery-bot
 import:
 - package: gitlab.com/privategrity/client
-  version: master
+  version: feature/invoice
   repo: git@gitlab.com:privategrity/client
   vcs: git
 - package: gitlab.com/privategrity/crypto

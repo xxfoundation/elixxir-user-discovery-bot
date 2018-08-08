@@ -14,6 +14,5 @@ import (
 // The User Discovery Bot's userid & registrationn code
 // (this is global in cMix systems)
 const UDB_USERID = user.ID(13)
-const UDB_NICK = "UDB"
 
 var DataStore storage.Storage
