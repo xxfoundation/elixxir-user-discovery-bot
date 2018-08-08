@@ -36,14 +36,14 @@ func (a APISender) Send(recipientID user.ID, msg string) error {
 var UdbSender Sender = APISender{}
 
 // Wrap the API Send function (useful for mock tests)
-func Send(recipientID uint64, msg string, msgType parse.Type) {
+func Send(recipientID user.ID, msg string, msgType parse.Type) {
 	// Create the message body and assign its type
 	message := string(parse.Pack(&parse.TypedBody{
 		Type: msgType,
 		Body: []byte(msg),
 	}))
 	// Send the message
-	sendErr := UdbSender.Send(user.ID(recipientID), message)
+	sendErr := UdbSender.Send(recipientID, message)
 	if sendErr != nil {
 		jww.ERROR.Printf("Error responding to %d: %s", recipientID, sendErr)
 	}

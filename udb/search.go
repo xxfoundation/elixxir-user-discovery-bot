@@ -11,6 +11,7 @@ import (
 	"fmt"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/privategrity/client/parse"
+	"gitlab.com/privategrity/client/user"
 	"gitlab.com/privategrity/user-discovery-bot/storage"
 )
 
@@ -22,7 +23,7 @@ const SEARCH_USAGE = "Usage: 'SEARCH [EMAIL] [email-address]'"
 // - TYPE = EMAIL
 // - VALUE = "rick@privategrity.com"
 // It returns a list of fingerprints if found (1 per message), or NOTFOUND
-func Search(userId uint64, args []string) {
+func Search(userId user.ID, args []string) {
 	jww.INFO.Printf("Search %d: %v", userId, args)
 	SearchErr := func(msg string) {
 		Send(userId, msg, parse.Type_UDB_SEARCH_RESPONSE)

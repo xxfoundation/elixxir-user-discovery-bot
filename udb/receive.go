@@ -37,7 +37,7 @@ func (s SearchListener) Hear(message *parse.Message, isHeardElsewhere bool) {
 	if err != nil {
 		jww.ERROR.Printf("Error parsing message: %s", err)
 	}
-	Search(sender, args[1:])
+	Search(user.ID(sender), args[1:])
 }
 
 // Listen for Register Messages
@@ -47,7 +47,7 @@ func (s RegisterListener) Hear(message *parse.Message, isHeardElsewhere bool) {
 	if err != nil {
 		jww.ERROR.Printf("Error parsing message: %s", err)
 	}
-	Register(sender, args[1:])
+	Register(user.ID(sender), args[1:])
 }
 
 // Listen for PushKey Messages
@@ -57,7 +57,7 @@ func (s PushKeyListener) Hear(message *parse.Message, isHeardElsewhere bool) {
 	if err != nil {
 		jww.ERROR.Printf("Error parsing message: %s", err)
 	}
-	PushKey(sender, args[1:])
+	PushKey(user.ID(sender), args[1:])
 }
 
 // Listen for GetKey Messages
@@ -67,5 +67,5 @@ func (s GetKeyListener) Hear(message *parse.Message, isHeardElsewhere bool) {
 	if err != nil {
 		jww.ERROR.Printf("Error parsing message: %s", err)
 	}
-	GetKey(sender, args[1:])
+	GetKey(user.ID(sender), args[1:])
 }

@@ -7,6 +7,7 @@
 package storage
 
 import (
+	"gitlab.com/privategrity/client/user"
 	"testing"
 )
 
@@ -47,7 +48,7 @@ func TestRamAddAndGetKey(t *testing.T) {
 func TestRamAddAndGetUserKey(t *testing.T) {
 	RS := NewRamStorage()
 	keyId := "This is my keyId"
-	userId := uint64(1337)
+	userId := user.ID(1337)
 	// Add key
 	err := RS.AddUserKey(userId, keyId)
 	if err != nil {

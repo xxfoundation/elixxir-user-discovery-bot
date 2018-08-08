@@ -81,7 +81,7 @@ func TestRegisterHappyPath(t *testing.T) {
 		}
 	}
 
-	u, ok2 := DataStore.GetUserKey(uint64(0))
+	u, ok2 := DataStore.GetUserKey(user.ID(0))
 	if !ok2 {
 		t.Errorf("Could not retrieve user key 1!")
 	}
@@ -119,7 +119,7 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 			t.Errorf("Data store key 8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh should" +
 				" not exist!")
 		}
-		_, ok2 := DataStore.GetUserKey(uint64(1))
+		_, ok2 := DataStore.GetUserKey(user.ID(1))
 		if ok2 {
 			t.Errorf("Data store user 1 should not exist!")
 		}
