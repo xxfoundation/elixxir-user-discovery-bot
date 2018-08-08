@@ -102,7 +102,6 @@ func PushKey(userId uint64, args []string) {
 
 	keyId := args[0]
 	keyMat := args[1]
-	keyIdx := 0
 
 	// Decode keyMat
 	// FIXME: Not sure I like having to base64 stuff here, but it's this or hex
@@ -124,9 +123,8 @@ func PushKey(userId uint64, args []string) {
 
 	// Update temporary storage
 	for i := range newKeyBytes {
-		j := keyIdx + i
-		key[j] = newKeyBytes[i]
-		keyState[j] = true
+		key[i] = newKeyBytes[i]
+		keyState[i] = true
 	}
 
 	// Add key and remove from temporary storage
