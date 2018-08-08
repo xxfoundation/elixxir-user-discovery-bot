@@ -9,7 +9,8 @@ package udb
 import (
 	"encoding/base64"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/privategrity/crypto/format"
+	"gitlab.com/privategrity/client/parse"
+	"gitlab.com/privategrity/client/user"
 	"gitlab.com/privategrity/user-discovery-bot/storage"
 	"os"
 	"testing"
@@ -17,10 +18,25 @@ import (
 
 type DummySender struct{}
 
-func (d DummySender) Send(messageInterface format.MessageInterface) error {
+var rl = RegisterListener{}
+var sl = SearchListener{}
+var pl = PushKeyListener{}
+var gl = GetKeyListener{}
+
+func (d DummySender) Send(recipientID user.ID, msg string) error {
 	// do nothing
 	jww.INFO.Printf("DummySender!")
 	return nil
+}
+
+// Hack around the interface for client to do what we need for testing.
+func NewMessage(msg string, msgType parse.Type) *parse.Message {
+	// Create the message body and assign its type
+	tmp := parse.TypedBody{
+		Type: msgType,
+		Body: []byte(msg),
+	}
+	return &parse.Message{TypedBody: tmp}
 }
 
 func TestMain(m *testing.M) {
@@ -34,37 +50,25 @@ func TestMain(m *testing.M) {
 //       not sure how I feel about it.
 func TestRegisterHappyPath(t *testing.T) {
 	DataStore = storage.NewRamStorage()
-	pubKeyBits := []string{
-		"S8KXBczy0jins9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNz" +
-			"LU7a+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClp" +
-			"q4H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY4=",
-		"8Lg/eoeKGgPlleTYfO3JyGfnwBtLi73ti0h2dBQWW94JTqTQDr+z" +
-			"xVpLzdgTt+87TkAl0yXu9mOUXqGJ+51lTcRlIdIpWpfgUbibdRme8IThg0RNCF31ESKCts" +
-			"o8gJ8mSVljIXxrC+Uuoi+Gl1LNN5nPARykatx0Y70xNdJd2BQ=",
-	}
+	pubKeyBits := "S8KXBczy0jins9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNzLU7a" +
+		"+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClpq4H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY7wuD96h4oaA+WV5Nh87cnIZ+fAG0uLve2LSHZ0FBZb3glOpNAOv7PFWkvN2BO37ztOQCXTJe72Y5ReoYn7nWVNxGUh0ilal+BRuJt1GZ7whOGDRE0IXfURIoK2yjyAnyZJWWMhfGsL5S6iL4aXUs03mc8BHKRq3HRjvTE10l3YFA=="
+
 	pubKey := make([]byte, 256)
-	for i := range pubKeyBits {
-		bytes, _ := base64.StdEncoding.DecodeString(pubKeyBits[i])
-		for j := range bytes {
-			pubKey[j+i*128] = bytes[j]
-		}
-	}
+	pubKey, _ = base64.StdEncoding.DecodeString(pubKeyBits)
 
 	fingerprint := "8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKhvcD8M="
 	msgs := []string{
-		"PUSHKEY myKeyId 0 " + pubKeyBits[0],
-		"PUSHKEY myKeyId 128 " + pubKeyBits[1],
+		"PUSHKEY myKeyId " + pubKeyBits,
 		"REGISTER EMAIL rick@privategrity.com " + fingerprint,
 		"GETKEY " + fingerprint,
 	}
 
-	for i := range msgs {
-		msg, err := NewMessage(msgs[i])
-		if err != nil {
-			t.Errorf("Error generating message: %v", err)
-		}
-		ReceiveMessage(msg)
-	}
+	msg := NewMessage(msgs[0], parse.Type_UDB_PUSH_KEY)
+	pl.Hear(msg, false)
+	msg = NewMessage(msgs[1], parse.Type_UDB_REGISTER)
+	rl.Hear(msg, false)
+	msg = NewMessage(msgs[2], parse.Type_UDB_GET_KEY)
+	gl.Hear(msg, false)
 
 	// Assert expected state
 	k, ok := DataStore.GetKey(fingerprint)
@@ -77,9 +81,9 @@ func TestRegisterHappyPath(t *testing.T) {
 		}
 	}
 
-	u, ok2 := DataStore.GetUserKey(uint64(1))
+	u, ok2 := DataStore.GetUserKey(user.ID(0))
 	if !ok2 {
-		t.Errorf("Could not retriever user key 1!")
+		t.Errorf("Could not retrieve user key 1!")
 	}
 	if u != fingerprint {
 		t.Errorf("GetUserKey fingerprint mismatch: %s v %s", u, fingerprint)
@@ -90,7 +94,7 @@ func TestRegisterHappyPath(t *testing.T) {
 		t.Errorf("Could not retrieve by e-mail address!")
 	}
 	if ks[0] != fingerprint {
-		t.Errorf("GetKeys fingerprint mismatch: %v v %s", ks, fingerprint)
+		t.Errorf("GetKeys fingerprint mismatch: %v v %s", ks[0], fingerprint)
 	}
 }
 
@@ -104,18 +108,18 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 			"vcD8M=",
 	}
 
-	for i := range msgs {
-		msg, err := NewMessage(msgs[i])
-		if err != nil {
-			t.Errorf("Error generating message: %v", err)
-		}
-		ReceiveMessage(msg)
+	msg := NewMessage(msgs[0], parse.Type_UDB_PUSH_KEY)
+	pl.Hear(msg, false)
+
+	for i := 1; i < len(msgs); i++ {
+		msg = NewMessage(msgs[i], parse.Type_UDB_REGISTER)
+		rl.Hear(msg, false)
 		_, ok := DataStore.GetKey("8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh")
 		if ok {
 			t.Errorf("Data store key 8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh should" +
 				" not exist!")
 		}
-		_, ok2 := DataStore.GetUserKey(uint64(1))
+		_, ok2 := DataStore.GetUserKey(user.ID(1))
 		if ok2 {
 			t.Errorf("Data store user 1 should not exist!")
 		}

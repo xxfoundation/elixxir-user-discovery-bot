@@ -9,12 +9,13 @@ package storage
 
 import (
 	"fmt"
+	"gitlab.com/privategrity/client/user"
 	"gitlab.com/privategrity/user-discovery-bot/fingerprint"
 )
 
 type RamStorage struct {
 	Keys   map[string][]byte                 // keyId -> publicKey
-	Users  map[uint64]string                 // cMix UID -> keyId
+	Users  map[user.ID]string                // cMix UID -> keyId
 	KeyVal map[ValueType]map[string][]string // ValType -> search string -> keyIds
 }
 
@@ -22,7 +23,7 @@ type RamStorage struct {
 func NewRamStorage() *RamStorage {
 	RS := RamStorage{
 		Keys:   make(map[string][]byte),
-		Users:  make(map[uint64]string),
+		Users:  make(map[user.ID]string),
 		KeyVal: make(map[ValueType]map[string][]string),
 	}
 	// NOTE: We could init all the KeyVal maps here, but I
@@ -52,7 +53,7 @@ func (rs RamStorage) GetKey(keyId string) ([]byte, bool) {
 }
 
 // AddUserKey - Add a user id to keyId (not used in high security)
-func (rs RamStorage) AddUserKey(userId uint64, keyId string) error {
+func (rs RamStorage) AddUserKey(userId user.ID, keyId string) error {
 	_, ok := rs.Users[userId]
 	if ok {
 		return fmt.Errorf("UserId already exists: %d", userId)
@@ -62,7 +63,7 @@ func (rs RamStorage) AddUserKey(userId uint64, keyId string) error {
 }
 
 // GetUserKey - Get a user's keyId (not used in high security)
-func (rs RamStorage) GetUserKey(userId uint64) (string, bool) {
+func (rs RamStorage) GetUserKey(userId user.ID) (string, bool) {
 	keyId, ok := rs.Users[userId]
 	return keyId, ok
 }

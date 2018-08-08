@@ -9,52 +9,63 @@
 package udb
 
 import (
-	shellwords "github.com/mattn/go-shellwords"
+	"github.com/mattn/go-shellwords"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/privategrity/crypto/cyclic" // <-- FIXME: this is annoying, WHY?
-	"gitlab.com/privategrity/crypto/format" // <-- FIXME: this is annoying, WHY?
+	"gitlab.com/privategrity/client/parse"
+	"gitlab.com/privategrity/client/switchboard"
+	"gitlab.com/privategrity/client/user"
+	"gitlab.com/privategrity/crypto/cyclic"
 )
 
-// Parse the command and run the corresponding function
-func ReceiveMessage(message format.MessageInterface) {
-	payload := message.GetPayload()
+type SearchListener struct{}
+type RegisterListener struct{}
+type PushKeyListener struct{}
+type GetKeyListener struct{}
+
+// Register the UDB listeners
+func init() {
+	switchboard.Listeners.Register(user.ID(0), parse.Type_UDB_SEARCH, SearchListener{})
+	switchboard.Listeners.Register(user.ID(0), parse.Type_UDB_REGISTER, RegisterListener{})
+	switchboard.Listeners.Register(user.ID(0), parse.Type_UDB_PUSH_KEY, PushKeyListener{})
+	switchboard.Listeners.Register(user.ID(0), parse.Type_UDB_GET_KEY, GetKeyListener{})
+}
+
+// Listen for Search Messages
+func (s SearchListener) Hear(message *parse.Message, isHeardElsewhere bool) {
 	sender := cyclic.NewIntFromBytes(message.GetSender()).Uint64()
-
-	// Parse the command and run the returned function
-	cmdFn, args := ParseCommand(payload)
-
-	cmdFn(sender, args)
-}
-
-// Respond to the sender that the command does not exist
-func UnknownCommand(userId uint64, args []string) {
-	// 1 argument, the exact command string send to the function
-	jww.WARN.Printf("Received Unknown Command from %d: %s", userId, args[0])
-	msg := "Unknown Command: " + args[0]
-	Send(userId, msg)
-}
-
-// ParseCommand parses the message payload and return the function with it's
-// arguments
-func ParseCommand(cmdMsg string) (func(uint64, []string), []string) {
-	jww.INFO.Printf("Received Command to Parse: %s", cmdMsg)
-	args, err := shellwords.Parse(cmdMsg)
+	args, err := shellwords.Parse(message.GetPayload())
 	if err != nil {
-		return UnknownCommand, []string{"Received error while parsing command: ",
-			cmdMsg, err.Error()}
+		jww.ERROR.Printf("Error parsing message: %s", err)
 	}
-	for i := range args {
-		switch args[i] {
-		case "REGISTER":
-			return Register, args[i+1:]
-		case "SEARCH":
-			return Search, args[i+1:]
-		case "PUSHKEY":
-			return PushKey, args[i+1:]
-		case "GETKEY":
-			return GetKey, args[i+1:]
-		}
-	}
+	Search(user.ID(sender), args[1:])
+}
 
-	return UnknownCommand, []string{cmdMsg}
+// Listen for Register Messages
+func (s RegisterListener) Hear(message *parse.Message, isHeardElsewhere bool) {
+	sender := cyclic.NewIntFromBytes(message.GetSender()).Uint64()
+	args, err := shellwords.Parse(message.GetPayload())
+	if err != nil {
+		jww.ERROR.Printf("Error parsing message: %s", err)
+	}
+	Register(user.ID(sender), args[1:])
+}
+
+// Listen for PushKey Messages
+func (s PushKeyListener) Hear(message *parse.Message, isHeardElsewhere bool) {
+	sender := cyclic.NewIntFromBytes(message.GetSender()).Uint64()
+	args, err := shellwords.Parse(message.GetPayload())
+	if err != nil {
+		jww.ERROR.Printf("Error parsing message: %s", err)
+	}
+	PushKey(user.ID(sender), args[1:])
+}
+
+// Listen for GetKey Messages
+func (s GetKeyListener) Hear(message *parse.Message, isHeardElsewhere bool) {
+	sender := cyclic.NewIntFromBytes(message.GetSender()).Uint64()
+	args, err := shellwords.Parse(message.GetPayload())
+	if err != nil {
+		jww.ERROR.Printf("Error parsing message: %s", err)
+	}
+	GetKey(user.ID(sender), args[1:])
 }
