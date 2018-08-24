@@ -79,7 +79,7 @@ func Init(sessionFile string, regCode string) user.ID {
 		jww.FATAL.Panicf("Could not initialize: %v", initErr)
 	}
 	if os.IsNotExist(err) {
-		userId, err = client.Register(regCode, GATEWAY_ADDRESS, NUM_NODES)
+		userId, err = client.Register(regCode, GATEWAY_ADDRESS, NUM_NODES, false)
 		if err != nil {
 			jww.FATAL.Panicf("Could not register: %v", err)
 		}
