@@ -7,12 +7,12 @@
 package udb
 
 import (
-	"gitlab.com/privategrity/client/user"
 	"gitlab.com/privategrity/user-discovery-bot/storage"
+	"gitlab.com/privategrity/crypto/id"
 )
 
 // The User Discovery Bot's userid & registrationn code
 // (this is global in cMix systems)
-const UDB_USERID = user.ID(13)
+var UDB_USERID = new(id.UserID).SetUints(&[4]uint64{0, 0, 0, 13})
 
 var DataStore storage.Storage

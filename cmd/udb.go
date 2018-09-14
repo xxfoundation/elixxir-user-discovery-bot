@@ -14,10 +14,10 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	client "gitlab.com/privategrity/client/api"
 	clientGlobals "gitlab.com/privategrity/client/globals"
-	"gitlab.com/privategrity/client/user"
 	"gitlab.com/privategrity/user-discovery-bot/storage"
 	"gitlab.com/privategrity/user-discovery-bot/udb"
 	"os"
+	"gitlab.com/privategrity/crypto/id"
 )
 
 // FIXME: Remove
@@ -66,7 +66,7 @@ func StartBot(gatewayAddr string, numNodes uint) {
 }
 
 // Initialize a session using the given session file and other info
-func Init(sessionFile string, regCode string) user.ID {
+func Init(sessionFile string, regCode string) *id.UserID {
 	userId := udb.UDB_USERID
 
 	// We only register when the session file does not exist
@@ -89,6 +89,6 @@ func Init(sessionFile string, regCode string) user.ID {
 }
 
 // Log into the server using the user id generated from Init
-func Login(userId user.ID) {
+func Login(userId *id.UserID) {
 	client.Login(userId, GATEWAY_ADDRESS)
 }

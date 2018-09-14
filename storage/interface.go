@@ -7,7 +7,9 @@
 // Interface and enums for UDB storage systems
 package storage
 
-import "gitlab.com/privategrity/client/user"
+import (
+	"gitlab.com/privategrity/crypto/id"
+)
 
 // The ValueType constant stores the allowable types we search on
 // (e-mail, group, nickname, etc).
@@ -31,9 +33,9 @@ type Storage interface {
 	//       At this time we can't do a high-security version because
 	//       we lack the anonymous return receipts.
 	// AddUserKey - Add a user id to keyId (not used in high security)
-	AddUserKey(userId user.ID, keyId string) error
+	AddUserKey(userId *id.UserID, keyId string) error
 	// GetUserKey - Get a user's keyId (not used in high security)
-	GetUserKey(userId user.ID) (string, bool)
+	GetUserKey(userId *id.UserID) (string, bool)
 
 	// AddValue - Add a searchable value (e-mail, nickname, etc)
 	AddValue(value string, valType ValueType, keyId string) error

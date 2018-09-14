@@ -11,9 +11,9 @@ import (
 	"encoding/base64"
 	"fmt"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/privategrity/client/parse"
-	"gitlab.com/privategrity/client/user"
 	"gitlab.com/privategrity/user-discovery-bot/storage"
+	"gitlab.com/privategrity/crypto/id"
+	"gitlab.com/privategrity/client/cmixproto"
 )
 
 const REGISTER_USAGE = "Usage: 'REGISTER [EMAIL] [email-address] " +
@@ -29,11 +29,11 @@ const REGISTER_USAGE = "Usage: 'REGISTER [EMAIL] [email-address] " +
 // The user ID is taken from the sender at this time, this will need to change
 // when a registrar comes online.
 // Registration fails if the KEYID is not already pushed and confirmed.
-func Register(userId user.ID, args []string) {
+func Register(userId *id.UserID, args []string) {
 	jww.INFO.Printf("Register %d: %v", userId, args)
 	RegErr := func(msg string) {
-		Send(userId, msg, parse.Type_UDB_REGISTER_RESPONSE)
-		Send(userId, REGISTER_USAGE, parse.Type_UDB_REGISTER_RESPONSE)
+		Send(userId, msg, cmixproto.Type_UDB_REGISTER_RESPONSE)
+		Send(userId, REGISTER_USAGE, cmixproto.Type_UDB_REGISTER_RESPONSE)
 		jww.INFO.Printf("Register user %d error: %s", userId, msg)
 	}
 	if len(args) != 3 {
@@ -73,11 +73,11 @@ func Register(userId user.ID, args []string) {
 
 	jww.INFO.Printf("User %d registered successfully with %s, %s",
 		userId, regVal, keyFp)
-	Send(userId, "REGISTRATION COMPLETE", parse.Type_UDB_REGISTER_RESPONSE)
+	Send(userId, "REGISTRATION COMPLETE", cmixproto.Type_UDB_REGISTER_RESPONSE)
 }
 
 const PUSHKEY_USAGE = "Usage: 'PUSHKEY [temp-key-id] " +
-				"[base64-encoded-bytestream]'"
+	"[base64-encoded-bytestream]'"
 const PUSHKEY_SIZE = 256 // 2048 bits
 var tempKeys = make(map[string][]byte)
 var tempKeysState = make(map[string][]bool)
@@ -89,11 +89,11 @@ var tempKeysState = make(map[string][]bool)
 //  - KEYMAT = The part of the key corresponding to that index, in BASE64
 // PushKey returns an ACK that it received the command OR a success/failure
 // once it receives all pieces of the key.
-func PushKey(userId user.ID, args []string) {
+func PushKey(userId *id.UserID, args []string) {
 	jww.INFO.Printf("PushKey %d, %v", userId, args)
 	PushErr := func(msg string) {
-		Send(userId, msg, parse.Type_UDB_PUSH_KEY_RESPONSE)
-		Send(userId, PUSHKEY_USAGE, parse.Type_UDB_PUSH_KEY_RESPONSE)
+		Send(userId, msg, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)
+		Send(userId, PUSHKEY_USAGE, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)
 		jww.INFO.Printf("PushKey user %d error: %s", userId, msg)
 	}
 	if len(args) != 2 {
@@ -137,7 +137,7 @@ func PushKey(userId user.ID, args []string) {
 	}
 	msg := fmt.Sprintf("PUSHKEY COMPLETE %s", fingerprint)
 	jww.INFO.Printf("User %d: %s", userId, msg)
-	Send(userId, msg, parse.Type_UDB_PUSH_KEY_RESPONSE)
+	Send(userId, msg, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)
 }
 
 const GETKEY_USAGE = "GETKEY [KEYFP]"
@@ -150,11 +150,11 @@ const GETKEY_USAGE = "GETKEY [KEYFP]"
 //  - KEYFP - The Key Fingerprint
 //  - KEYMAT - Key material in BASE64 encoding
 // It sends these messages until the entire key is transmitted.
-func GetKey(userId user.ID, args []string) {
+func GetKey(userId *id.UserID, args []string) {
 	jww.INFO.Printf("GetKey %d:, %v", userId, args)
 	GetErr := func(msg string) {
-		Send(userId, msg, parse.Type_UDB_GET_KEY_RESPONSE)
-		Send(userId, GETKEY_USAGE, parse.Type_UDB_GET_KEY_RESPONSE)
+		Send(userId, msg, cmixproto.Type_UDB_GET_KEY_RESPONSE)
+		Send(userId, GETKEY_USAGE, cmixproto.Type_UDB_GET_KEY_RESPONSE)
 		jww.INFO.Printf("User %d error: %s", userId, msg)
 	}
 	if len(args) != 1 {
@@ -168,12 +168,12 @@ func GetKey(userId user.ID, args []string) {
 	if !ok {
 		msg := fmt.Sprintf("GETKEY %s NOTFOUND", keyFp)
 		jww.INFO.Printf("UserId %d: %s", userId, msg)
-		Send(userId, msg, parse.Type_UDB_GET_KEY_RESPONSE)
+		Send(userId, msg, cmixproto.Type_UDB_GET_KEY_RESPONSE)
 		return
 	}
 
 	keymat := base64.StdEncoding.EncodeToString(key)
 	msg := fmt.Sprintf("GETKEY %s %s", keyFp, keymat)
 	jww.INFO.Printf("UserId %d: %s", userId, msg)
-	Send(userId, msg, parse.Type_UDB_GET_KEY_RESPONSE)
+	Send(userId, msg, cmixproto.Type_UDB_GET_KEY_RESPONSE)
 }
