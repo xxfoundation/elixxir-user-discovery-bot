@@ -38,7 +38,7 @@ func init() {
 func (s SearchListener) Hear(message *parse.Message, isHeardElsewhere bool) {
 	sender := message.GetSender()
 	if sender != nil {
-		args, err := shellwords.Parse(message.GetPayload())
+		args, err := shellwords.Parse(string(message.GetPayload()))
 		if err != nil {
 			jww.ERROR.Printf("Error parsing message: %s", err)
 		}
@@ -50,7 +50,7 @@ func (s SearchListener) Hear(message *parse.Message, isHeardElsewhere bool) {
 func (s RegisterListener) Hear(message *parse.Message, isHeardElsewhere bool) {
 	sender := message.GetSender()
 	if sender != nil {
-		args, err := shellwords.Parse(message.GetPayload())
+		args, err := shellwords.Parse(string(message.GetPayload()))
 		if err != nil {
 			jww.ERROR.Printf("Error parsing message: %s", err)
 		}
@@ -62,7 +62,7 @@ func (s RegisterListener) Hear(message *parse.Message, isHeardElsewhere bool) {
 func (s PushKeyListener) Hear(message *parse.Message, isHeardElsewhere bool) {
 	sender := message.GetSender()
 	if sender != nil {
-		args, err := shellwords.Parse(message.GetPayload())
+		args, err := shellwords.Parse(string(message.GetPayload()))
 		if err != nil {
 			jww.ERROR.Printf("Error parsing message: %s", err)
 		}
@@ -74,7 +74,7 @@ func (s PushKeyListener) Hear(message *parse.Message, isHeardElsewhere bool) {
 func (s GetKeyListener) Hear(message *parse.Message, isHeardElsewhere bool) {
 	sender := message.GetSender()
 	if sender != nil {
-		args, err := shellwords.Parse(message.GetPayload())
+		args, err := shellwords.Parse(string(message.GetPayload()))
 		if err != nil {
 			jww.ERROR.Printf("Error parsing message: %s", err)
 		}

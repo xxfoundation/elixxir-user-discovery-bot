@@ -27,7 +27,7 @@ type APISender struct{}
 // Send calls the api send function
 func (a APISender) Send(recipientID *id.UserID, msg string) error {
 	return api.Send(api.APIMessage{
-		Payload:     msg,
+		Payload:     []byte(msg),
 		SenderID:    UDB_USERID,
 		RecipientID: recipientID,
 	})
