@@ -10,9 +10,9 @@ package udb
 import (
 	"fmt"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/privategrity/client/parse"
-	"gitlab.com/privategrity/client/user"
 	"gitlab.com/privategrity/user-discovery-bot/storage"
+	"gitlab.com/privategrity/crypto/id"
+	"gitlab.com/privategrity/client/cmixproto"
 )
 
 const SEARCH_USAGE = "Usage: 'SEARCH [EMAIL] [email-address]'"
@@ -23,11 +23,11 @@ const SEARCH_USAGE = "Usage: 'SEARCH [EMAIL] [email-address]'"
 // - TYPE = EMAIL
 // - VALUE = "rick@privategrity.com"
 // It returns a list of fingerprints if found (1 per message), or NOTFOUND
-func Search(userId user.ID, args []string) {
+func Search(userId *id.UserID, args []string) {
 	jww.INFO.Printf("Search %d: %v", userId, args)
 	SearchErr := func(msg string) {
-		Send(userId, msg, parse.Type_UDB_SEARCH_RESPONSE)
-		Send(userId, SEARCH_USAGE, parse.Type_UDB_SEARCH_RESPONSE)
+		Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
+		Send(userId, SEARCH_USAGE, cmixproto.Type_UDB_SEARCH_RESPONSE)
 		jww.INFO.Printf("User %d, error: %s", userId, msg)
 	}
 	if len(args) != 2 {
@@ -52,13 +52,13 @@ func Search(userId user.ID, args []string) {
 	if !ok {
 		msg := fmt.Sprintf("SEARCH %s NOTFOUND", regVal)
 		jww.INFO.Printf("User %d: %s", userId, msg)
-		Send(userId, msg, parse.Type_UDB_SEARCH_RESPONSE)
+		Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
 		return
 	}
 
 	for i := range keyFingerprints {
 		msg := fmt.Sprintf("SEARCH %s FOUND %s", regVal, keyFingerprints[i])
 		jww.INFO.Printf("User %d: %s", userId, msg)
-		Send(userId, msg, parse.Type_UDB_SEARCH_RESPONSE)
+		Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
 	}
 }

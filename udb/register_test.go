@@ -10,10 +10,11 @@ import (
 	"encoding/base64"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/privategrity/client/parse"
-	"gitlab.com/privategrity/client/user"
 	"gitlab.com/privategrity/user-discovery-bot/storage"
 	"os"
 	"testing"
+	"gitlab.com/privategrity/crypto/id"
+	"gitlab.com/privategrity/client/cmixproto"
 )
 
 type DummySender struct{}
@@ -23,20 +24,24 @@ var sl = SearchListener{}
 var pl = PushKeyListener{}
 var gl = GetKeyListener{}
 
-func (d DummySender) Send(recipientID user.ID, msg string) error {
+func (d DummySender) Send(recipientID *id.UserID, msg string) error {
 	// do nothing
 	jww.INFO.Printf("DummySender!")
 	return nil
 }
 
 // Hack around the interface for client to do what we need for testing.
-func NewMessage(msg string, msgType parse.Type) *parse.Message {
+func NewMessage(msg string, msgType cmixproto.Type) *parse.Message {
 	// Create the message body and assign its type
 	tmp := parse.TypedBody{
 		Type: msgType,
 		Body: []byte(msg),
 	}
-	return &parse.Message{TypedBody: tmp}
+	return &parse.Message{
+		TypedBody: tmp,
+		Sender:    id.ZeroID,
+		Receiver:  id.ZeroID,
+	}
 }
 
 func TestMain(m *testing.M) {
@@ -63,11 +68,11 @@ func TestRegisterHappyPath(t *testing.T) {
 		"GETKEY " + fingerprint,
 	}
 
-	msg := NewMessage(msgs[0], parse.Type_UDB_PUSH_KEY)
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY)
 	pl.Hear(msg, false)
-	msg = NewMessage(msgs[1], parse.Type_UDB_REGISTER)
+	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER)
 	rl.Hear(msg, false)
-	msg = NewMessage(msgs[2], parse.Type_UDB_GET_KEY)
+	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY)
 	gl.Hear(msg, false)
 
 	// Assert expected state
@@ -81,7 +86,7 @@ func TestRegisterHappyPath(t *testing.T) {
 		}
 	}
 
-	u, ok2 := DataStore.GetUserKey(user.ID(0))
+	u, ok2 := DataStore.GetUserKey(id.ZeroID)
 	if !ok2 {
 		t.Errorf("Could not retrieve user key 1!")
 	}
@@ -108,18 +113,18 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 			"vcD8M=",
 	}
 
-	msg := NewMessage(msgs[0], parse.Type_UDB_PUSH_KEY)
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY)
 	pl.Hear(msg, false)
 
 	for i := 1; i < len(msgs); i++ {
-		msg = NewMessage(msgs[i], parse.Type_UDB_REGISTER)
+		msg = NewMessage(msgs[i], cmixproto.Type_UDB_REGISTER)
 		rl.Hear(msg, false)
 		_, ok := DataStore.GetKey("8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh")
 		if ok {
 			t.Errorf("Data store key 8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh should" +
 				" not exist!")
 		}
-		_, ok2 := DataStore.GetUserKey(user.ID(1))
+		_, ok2 := DataStore.GetUserKey(id.NewUserIDFromUint(1,t))
 		if ok2 {
 			t.Errorf("Data store user 1 should not exist!")
 		}

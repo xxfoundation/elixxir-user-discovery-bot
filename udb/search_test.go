@@ -7,9 +7,9 @@
 package udb
 
 import (
-	"gitlab.com/privategrity/client/parse"
 	"gitlab.com/privategrity/user-discovery-bot/storage"
 	"testing"
+	"gitlab.com/privategrity/client/cmixproto"
 )
 
 func TestSearchHappyPath(t *testing.T) {
@@ -24,7 +24,7 @@ func TestSearchHappyPath(t *testing.T) {
 		"SEARCH EMAIL rick@privategrity.com",
 	}
 
-	msg := NewMessage(msgs[0], parse.Type_UDB_SEARCH)
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH)
 	sl.Hear(msg, false)
 }
 
@@ -36,7 +36,7 @@ func TestSearch_Invalid_Type(t *testing.T) {
 		"GETKEY " + fingerprint,
 	}
 
-	msg := NewMessage(msgs[0], parse.Type_UDB_SEARCH)
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH)
 	sl.Hear(msg, false)
 }
 
@@ -47,6 +47,6 @@ func TestSearch_Invalid_User(t *testing.T) {
 		"SEARCH EMAIL cat@privategrity.com",
 	}
 
-	msg := NewMessage(msgs[0], parse.Type_UDB_SEARCH)
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH)
 	sl.Hear(msg, false)
 }
