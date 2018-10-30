@@ -1,11 +1,11 @@
 package: gitlab.com/privategrity/user-discovery-bot
 import:
 - package: gitlab.com/privategrity/client
-  version: new-bindings
+  version: master
   repo: git@gitlab.com:privategrity/client
   vcs: git
 - package: gitlab.com/privategrity/crypto
-  version: userid-migration
+  version: master
   repo: git@gitlab.com:privategrity/crypto
   vcs: git
 - package: github.com/spf13/cobra
