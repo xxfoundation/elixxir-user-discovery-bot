@@ -21,7 +21,7 @@ func TestSearchHappyPath(t *testing.T) {
 	// TODO: Monkeypatch send so we can verify? -- this is tested in integration,
 	//       so.. low priority.
 	msgs := []string{
-		"SEARCH EMAIL rick@privategrity.com",
+		"SEARCH EMAIL rick@elixxir.io",
 	}
 
 	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH)
@@ -44,7 +44,7 @@ func TestSearch_Invalid_Type(t *testing.T) {
 func TestSearch_Invalid_User(t *testing.T) {
 	DataStore = storage.NewRamStorage()
 	msgs := []string{
-		"SEARCH EMAIL cat@privategrity.com",
+		"SEARCH EMAIL cat@elixxir.io",
 	}
 
 	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH)

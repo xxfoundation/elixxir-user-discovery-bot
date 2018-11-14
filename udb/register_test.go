@@ -64,7 +64,7 @@ func TestRegisterHappyPath(t *testing.T) {
 	fingerprint := "8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKhvcD8M="
 	msgs := []string{
 		"PUSHKEY myKeyId " + pubKeyBits,
-		"REGISTER EMAIL rick@privategrity.com " + fingerprint,
+		"REGISTER EMAIL rick@elixxir.io " + fingerprint,
 		"GETKEY " + fingerprint,
 	}
 
@@ -94,7 +94,7 @@ func TestRegisterHappyPath(t *testing.T) {
 		t.Errorf("GetUserKey fingerprint mismatch: %s v %s", u, fingerprint)
 	}
 
-	ks, ok3 := DataStore.GetKeys("rick@privategrity.com", storage.Email)
+	ks, ok3 := DataStore.GetKeys("rick@elixxir.io", storage.Email)
 	if !ok3 {
 		t.Errorf("Could not retrieve by e-mail address!")
 	}
@@ -109,7 +109,7 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 		"PUSHKEY garbage doiandga daoinaosf adsoifn dsaoifa",
 		"REGISTER NOTEMAIL something something",
 		"REGISTER EMAIL garbage this is a garbage",
-		"REGISTER EMAIL rick@privategrity 8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh" +
+		"REGISTER EMAIL rick@elixxir 8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh" +
 			"vcD8M=",
 	}
 
@@ -128,9 +128,9 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 		if ok2 {
 			t.Errorf("Data store user 1 should not exist!")
 		}
-		_, ok3 := DataStore.GetKeys("rick@privategrity.com", storage.Email)
+		_, ok3 := DataStore.GetKeys("rick@elixxir.io", storage.Email)
 		if ok3 {
-			t.Errorf("Data store value rick@privategrity.com should not exist!")
+			t.Errorf("Data store value rick@elixxir.io should not exist!")
 		}
 	}
 }

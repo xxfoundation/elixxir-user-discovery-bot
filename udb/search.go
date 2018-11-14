@@ -21,7 +21,7 @@ const SEARCH_USAGE = "Usage: 'SEARCH [EMAIL] [email-address]'"
 // The search command takes the form "SEARCH TYPE VALUE"
 // WHERE:
 // - TYPE = EMAIL
-// - VALUE = "rick@privategrity.com"
+// - VALUE = "rick@elixxir.io"
 // It returns a list of fingerprints if found (1 per message), or NOTFOUND
 func Search(userId *id.UserID, args []string) {
 	jww.INFO.Printf("Search %d: %v", userId, args)

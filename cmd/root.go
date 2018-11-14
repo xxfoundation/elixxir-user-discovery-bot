@@ -85,9 +85,9 @@ func initConfig() {
 	searchDirs = append(searchDirs, "./") // $PWD
 	// $HOME
 	home, _ := homedir.Dir()
-	searchDirs = append(searchDirs, home+"/.privategrity/")
-	// /etc/privategrity
-	searchDirs = append(searchDirs, "/etc/privategrity")
+	searchDirs = append(searchDirs, home+"/.elixxir/")
+	// /etc/elixxir
+	searchDirs = append(searchDirs, "/etc/elixxir")
 	jww.DEBUG.Printf("Configuration search directories: %v", searchDirs)
 
 	validConfig = false

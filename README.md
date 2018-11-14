@@ -1,4 +1,4 @@
-# privategrity/user-discovery-bot
+# elixxir/user-discovery-bot
 
 [![pipeline status](https://gitlab.com/elixxir/user-discovery-bot/badges/master/pipeline.svg)](https://gitlab.com/elixxir/user-discovery-bot/commits/master)
 [![coverage report](https://gitlab.com/elixxir/user-discovery-bot/badges/master/coverage.svg)](https://gitlab.com/elixxir/user-discovery-bot/commits/master)

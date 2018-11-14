@@ -23,7 +23,7 @@ const REGISTER_USAGE = "Usage: 'REGISTER [EMAIL] [email-address] " +
 // The register command takes the form "REGISTER TYPE VALUE KEYID",
 // WHERE:
 //  - TYPE = EMAIL (and later others, maybe)
-//  - VALUE = "rick@privategrity.com"
+//  - VALUE = "rick@elixxir.io"
 //  - KEYFP = the key fingerprint
 //
 // The user ID is taken from the sender at this time, this will need to change
