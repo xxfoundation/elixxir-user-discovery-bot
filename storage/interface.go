@@ -8,7 +8,7 @@
 package storage
 
 import (
-	"gitlab.com/privategrity/crypto/id"
+	"gitlab.com/elixxir/crypto/id"
 )
 
 // The ValueType constant stores the allowable types we search on

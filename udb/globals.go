@@ -7,8 +7,8 @@
 package udb
 
 import (
-	"gitlab.com/privategrity/user-discovery-bot/storage"
-	"gitlab.com/privategrity/crypto/id"
+	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"gitlab.com/elixxir/crypto/id"
 )
 
 // The User Discovery Bot's userid & registrationn code

@@ -8,7 +8,7 @@ package fingerprint
 
 import (
 	"encoding/base64"
-	"gitlab.com/privategrity/crypto/hash"
+	"gitlab.com/elixxir/crypto/hash"
 )
 
 // Creates a fingerprint of a public key

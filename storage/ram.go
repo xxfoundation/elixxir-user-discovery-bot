@@ -9,8 +9,8 @@ package storage
 
 import (
 	"fmt"
-	"gitlab.com/privategrity/user-discovery-bot/fingerprint"
-	"gitlab.com/privategrity/crypto/id"
+	"gitlab.com/elixxir/user-discovery-bot/fingerprint"
+	"gitlab.com/elixxir/crypto/id"
 )
 
 type RamStorage struct {

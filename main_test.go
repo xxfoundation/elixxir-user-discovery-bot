@@ -10,7 +10,7 @@ import (
 	"os/exec"
 	"testing"
 
-	"gitlab.com/privategrity/user-discovery-bot/cmd"
+	"gitlab.com/elixxir/user-discovery-bot/cmd"
 )
 
 // Smoke test for main

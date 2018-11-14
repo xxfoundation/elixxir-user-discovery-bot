@@ -12,12 +12,12 @@ package cmd
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
-	client "gitlab.com/privategrity/client/api"
-	clientGlobals "gitlab.com/privategrity/client/globals"
-	"gitlab.com/privategrity/user-discovery-bot/storage"
-	"gitlab.com/privategrity/user-discovery-bot/udb"
+	client "gitlab.com/elixxir/client/api"
+	clientGlobals "gitlab.com/elixxir/client/globals"
+	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"gitlab.com/elixxir/user-discovery-bot/udb"
 	"os"
-	"gitlab.com/privategrity/crypto/id"
+	"gitlab.com/elixxir/crypto/id"
 )
 
 // FIXME: Remove

@@ -9,12 +9,12 @@ package udb
 import (
 	"encoding/base64"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/privategrity/client/parse"
-	"gitlab.com/privategrity/user-discovery-bot/storage"
+	"gitlab.com/elixxir/client/parse"
+	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"os"
 	"testing"
-	"gitlab.com/privategrity/crypto/id"
-	"gitlab.com/privategrity/client/cmixproto"
+	"gitlab.com/elixxir/crypto/id"
+	"gitlab.com/elixxir/client/cmixproto"
 )
 
 type DummySender struct{}

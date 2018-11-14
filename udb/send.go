@@ -9,10 +9,10 @@ package udb
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/privategrity/client/api"
-	"gitlab.com/privategrity/client/parse"
-	"gitlab.com/privategrity/crypto/id"
-	"gitlab.com/privategrity/client/cmixproto"
+	"gitlab.com/elixxir/client/api"
+	"gitlab.com/elixxir/client/parse"
+	"gitlab.com/elixxir/crypto/id"
+	"gitlab.com/elixxir/client/cmixproto"
 )
 
 // Sender interface -- the api is broken here (does not return the error), so

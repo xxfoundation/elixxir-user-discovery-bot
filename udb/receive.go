@@ -11,10 +11,10 @@ package udb
 import (
 	"github.com/mattn/go-shellwords"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/privategrity/client/parse"
-	"gitlab.com/privategrity/client/switchboard"
-	"gitlab.com/privategrity/crypto/id"
-	"gitlab.com/privategrity/client/cmixproto"
+	"gitlab.com/elixxir/client/parse"
+	"gitlab.com/elixxir/client/switchboard"
+	"gitlab.com/elixxir/crypto/id"
+	"gitlab.com/elixxir/client/cmixproto"
 )
 
 type SearchListener struct{}

@@ -11,9 +11,9 @@ import (
 	"encoding/base64"
 	"fmt"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/privategrity/user-discovery-bot/storage"
-	"gitlab.com/privategrity/crypto/id"
-	"gitlab.com/privategrity/client/cmixproto"
+	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"gitlab.com/elixxir/crypto/id"
+	"gitlab.com/elixxir/client/cmixproto"
 )
 
 const REGISTER_USAGE = "Usage: 'REGISTER [EMAIL] [email-address] " +
