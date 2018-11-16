@@ -21,7 +21,7 @@ func TestSearchHappyPath(t *testing.T) {
 	// TODO: Monkeypatch send so we can verify? -- this is tested in integration,
 	//       so.. low priority.
 	msgs := []string{
-		"SEARCH EMAIL rick@elixxir.io",
+		"EMAIL rick@elixxir.io",
 	}
 
 	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH)
