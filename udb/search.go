@@ -9,10 +9,10 @@ package udb
 
 import (
 	"fmt"
-	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/crypto/id"
 	"gitlab.com/elixxir/client/cmixproto"
+	"encoding/base64"
 )
 
 const SEARCH_USAGE = "Usage: 'SEARCH [EMAIL] [email-address]'"
@@ -24,11 +24,11 @@ const SEARCH_USAGE = "Usage: 'SEARCH [EMAIL] [email-address]'"
 // - VALUE = "rick@elixxir.io"
 // It returns a list of fingerprints if found (1 per message), or NOTFOUND
 func Search(userId *id.UserID, args []string) {
-	jww.INFO.Printf("Search %d: %v", userId, args)
+	Log.INFO.Printf("Search %d: %v", userId, args)
 	SearchErr := func(msg string) {
 		Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
 		Send(userId, SEARCH_USAGE, cmixproto.Type_UDB_SEARCH_RESPONSE)
-		jww.INFO.Printf("User %d, error: %s", userId, msg)
+		Log.INFO.Printf("User %d, error: %s", userId, msg)
 	}
 	if len(args) != 2 {
 		SearchErr("Invalid command syntax!")
@@ -51,14 +51,15 @@ func Search(userId *id.UserID, args []string) {
 	keyFingerprints, ok := DataStore.GetKeys(regVal, regTypeEnum)
 	if !ok {
 		msg := fmt.Sprintf("SEARCH %s NOTFOUND", regVal)
-		jww.INFO.Printf("User %d: %s", userId, msg)
+		Log.INFO.Printf("User %d: %s", userId, msg)
 		Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
 		return
 	}
 
 	for i := range keyFingerprints {
-		msg := fmt.Sprintf("SEARCH %s FOUND %s", regVal, keyFingerprints[i])
-		jww.INFO.Printf("User %d: %s", userId, msg)
+		msg := fmt.Sprintf("SEARCH %s FOUND %s %s", regVal,
+			base64.StdEncoding.EncodeToString(userId[:]), keyFingerprints[i])
+		Log.INFO.Printf("User %d: %s", userId, msg)
 		Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
 	}
 }

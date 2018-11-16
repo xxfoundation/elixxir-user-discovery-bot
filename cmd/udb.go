@@ -11,7 +11,6 @@
 package cmd
 
 import (
-	jww "github.com/spf13/jwalterweatherman"
 	client "gitlab.com/elixxir/client/api"
 	clientGlobals "gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
@@ -37,7 +36,7 @@ const UDB_SESSIONFILE = ".udb-cMix-session"
 //  - Log into the server
 //  - Start the main loop
 func StartBot(gatewayAddr string, numNodes uint) {
-	jww.DEBUG.Printf("Starting User Discovery Bot...")
+	udb.Log.DEBUG.Printf("Starting User Discovery Bot...")
 
 	// Use RAM storage for now
 	udb.DataStore = storage.NewRamStorage()
@@ -55,10 +54,15 @@ func StartBot(gatewayAddr string, numNodes uint) {
 	regCode := udb.UDB_USERID.RegistrationCode()
 	userId := Init(UDB_SESSIONFILE, regCode)
 
+	// Register the listeners with the user discovery bot
+	udb.RegisterListeners()
+
 	// Log into the server
 	Login(userId)
 
-	// TODO Set up message listeners to handle commands as they come in
+	// TEMPORARILY try starting the reception thread here instead-it seems to
+	// not be starting?
+	//go io.Messaging.MessageReceiver(time.Second)
 
 	// Block forever as a keepalive
 	quit := make(chan bool)
@@ -76,13 +80,16 @@ func Init(sessionFile string, regCode string) *id.UserID {
 	// Init regardless, wow this is broken...
 	initErr := client.InitClient(&clientGlobals.DefaultStorage{}, sessionFile)
 	if initErr != nil {
-		jww.FATAL.Panicf("Could not initialize: %v", initErr)
+		udb.Log.FATAL.Panicf("Could not initialize: %v", initErr)
 	}
-	if os.IsNotExist(err) {
-		userId, err = client.Register(regCode, GATEWAY_ADDRESS, NUM_NODES, false)
-		if err != nil {
-			jww.FATAL.Panicf("Could not register: %v", err)
-		}
+	// SB: Trying to always register.
+	// I think it's needed for some things to work correctly.
+	// Need a more accurate descriptor of what the method actually does than
+	// Register, or to remove the things that aren't actually used for
+	// registration.
+	userId, err = client.Register(regCode, GATEWAY_ADDRESS, NUM_NODES, false)
+	if err != nil {
+		udb.Log.FATAL.Panicf("Could not register: %v", err)
 	}
 
 	return userId

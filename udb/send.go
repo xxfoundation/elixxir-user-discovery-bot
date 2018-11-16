@@ -8,7 +8,6 @@
 package udb
 
 import (
-	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/parse"
 	"gitlab.com/elixxir/crypto/id"
@@ -46,6 +45,6 @@ func Send(recipientID *id.UserID, msg string, msgType cmixproto.Type) {
 	// Send the message
 	sendErr := UdbSender.Send(recipientID, message)
 	if sendErr != nil {
-		jww.ERROR.Printf("Error responding to %d: %s", recipientID, sendErr)
+		Log.ERROR.Printf("Error responding to %d: %s", recipientID, sendErr)
 	}
 }
