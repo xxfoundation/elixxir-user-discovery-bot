@@ -39,8 +39,8 @@ func NewMessage(msg string, msgType cmixproto.Type) *parse.Message {
 	}
 	return &parse.Message{
 		TypedBody: tmp,
-		Sender:    id.ZeroID,
-		Receiver:  id.ZeroID,
+		Sender:    new(id.UserID).SetUints(&[4]uint64{0, 0, 0, 4}),
+		Receiver:  new(id.UserID).SetUints(&[4]uint64{0, 0, 0, 13}),
 	}
 }
 
@@ -63,9 +63,9 @@ func TestRegisterHappyPath(t *testing.T) {
 
 	fingerprint := "8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKhvcD8M="
 	msgs := []string{
-		"PUSHKEY myKeyId " + pubKeyBits,
-		"REGISTER EMAIL rick@elixxir.io " + fingerprint,
-		"GETKEY " + fingerprint,
+		"myKeyId " + pubKeyBits,
+		"EMAIL rick@elixxir.io " + fingerprint,
+		fingerprint,
 	}
 
 	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY)
@@ -86,7 +86,7 @@ func TestRegisterHappyPath(t *testing.T) {
 		}
 	}
 
-	u, ok2 := DataStore.GetUserKey(id.ZeroID)
+	u, ok2 := DataStore.GetUserKey(id.NewUserIDFromUint(4, t))
 	if !ok2 {
 		t.Errorf("Could not retrieve user key 1!")
 	}
@@ -124,7 +124,7 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 			t.Errorf("Data store key 8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh should" +
 				" not exist!")
 		}
-		_, ok2 := DataStore.GetUserKey(id.NewUserIDFromUint(1,t))
+		_, ok2 := DataStore.GetUserKey(id.NewUserIDFromUint(1, t))
 		if ok2 {
 			t.Errorf("Data store user 1 should not exist!")
 		}

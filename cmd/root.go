@@ -13,6 +13,8 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"os"
+	"gitlab.com/elixxir/user-discovery-bot/udb"
+	"fmt"
 )
 
 var cfgFile string
@@ -32,13 +34,13 @@ var RootCmd = &cobra.Command{
 			return
 		}
 		if !validConfig {
-			jww.WARN.Println("Invalid Config File")
+			udb.Log.WARN.Println("Invalid Config File")
 		}
 
 		gateways := viper.GetStringSlice("gateways")
 		if len(gateways) < 1 {
 			// No gateways in config file
-			jww.FATAL.Panicf("Error: No gateway specified! Add to" +
+			udb.Log.FATAL.Panicf("Error: No gateway specified! Add to" +
 				" configuration file.")
 		} else {
 			numNodes := uint(viper.GetInt("numNodes"))
@@ -53,7 +55,7 @@ var RootCmd = &cobra.Command{
 // happen once to the RootCmd.
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
-		jww.ERROR.Println(err)
+		udb.Log.ERROR.Println(err)
 		os.Exit(1)
 	}
 }
@@ -61,6 +63,7 @@ func Execute() {
 // init is the initialization function for Cobra which defines commands
 // and flags.
 func init() {
+	udb.Log.DEBUG.Print("Printing log from init")
 	// NOTE: The point of init() is to be declarative.
 	// There is one init in each sub command. Do not put variable declarations
 	// here, and ensure all the Flags are of the *P variety, unless there's a
@@ -88,7 +91,7 @@ func initConfig() {
 	searchDirs = append(searchDirs, home+"/.elixxir/")
 	// /etc/elixxir
 	searchDirs = append(searchDirs, "/etc/elixxir")
-	jww.DEBUG.Printf("Configuration search directories: %v", searchDirs)
+	udb.Log.DEBUG.Printf("Configuration search directories: %v", searchDirs)
 
 	validConfig = false
 	for i := range searchDirs {
@@ -104,7 +107,8 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err != nil {
-		jww.WARN.Printf("Unable to read config file (%s): %s", cfgFile, err.Error())
+		udb.Log.WARN.Printf("Unable to read config file (%s): %s", cfgFile,
+			err.Error())
 		validConfig = false
 	}
 
@@ -115,19 +119,20 @@ func initLog() {
 	if viper.Get("logPath") != nil {
 		// If verbose flag set then log more info for debugging
 		if verbose || viper.GetBool("verbose") {
-			jww.SetLogThreshold(jww.LevelDebug)
-			jww.SetStdoutThreshold(jww.LevelDebug)
+			fmt.Printf("Logging verbosely\n")
+			udb.Log.SetLogThreshold(jww.LevelDebug)
+			udb.Log.SetStdoutThreshold(jww.LevelDebug)
 		} else {
-			jww.SetLogThreshold(jww.LevelInfo)
-			jww.SetStdoutThreshold(jww.LevelInfo)
+			udb.Log.SetLogThreshold(jww.LevelInfo)
+			udb.Log.SetStdoutThreshold(jww.LevelInfo)
 		}
 		// Create log file, overwrites if existing
 		logPath := viper.GetString("logPath")
 		logFile, err := os.Create(logPath)
 		if err != nil {
-			jww.WARN.Println("Invalid or missing log path, default path used.")
+			udb.Log.WARN.Println("Invalid or missing log path, default path used.")
 		} else {
-			jww.SetLogOutput(logFile)
+			udb.Log.SetLogOutput(logFile)
 		}
 	}
 }

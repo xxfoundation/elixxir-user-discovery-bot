@@ -10,11 +10,11 @@ package udb
 
 import (
 	"github.com/mattn/go-shellwords"
-	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/client/parse"
 	"gitlab.com/elixxir/client/switchboard"
 	"gitlab.com/elixxir/crypto/id"
 	"gitlab.com/elixxir/client/cmixproto"
+	"gitlab.com/elixxir/client/api"
 )
 
 type SearchListener struct{}
@@ -23,61 +23,66 @@ type PushKeyListener struct{}
 type GetKeyListener struct{}
 
 // Register the UDB listeners
-func init() {
-	switchboard.Listeners.Register(id.ZeroID, cmixproto.Type_UDB_SEARCH,
-		SearchListener{})
-	switchboard.Listeners.Register(id.ZeroID, cmixproto.Type_UDB_REGISTER,
-		RegisterListener{})
-	switchboard.Listeners.Register(id.ZeroID, cmixproto.Type_UDB_PUSH_KEY,
-		PushKeyListener{})
-	switchboard.Listeners.Register(id.ZeroID, cmixproto.Type_UDB_GET_KEY,
-		GetKeyListener{})
+func RegisterListeners() {
+	Log.DEBUG.Println("Registering UDB listeners")
+	api.Listen(id.ZeroID, cmixproto.Type_UDB_SEARCH, SearchListener{}, switchboard.Listeners)
+	api.Listen(id.ZeroID, cmixproto.Type_UDB_REGISTER, RegisterListener{}, switchboard.Listeners)
+	api.Listen(id.ZeroID, cmixproto.Type_UDB_PUSH_KEY, PushKeyListener{}, switchboard.Listeners)
+	api.Listen(id.ZeroID, cmixproto.Type_UDB_GET_KEY, GetKeyListener{}, switchboard.Listeners)
 }
 
 // Listen for Search Messages
 func (s SearchListener) Hear(message *parse.Message, isHeardElsewhere bool) {
+	Log.DEBUG.Printf("SearchListener heard message from %q to %q: %q",
+		*message.GetSender(), *message.GetRecipient(), message.GetPayload())
 	sender := message.GetSender()
 	if sender != nil {
 		args, err := shellwords.Parse(string(message.GetPayload()))
 		if err != nil {
-			jww.ERROR.Printf("Error parsing message: %s", err)
+			Log.ERROR.Printf("Error parsing message: %s", err)
 		}
-		Search(sender, args[1:])
+		Search(sender, args)
 	}
 }
 
 // Listen for Register Messages
 func (s RegisterListener) Hear(message *parse.Message, isHeardElsewhere bool) {
+	Log.DEBUG.Printf("RegisterListener heard message from %q to %q: %q",
+		*message.GetSender(), *message.GetRecipient(), message.GetPayload())
 	sender := message.GetSender()
 	if sender != nil {
 		args, err := shellwords.Parse(string(message.GetPayload()))
 		if err != nil {
-			jww.ERROR.Printf("Error parsing message: %s", err)
+			Log.ERROR.Printf("Error parsing message: %s", err)
 		}
-		Register(sender, args[1:])
+		Register(sender, args)
 	}
 }
 
 // Listen for PushKey Messages
 func (s PushKeyListener) Hear(message *parse.Message, isHeardElsewhere bool) {
+	Log.DEBUG.Printf("PushKeyListener heard message from %q to %q: %q",
+		*message.GetSender(), *message.GetRecipient(), message.GetPayload())
 	sender := message.GetSender()
 	if sender != nil {
 		args, err := shellwords.Parse(string(message.GetPayload()))
 		if err != nil {
-			jww.ERROR.Printf("Error parsing message: %s", err)
+			Log.ERROR.Printf("Error parsing message: %s", err)
 		}
-		PushKey(sender, args[1:])
+		PushKey(sender, args)
 	}
 }
 
 // Listen for GetKey Messages
 func (s GetKeyListener) Hear(message *parse.Message, isHeardElsewhere bool) {
+	Log.DEBUG.Printf("GetKeyListener heard message from %q to %q: %q",
+		*message.GetSender(), *message.GetRecipient(), message.GetPayload())
 	sender := message.GetSender()
 	if sender != nil {
 		args, err := shellwords.Parse(string(message.GetPayload()))
 		if err != nil {
-			jww.ERROR.Printf("Error parsing message: %s", err)
+			Log.ERROR.Printf("Error parsing message: %s", err)
 		}
-		GetKey(sender, args[1:])
+		GetKey(sender, args)
 	}
 }

@@ -10,7 +10,6 @@ package udb
 import (
 	"encoding/base64"
 	"fmt"
-	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/crypto/id"
 	"gitlab.com/elixxir/client/cmixproto"
@@ -30,11 +29,11 @@ const REGISTER_USAGE = "Usage: 'REGISTER [EMAIL] [email-address] " +
 // when a registrar comes online.
 // Registration fails if the KEYID is not already pushed and confirmed.
 func Register(userId *id.UserID, args []string) {
-	jww.INFO.Printf("Register %d: %v", userId, args)
+	Log.DEBUG.Printf("Register %d: %v", userId, args)
 	RegErr := func(msg string) {
 		Send(userId, msg, cmixproto.Type_UDB_REGISTER_RESPONSE)
 		Send(userId, REGISTER_USAGE, cmixproto.Type_UDB_REGISTER_RESPONSE)
-		jww.INFO.Printf("Register user %d error: %s", userId, msg)
+		Log.INFO.Printf("Register user %d error: %s", userId, msg)
 	}
 	if len(args) != 3 {
 		RegErr("Invalid command syntax!")
@@ -71,7 +70,7 @@ func Register(userId *id.UserID, args []string) {
 		RegErr(err.Error())
 	}
 
-	jww.INFO.Printf("User %d registered successfully with %s, %s",
+	Log.INFO.Printf("User %d registered successfully with %s, %s",
 		userId, regVal, keyFp)
 	Send(userId, "REGISTRATION COMPLETE", cmixproto.Type_UDB_REGISTER_RESPONSE)
 }
@@ -85,16 +84,16 @@ var tempKeysState = make(map[string][]bool)
 // PushKey adds a key to the registration database and links it by fingerprint
 // The PushKey command has the form PUSHKEY KEYID KEYMAT
 // WHERE:
-//  - KEYID = The Key ID -- not the same as the fingerprint
+//  - KEYID = The Key ID -- not necessarily the same as the fingerprint
 //  - KEYMAT = The part of the key corresponding to that index, in BASE64
 // PushKey returns an ACK that it received the command OR a success/failure
 // once it receives all pieces of the key.
 func PushKey(userId *id.UserID, args []string) {
-	jww.INFO.Printf("PushKey %d, %v", userId, args)
+	Log.DEBUG.Printf("PushKey %d, %v", userId, args)
 	PushErr := func(msg string) {
 		Send(userId, msg, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)
 		Send(userId, PUSHKEY_USAGE, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)
-		jww.INFO.Printf("PushKey user %d error: %s", userId, msg)
+		Log.INFO.Printf("PushKey user %d error: %s", userId, msg)
 	}
 	if len(args) != 2 {
 		PushErr("Invalid command syntax!")
@@ -136,7 +135,7 @@ func PushKey(userId *id.UserID, args []string) {
 		PushErr(err.Error())
 	}
 	msg := fmt.Sprintf("PUSHKEY COMPLETE %s", fingerprint)
-	jww.INFO.Printf("User %d: %s", userId, msg)
+	Log.DEBUG.Printf("User %d: %s", userId, msg)
 	Send(userId, msg, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)
 }
 
@@ -151,11 +150,11 @@ const GETKEY_USAGE = "GETKEY [KEYFP]"
 //  - KEYMAT - Key material in BASE64 encoding
 // It sends these messages until the entire key is transmitted.
 func GetKey(userId *id.UserID, args []string) {
-	jww.INFO.Printf("GetKey %d:, %v", userId, args)
+	Log.DEBUG.Printf("GetKey %d:, %v", userId, args)
 	GetErr := func(msg string) {
 		Send(userId, msg, cmixproto.Type_UDB_GET_KEY_RESPONSE)
 		Send(userId, GETKEY_USAGE, cmixproto.Type_UDB_GET_KEY_RESPONSE)
-		jww.INFO.Printf("User %d error: %s", userId, msg)
+		Log.INFO.Printf("User %d error: %s", userId, msg)
 	}
 	if len(args) != 1 {
 		GetErr("Invalid command syntax!")
@@ -167,13 +166,13 @@ func GetKey(userId *id.UserID, args []string) {
 	key, ok := DataStore.GetKey(keyFp)
 	if !ok {
 		msg := fmt.Sprintf("GETKEY %s NOTFOUND", keyFp)
-		jww.INFO.Printf("UserId %d: %s", userId, msg)
+		Log.INFO.Printf("UserId %d: %s", userId, msg)
 		Send(userId, msg, cmixproto.Type_UDB_GET_KEY_RESPONSE)
 		return
 	}
 
 	keymat := base64.StdEncoding.EncodeToString(key)
 	msg := fmt.Sprintf("GETKEY %s %s", keyFp, keymat)
-	jww.INFO.Printf("UserId %d: %s", userId, msg)
+	Log.DEBUG.Printf("UserId %d: %s", userId, msg)
 	Send(userId, msg, cmixproto.Type_UDB_GET_KEY_RESPONSE)
 }
