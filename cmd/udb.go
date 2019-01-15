@@ -97,5 +97,5 @@ func Init(sessionFile string, regCode string) *id.UserID {
 
 // Log into the server using the user id generated from Init
 func Login(userId *id.UserID) {
-	client.Login(userId, GATEWAY_ADDRESS)
+	client.Login(userId, GATEWAY_ADDRESS, "")
 }
