@@ -17,6 +17,7 @@ import (
 	"gitlab.com/elixxir/user-discovery-bot/udb"
 	"os"
 	"gitlab.com/elixxir/crypto/id"
+	"gitlab.com/elixxir/crypto/certs"
 )
 
 // FIXME: Remove
@@ -97,5 +98,5 @@ func Init(sessionFile string, regCode string) *id.UserID {
 
 // Log into the server using the user id generated from Init
 func Login(userId *id.UserID) {
-	client.Login(userId, GATEWAY_ADDRESS, "")
+	client.Login(userId, GATEWAY_ADDRESS, certs.GatewayTLS)
 }
