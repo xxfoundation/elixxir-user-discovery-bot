@@ -16,8 +16,8 @@ import (
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
 	"os"
-	"gitlab.com/elixxir/crypto/id"
 	"gitlab.com/elixxir/crypto/certs"
+	"gitlab.com/elixxir/primitives/userid"
 )
 
 // FIXME: Remove

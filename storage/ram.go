@@ -10,7 +10,7 @@ package storage
 import (
 	"fmt"
 	"gitlab.com/elixxir/user-discovery-bot/fingerprint"
-	"gitlab.com/elixxir/crypto/id"
+	"gitlab.com/elixxir/primitives/userid"
 )
 
 type RamStorage struct {

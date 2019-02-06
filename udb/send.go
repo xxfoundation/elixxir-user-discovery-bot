@@ -10,8 +10,8 @@ package udb
 import (
 	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/parse"
-	"gitlab.com/elixxir/crypto/id"
 	"gitlab.com/elixxir/client/cmixproto"
+	"gitlab.com/elixxir/primitives/userid"
 )
 
 // Sender interface -- the api is broken here (does not return the error), so

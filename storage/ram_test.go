@@ -8,7 +8,7 @@ package storage
 
 import (
 	"testing"
-	"gitlab.com/elixxir/crypto/id"
+	"gitlab.com/elixxir/primitives/userid"
 )
 
 func TestRamAddAndGetKey(t *testing.T) {

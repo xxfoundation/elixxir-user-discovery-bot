@@ -13,8 +13,8 @@ import (
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"os"
 	"testing"
-	"gitlab.com/elixxir/crypto/id"
 	"gitlab.com/elixxir/client/cmixproto"
+	"gitlab.com/elixxir/primitives/userid"
 )
 
 type DummySender struct{}

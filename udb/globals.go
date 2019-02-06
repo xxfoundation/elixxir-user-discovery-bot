@@ -8,12 +8,12 @@ package udb
 
 import (
 	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"gitlab.com/elixxir/crypto/id"
 	jww "github.com/spf13/jwalterweatherman"
 	"io/ioutil"
 	"log"
 	"os"
 	"gitlab.com/elixxir/client/globals"
+	"gitlab.com/elixxir/primitives/userid"
 )
 
 // The User Discovery Bot's userid & registrationn code

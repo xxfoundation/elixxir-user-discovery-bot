@@ -11,8 +11,8 @@ import (
 	"encoding/base64"
 	"fmt"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"gitlab.com/elixxir/crypto/id"
 	"gitlab.com/elixxir/client/cmixproto"
+	"gitlab.com/elixxir/primitives/userid"
 )
 
 const REGISTER_USAGE = "Usage: 'REGISTER [EMAIL] [email-address] " +

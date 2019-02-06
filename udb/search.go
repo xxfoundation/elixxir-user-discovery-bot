@@ -10,9 +10,9 @@ package udb
 import (
 	"fmt"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"gitlab.com/elixxir/crypto/id"
 	"gitlab.com/elixxir/client/cmixproto"
 	"encoding/base64"
+	"gitlab.com/elixxir/primitives/userid"
 )
 
 const SEARCH_USAGE = "Usage: 'SEARCH [EMAIL] [email-address]'"

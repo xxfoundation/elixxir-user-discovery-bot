@@ -12,9 +12,9 @@ import (
 	"github.com/mattn/go-shellwords"
 	"gitlab.com/elixxir/client/parse"
 	"gitlab.com/elixxir/client/switchboard"
-	"gitlab.com/elixxir/crypto/id"
 	"gitlab.com/elixxir/client/cmixproto"
 	"gitlab.com/elixxir/client/api"
+	"gitlab.com/elixxir/primitives/userid"
 )
 
 type SearchListener struct{}
