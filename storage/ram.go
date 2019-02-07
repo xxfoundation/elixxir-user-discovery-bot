@@ -15,7 +15,7 @@ import (
 
 type RamStorage struct {
 	Keys   map[string][]byte                 // keyId -> publicKey
-	Users  map[id.UserID]string                // cMix UID -> keyId
+	Users  map[userid.UserID]string                // cMix UID -> keyId
 	KeyVal map[ValueType]map[string][]string // ValType -> search string -> keyIds
 }
 
@@ -23,7 +23,7 @@ type RamStorage struct {
 func NewRamStorage() *RamStorage {
 	RS := RamStorage{
 		Keys:   make(map[string][]byte),
-		Users:  make(map[id.UserID]string),
+		Users:  make(map[userid.UserID]string),
 		KeyVal: make(map[ValueType]map[string][]string),
 	}
 	// NOTE: We could init all the KeyVal maps here, but I
@@ -53,7 +53,7 @@ func (rs RamStorage) GetKey(keyId string) ([]byte, bool) {
 }
 
 // AddUserKey - Add a user id to keyId (not used in high security)
-func (rs RamStorage) AddUserKey(userId *id.UserID, keyId string) error {
+func (rs RamStorage) AddUserKey(userId *userid.UserID, keyId string) error {
 	_, ok := rs.Users[*userId]
 	if ok {
 		return fmt.Errorf("UserId already exists: %d", userId)
@@ -63,7 +63,7 @@ func (rs RamStorage) AddUserKey(userId *id.UserID, keyId string) error {
 }
 
 // GetUserKey - Get a user's keyId (not used in high security)
-func (rs RamStorage) GetUserKey(userId *id.UserID) (string, bool) {
+func (rs RamStorage) GetUserKey(userId *userid.UserID) (string, bool) {
 	keyId, ok := rs.Users[*userId]
 	return keyId, ok
 }

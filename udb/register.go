@@ -28,7 +28,7 @@ const REGISTER_USAGE = "Usage: 'REGISTER [EMAIL] [email-address] " +
 // The user ID is taken from the sender at this time, this will need to change
 // when a registrar comes online.
 // Registration fails if the KEYID is not already pushed and confirmed.
-func Register(userId *id.UserID, args []string) {
+func Register(userId *userid.UserID, args []string) {
 	Log.DEBUG.Printf("Register %d: %v", userId, args)
 	RegErr := func(msg string) {
 		Send(userId, msg, cmixproto.Type_UDB_REGISTER_RESPONSE)
@@ -88,7 +88,7 @@ var tempKeysState = make(map[string][]bool)
 //  - KEYMAT = The part of the key corresponding to that index, in BASE64
 // PushKey returns an ACK that it received the command OR a success/failure
 // once it receives all pieces of the key.
-func PushKey(userId *id.UserID, args []string) {
+func PushKey(userId *userid.UserID, args []string) {
 	Log.DEBUG.Printf("PushKey %d, %v", userId, args)
 	PushErr := func(msg string) {
 		Send(userId, msg, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)
@@ -149,7 +149,7 @@ const GETKEY_USAGE = "GETKEY [KEYFP]"
 //  - KEYFP - The Key Fingerprint
 //  - KEYMAT - Key material in BASE64 encoding
 // It sends these messages until the entire key is transmitted.
-func GetKey(userId *id.UserID, args []string) {
+func GetKey(userId *userid.UserID, args []string) {
 	Log.DEBUG.Printf("GetKey %d:, %v", userId, args)
 	GetErr := func(msg string) {
 		Send(userId, msg, cmixproto.Type_UDB_GET_KEY_RESPONSE)

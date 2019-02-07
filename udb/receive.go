@@ -25,10 +25,10 @@ type GetKeyListener struct{}
 // Register the UDB listeners
 func RegisterListeners() {
 	Log.DEBUG.Println("Registering UDB listeners")
-	api.Listen(id.ZeroID, cmixproto.Type_UDB_SEARCH, SearchListener{}, switchboard.Listeners)
-	api.Listen(id.ZeroID, cmixproto.Type_UDB_REGISTER, RegisterListener{}, switchboard.Listeners)
-	api.Listen(id.ZeroID, cmixproto.Type_UDB_PUSH_KEY, PushKeyListener{}, switchboard.Listeners)
-	api.Listen(id.ZeroID, cmixproto.Type_UDB_GET_KEY, GetKeyListener{}, switchboard.Listeners)
+	api.Listen(userid.ZeroID, cmixproto.Type_UDB_SEARCH, SearchListener{}, switchboard.Listeners)
+	api.Listen(userid.ZeroID, cmixproto.Type_UDB_REGISTER, RegisterListener{}, switchboard.Listeners)
+	api.Listen(userid.ZeroID, cmixproto.Type_UDB_PUSH_KEY, PushKeyListener{}, switchboard.Listeners)
+	api.Listen(userid.ZeroID, cmixproto.Type_UDB_GET_KEY, GetKeyListener{}, switchboard.Listeners)
 }
 
 // Listen for Search Messages
