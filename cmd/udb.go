@@ -71,7 +71,7 @@ func StartBot(gatewayAddr string, numNodes uint) {
 }
 
 // Initialize a session using the given session file and other info
-func Init(sessionFile string, regCode string) *id.UserID {
+func Init(sessionFile string, regCode string) *userid.UserID {
 	userId := udb.UDB_USERID
 
 	// We only register when the session file does not exist
@@ -97,6 +97,6 @@ func Init(sessionFile string, regCode string) *id.UserID {
 }
 
 // Log into the server using the user id generated from Init
-func Login(userId *id.UserID) {
+func Login(userId *userid.UserID) {
 	client.Login(userId, GATEWAY_ADDRESS, certs.GatewayTLS)
 }
