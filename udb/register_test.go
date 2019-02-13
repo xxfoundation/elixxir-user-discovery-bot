@@ -9,12 +9,12 @@ package udb
 import (
 	"encoding/base64"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/client/cmixproto"
 	"gitlab.com/elixxir/client/parse"
+	"gitlab.com/elixxir/crypto/id"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"os"
 	"testing"
-	"gitlab.com/elixxir/crypto/id"
-	"gitlab.com/elixxir/client/cmixproto"
 )
 
 type DummySender struct{}
@@ -40,7 +40,7 @@ func NewMessage(msg string, msgType cmixproto.Type) *parse.Message {
 	return &parse.Message{
 		TypedBody: tmp,
 		Sender:    new(id.UserID).SetUints(&[4]uint64{0, 0, 0, 4}),
-		Receiver:  new(id.UserID).SetUints(&[4]uint64{0, 0, 0, 13}),
+		Receiver:  new(id.UserID).SetUints(&[4]uint64{0, 0, 0, 3}),
 	}
 }
 
