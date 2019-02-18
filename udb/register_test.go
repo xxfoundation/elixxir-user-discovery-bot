@@ -9,11 +9,11 @@ package udb
 import (
 	"encoding/base64"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/client/cmixproto"
 	"gitlab.com/elixxir/client/parse"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"os"
 	"testing"
-	"gitlab.com/elixxir/client/cmixproto"
 	"gitlab.com/elixxir/primitives/userid"
 )
 
@@ -40,7 +40,7 @@ func NewMessage(msg string, msgType cmixproto.Type) *parse.Message {
 	return &parse.Message{
 		TypedBody: tmp,
 		Sender:    new(userid.UserID).SetUints(&[4]uint64{0, 0, 0, 4}),
-		Receiver:  new(userid.UserID).SetUints(&[4]uint64{0, 0, 0, 13}),
+		Receiver:  new(userid.UserID).SetUints(&[4]uint64{0, 0, 0, 3}),
 	}
 }
 

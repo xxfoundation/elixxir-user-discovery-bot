@@ -9,10 +9,10 @@ package udb
 import (
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/client/globals"
 	"io/ioutil"
 	"log"
 	"os"
-	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/primitives/userid"
 )
 
