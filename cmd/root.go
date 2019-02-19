@@ -8,13 +8,13 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
-	"os"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
-	"fmt"
+	"os"
 )
 
 var cfgFile string

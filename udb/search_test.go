@@ -7,9 +7,9 @@
 package udb
 
 import (
+	"gitlab.com/elixxir/client/cmixproto"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"testing"
-	"gitlab.com/elixxir/client/cmixproto"
 )
 
 func TestSearchHappyPath(t *testing.T) {

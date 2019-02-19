@@ -7,8 +7,8 @@
 package storage
 
 import (
+	"gitlab.com/elixxir/primitives/id"
 	"testing"
-	"gitlab.com/elixxir/primitives/userid"
 )
 
 func TestRamAddAndGetKey(t *testing.T) {
@@ -48,7 +48,7 @@ func TestRamAddAndGetKey(t *testing.T) {
 func TestRamAddAndGetUserKey(t *testing.T) {
 	RS := NewRamStorage()
 	keyId := "This is my keyId"
-	userId := userid.NewUserIDFromUint(1337, t)
+	userId := id.NewUserFromUint(1337, t)
 	// Add key
 	err := RS.AddUserKey(userId, keyId)
 	if err != nil {

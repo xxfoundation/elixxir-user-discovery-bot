@@ -10,11 +10,11 @@ package udb
 
 import (
 	"github.com/mattn/go-shellwords"
+	"gitlab.com/elixxir/client/api"
+	"gitlab.com/elixxir/client/cmixproto"
 	"gitlab.com/elixxir/client/parse"
 	"gitlab.com/elixxir/client/switchboard"
-	"gitlab.com/elixxir/client/cmixproto"
-	"gitlab.com/elixxir/client/api"
-	"gitlab.com/elixxir/primitives/userid"
+	"gitlab.com/elixxir/primitives/id"
 )
 
 type SearchListener struct{}
@@ -25,10 +25,10 @@ type GetKeyListener struct{}
 // Register the UDB listeners
 func RegisterListeners() {
 	Log.DEBUG.Println("Registering UDB listeners")
-	api.Listen(userid.ZeroID, cmixproto.Type_UDB_SEARCH, SearchListener{}, switchboard.Listeners)
-	api.Listen(userid.ZeroID, cmixproto.Type_UDB_REGISTER, RegisterListener{}, switchboard.Listeners)
-	api.Listen(userid.ZeroID, cmixproto.Type_UDB_PUSH_KEY, PushKeyListener{}, switchboard.Listeners)
-	api.Listen(userid.ZeroID, cmixproto.Type_UDB_GET_KEY, GetKeyListener{}, switchboard.Listeners)
+	api.Listen(id.ZeroID, cmixproto.Type_UDB_SEARCH, SearchListener{}, switchboard.Listeners)
+	api.Listen(id.ZeroID, cmixproto.Type_UDB_REGISTER, RegisterListener{}, switchboard.Listeners)
+	api.Listen(id.ZeroID, cmixproto.Type_UDB_PUSH_KEY, PushKeyListener{}, switchboard.Listeners)
+	api.Listen(id.ZeroID, cmixproto.Type_UDB_GET_KEY, GetKeyListener{}, switchboard.Listeners)
 }
 
 // Listen for Search Messages

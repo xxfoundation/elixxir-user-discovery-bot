@@ -13,11 +13,11 @@ package cmd
 import (
 	client "gitlab.com/elixxir/client/api"
 	clientGlobals "gitlab.com/elixxir/client/globals"
+	"gitlab.com/elixxir/crypto/certs"
+	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
 	"os"
-	"gitlab.com/elixxir/crypto/certs"
-	"gitlab.com/elixxir/primitives/userid"
 )
 
 // FIXME: Remove
@@ -71,7 +71,7 @@ func StartBot(gatewayAddr string, numNodes uint) {
 }
 
 // Initialize a session using the given session file and other info
-func Init(sessionFile string, regCode string) *userid.UserID {
+func Init(sessionFile string, regCode string) *id.User {
 	userId := udb.UDB_USERID
 
 	// We only register when the session file does not exist
@@ -97,6 +97,6 @@ func Init(sessionFile string, regCode string) *userid.UserID {
 }
 
 // Log into the server using the user id generated from Init
-func Login(userId *userid.UserID) {
+func Login(userId *id.User) {
 	client.Login(userId, GATEWAY_ADDRESS, certs.GatewayTLS)
 }
