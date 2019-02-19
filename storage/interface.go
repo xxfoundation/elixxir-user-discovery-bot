@@ -8,7 +8,7 @@
 package storage
 
 import (
-	"gitlab.com/elixxir/crypto/id"
+	"gitlab.com/elixxir/primitives/userid"
 )
 
 // The ValueType constant stores the allowable types we search on
@@ -33,9 +33,9 @@ type Storage interface {
 	//       At this time we can't do a high-security version because
 	//       we lack the anonymous return receipts.
 	// AddUserKey - Add a user id to keyId (not used in high security)
-	AddUserKey(userId *id.UserID, keyId string) error
+	AddUserKey(userId *userid.UserID, keyId string) error
 	// GetUserKey - Get a user's keyId (not used in high security)
-	GetUserKey(userId *id.UserID) (string, bool)
+	GetUserKey(userId *userid.UserID) (string, bool)
 
 	// AddValue - Add a searchable value (e-mail, nickname, etc)
 	AddValue(value string, valType ValueType, keyId string) error
