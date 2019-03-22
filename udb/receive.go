@@ -13,7 +13,8 @@ import (
 	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/cmixproto"
 	"gitlab.com/elixxir/client/parse"
-	"gitlab.com/elixxir/client/switchboard"
+	"gitlab.com/elixxir/primitives/format"
+	"gitlab.com/elixxir/primitives/switchboard"
 	"gitlab.com/elixxir/primitives/id"
 )
 
@@ -25,14 +26,21 @@ type GetKeyListener struct{}
 // Register the UDB listeners
 func RegisterListeners() {
 	Log.DEBUG.Println("Registering UDB listeners")
-	api.Listen(id.ZeroID, cmixproto.Type_UDB_SEARCH, SearchListener{}, switchboard.Listeners)
-	api.Listen(id.ZeroID, cmixproto.Type_UDB_REGISTER, RegisterListener{}, switchboard.Listeners)
-	api.Listen(id.ZeroID, cmixproto.Type_UDB_PUSH_KEY, PushKeyListener{}, switchboard.Listeners)
-	api.Listen(id.ZeroID, cmixproto.Type_UDB_GET_KEY, GetKeyListener{}, switchboard.Listeners)
+	api.Listen(id.ZeroID, format.None, int32(cmixproto.Type_UDB_SEARCH),
+		SearchListener{},
+	switchboard.Listeners)
+	api.Listen(id.ZeroID, format.None, int32(cmixproto.Type_UDB_REGISTER),
+		RegisterListener{}, switchboard.Listeners)
+	api.Listen(id.ZeroID, format.None, int32(cmixproto.Type_UDB_PUSH_KEY),
+		PushKeyListener{}, switchboard.Listeners)
+	api.Listen(id.ZeroID, format.None, int32(cmixproto.Type_UDB_GET_KEY),
+		GetKeyListener{},
+	switchboard.Listeners)
 }
 
 // Listen for Search Messages
-func (s SearchListener) Hear(message *parse.Message, isHeardElsewhere bool) {
+func (s SearchListener) Hear(item switchboard.Item, isHeardElsewhere bool) {
+	message := item.(*parse.Message)
 	Log.DEBUG.Printf("SearchListener heard message from %q to %q: %q",
 		*message.GetSender(), *message.GetRecipient(), message.GetPayload())
 	sender := message.GetSender()
@@ -46,7 +54,8 @@ func (s SearchListener) Hear(message *parse.Message, isHeardElsewhere bool) {
 }
 
 // Listen for Register Messages
-func (s RegisterListener) Hear(message *parse.Message, isHeardElsewhere bool) {
+func (s RegisterListener) Hear(item switchboard.Item, isHeardElsewhere bool) {
+	message := item.(*parse.Message)
 	Log.DEBUG.Printf("RegisterListener heard message from %q to %q: %q",
 		*message.GetSender(), *message.GetRecipient(), message.GetPayload())
 	sender := message.GetSender()
@@ -60,7 +69,8 @@ func (s RegisterListener) Hear(message *parse.Message, isHeardElsewhere bool) {
 }
 
 // Listen for PushKey Messages
-func (s PushKeyListener) Hear(message *parse.Message, isHeardElsewhere bool) {
+func (s PushKeyListener) Hear(item switchboard.Item, isHeardElsewhere bool) {
+	message := item.(*parse.Message)
 	Log.DEBUG.Printf("PushKeyListener heard message from %q to %q: %q",
 		*message.GetSender(), *message.GetRecipient(), message.GetPayload())
 	sender := message.GetSender()
@@ -74,7 +84,8 @@ func (s PushKeyListener) Hear(message *parse.Message, isHeardElsewhere bool) {
 }
 
 // Listen for GetKey Messages
-func (s GetKeyListener) Hear(message *parse.Message, isHeardElsewhere bool) {
+func (s GetKeyListener) Hear(item switchboard.Item, isHeardElsewhere bool) {
+	message := item.(*parse.Message)
 	Log.DEBUG.Printf("GetKeyListener heard message from %q to %q: %q",
 		*message.GetSender(), *message.GetRecipient(), message.GetPayload())
 	sender := message.GetSender()

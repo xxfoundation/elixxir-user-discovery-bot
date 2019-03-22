@@ -39,8 +39,8 @@ var UdbSender Sender = APISender{}
 func Send(recipientID *id.User, msg string, msgType cmixproto.Type) {
 	// Create the message body and assign its type
 	message := string(parse.Pack(&parse.TypedBody{
-		Type: msgType,
-		Body: []byte(msg),
+		InnerType: int32(msgType),
+		Body:      []byte(msg),
 	}))
 	// Send the message
 	sendErr := UdbSender.Send(recipientID, message)
