@@ -14,6 +14,7 @@ import (
 	client "gitlab.com/elixxir/client/api"
 	clientGlobals "gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/crypto/certs"
+	"gitlab.com/elixxir/crypto/cyclic"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
@@ -36,7 +37,7 @@ const UDB_SESSIONFILE = ".udb-cMix-session"
 //  - Set up global variables
 //  - Log into the server
 //  - Start the main loop
-func StartBot(gatewayAddr string, numNodes uint) {
+func StartBot(gatewayAddr string, numNodes uint, grpConf string) {
 	udb.Log.DEBUG.Printf("Starting User Discovery Bot...")
 
 	// Use RAM storage for now
@@ -53,7 +54,7 @@ func StartBot(gatewayAddr string, numNodes uint) {
 
 	// Initialize the client
 	regCode := udb.UDB_USERID.RegistrationCode()
-	userId := Init(UDB_SESSIONFILE, regCode)
+	userId := Init(UDB_SESSIONFILE, regCode, grpConf)
 
 	// Register the listeners with the user discovery bot
 	udb.RegisterListeners()
@@ -71,7 +72,7 @@ func StartBot(gatewayAddr string, numNodes uint) {
 }
 
 // Initialize a session using the given session file and other info
-func Init(sessionFile string, regCode string) *id.User {
+func Init(sessionFile string, regCode string, grpConf string) *id.User {
 	userId := udb.UDB_USERID
 
 	// We only register when the session file does not exist
@@ -88,7 +89,12 @@ func Init(sessionFile string, regCode string) *id.User {
 	// Need a more accurate descriptor of what the method actually does than
 	// Register, or to remove the things that aren't actually used for
 	// registration.
-	userId, err = client.Register(regCode, GATEWAY_ADDRESS, NUM_NODES, false)
+	grp := cyclic.Group{}
+	err = grp.UnmarshalJSON([]byte(grpConf))
+	if err != nil {
+		udb.Log.FATAL.Panicf("Could Not Decode group from JSON: %s\n", err.Error())
+	}
+	userId, err = client.Register(regCode, GATEWAY_ADDRESS, NUM_NODES, false, &grp)
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not register: %v", err)
 	}
