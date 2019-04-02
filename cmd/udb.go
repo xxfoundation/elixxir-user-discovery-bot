@@ -94,7 +94,8 @@ func Init(sessionFile string, regCode string, grpConf string) *id.User {
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could Not Decode group from JSON: %s\n", err.Error())
 	}
-	userId, err = client.Register(regCode, GATEWAY_ADDRESS, NUM_NODES, false, &grp)
+
+	userId, err = client.Register(true, regCode, "", []string{GATEWAY_ADDRESS}, false, &grp)
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not register: %v", err)
 	}
