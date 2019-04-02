@@ -65,13 +65,17 @@ func Register(userId *id.User, args []string) {
 	if err != nil {
 		RegErr(err.Error())
 	}
-	err2 := DataStore.AddValue(regVal, regTypeEnum, keyFp)
-	if err2 != nil {
+	err = DataStore.AddUserID(regVal, userId)
+	if err != nil {
+		RegErr(err.Error())
+	}
+	err = DataStore.AddValue(regVal, regTypeEnum, keyFp)
+	if err != nil {
 		RegErr(err.Error())
 	}
 
-	Log.INFO.Printf("User %d registered successfully with %s, %s",
-		userId, regVal, keyFp)
+	Log.INFO.Printf("User %v registered successfully with %s, %s",
+		*userId, regVal, keyFp)
 	Send(userId, "REGISTRATION COMPLETE", cmixproto.Type_UDB_REGISTER_RESPONSE)
 }
 

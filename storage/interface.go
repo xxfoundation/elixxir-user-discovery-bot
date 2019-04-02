@@ -36,6 +36,10 @@ type Storage interface {
 	AddUserKey(userId *id.User, keyId string) error
 	// GetUserKey - Get a user's keyId (not used in high security)
 	GetUserKey(userId *id.User) (string, bool)
+	// AddUserID - Add an email to userID mapping
+	AddUserID(email string, userID *id.User) error
+	// GetUserID - Get a user's ID based on registered email
+	GetUserID(email string) (id.User, bool)
 
 	// AddValue - Add a searchable value (e-mail, nickname, etc)
 	AddValue(value string, valType ValueType, keyId string) error

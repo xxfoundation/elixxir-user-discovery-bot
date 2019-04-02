@@ -14,17 +14,19 @@ import (
 )
 
 type RamStorage struct {
-	Keys   map[string][]byte                 // keyId -> publicKey
-	Users  map[id.User]string                // cMix UID -> keyId
-	KeyVal map[ValueType]map[string][]string // ValType -> search string -> keyIds
+	Keys    map[string][]byte                 // keyId -> publicKey
+	Users   map[id.User]string                // cMix UID -> keyId
+	UserIDs map[string]id.User                // email -> userID
+	KeyVal  map[ValueType]map[string][]string // ValType -> search string -> keyIds
 }
 
 // Create a blank ram storage object
 func NewRamStorage() *RamStorage {
 	RS := RamStorage{
-		Keys:   make(map[string][]byte),
-		Users:  make(map[id.User]string),
-		KeyVal: make(map[ValueType]map[string][]string),
+		Keys:    make(map[string][]byte),
+		Users:   make(map[id.User]string),
+		UserIDs: make(map[string]id.User),
+		KeyVal:  make(map[ValueType]map[string][]string),
 	}
 	// NOTE: We could init all the KeyVal maps here, but I
 	// decided to leave that to the AddValue function in favor of
@@ -66,6 +68,22 @@ func (rs RamStorage) AddUserKey(userId *id.User, keyId string) error {
 func (rs RamStorage) GetUserKey(userId *id.User) (string, bool) {
 	keyId, ok := rs.Users[*userId]
 	return keyId, ok
+}
+
+// AddUserID - Add an email to userID mapping
+func (rs RamStorage) AddUserID(email string, userID *id.User) error {
+	_, ok := rs.UserIDs[email]
+	if ok {
+		return fmt.Errorf("Email already exists: %s", email)
+	}
+	rs.UserIDs[email] = *userID
+	return nil
+}
+
+// GetUserID - Get a user's ID from registered email
+func (rs RamStorage) GetUserID(email string) (id.User, bool) {
+	userID, ok := rs.UserIDs[email]
+	return userID, ok
 }
 
 // AddValue - Add a searchable value (e-mail, nickname, etc)

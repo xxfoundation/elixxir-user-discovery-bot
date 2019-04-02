@@ -48,6 +48,15 @@ func Search(userId *id.User, args []string) {
 	// pass it a string instead
 	regTypeEnum := storage.Email
 
+	// Get the userID associated to email
+	searchedUserID, found := DataStore.GetUserID(regVal)
+	if !found {
+		msg := fmt.Sprintf("SEARCH %s NOTFOUND", regVal)
+		Log.INFO.Printf("User %d: %s", userId, msg)
+		Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
+		return
+	}
+
 	keyFingerprints, ok := DataStore.GetKeys(regVal, regTypeEnum)
 	if !ok {
 		msg := fmt.Sprintf("SEARCH %s NOTFOUND", regVal)
@@ -56,9 +65,10 @@ func Search(userId *id.User, args []string) {
 		return
 	}
 
+	// Correctly send the messages with actual userID based on email, followed by key fingerprint
 	for i := range keyFingerprints {
 		msg := fmt.Sprintf("SEARCH %s FOUND %s %s", regVal,
-			base64.StdEncoding.EncodeToString(userId[:]), keyFingerprints[i])
+			base64.StdEncoding.EncodeToString(searchedUserID[:]), keyFingerprints[i])
 		Log.INFO.Printf("User %d: %s", userId, msg)
 		Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
 	}
