@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
+	"gitlab.com/elixxir/client/crypto"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
 	"os"
 )
@@ -38,6 +39,7 @@ var RootCmd = &cobra.Command{
 		}
 
 		gateways := viper.GetStringSlice("gateways")
+		grpConf := viper.GetString("group")
 		if len(gateways) < 1 {
 			// No gateways in config file
 			udb.Log.FATAL.Panicf("Error: No gateway specified! Add to" +
@@ -45,7 +47,7 @@ var RootCmd = &cobra.Command{
 		} else {
 			numNodes := uint(viper.GetInt("numNodes"))
 			// TODO: Temporarily only use the first gateway in the config
-			StartBot(gateways[0], numNodes)
+			StartBot(gateways[0], numNodes, grpConf)
 		}
 	},
 }
@@ -112,6 +114,12 @@ func initConfig() {
 		validConfig = false
 	}
 
+	// Temporarily need to get group as JSON data into viper
+	json, err := crypto.InitCrypto().MarshalJSON()
+	if err != nil {
+		// panic
+	}
+	viper.Set("group", string(json))
 }
 
 // initLog initializes logging thresholds and the log path.
