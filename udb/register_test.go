@@ -34,7 +34,7 @@ func (d DummySender) Send(recipientID *id.User, msg string) error {
 func NewMessage(msg string, msgType cmixproto.Type) *parse.Message {
 	// Create the message body and assign its type
 	tmp := parse.TypedBody{
-		InnerType: int32(msgType),
+		MessageType: int32(msgType),
 		Body:      []byte(msg),
 	}
 	return &parse.Message{
