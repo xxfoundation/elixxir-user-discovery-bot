@@ -21,7 +21,6 @@ import (
 	"os"
 )
 
-
 // Regular globals
 var GATEWAY_ADDRESSES []string
 
@@ -91,7 +90,8 @@ func Init(sessionFile string, regCode string, grpConf string) *id.User {
 		udb.Log.FATAL.Panicf("Could Not Decode group from JSON: %s\n", err.Error())
 	}
 
-	userId, err = client.Register(true, regCode, "", GATEWAY_ADDRESSES, false, &grp)
+	userId, err = client.Register(true, regCode, "",
+		"", GATEWAY_ADDRESSES, false, &grp)
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not register: %v", err)
 	}
@@ -101,5 +101,5 @@ func Init(sessionFile string, regCode string, grpConf string) *id.User {
 
 // Log into the server using the user id generated from Init
 func Login(userId *id.User) {
-	client.Login(userId, GATEWAY_ADDRESSES[0], certs.GatewayTLS)
+	client.Login(userId, "", GATEWAY_ADDRESSES[0], certs.GatewayTLS)
 }
