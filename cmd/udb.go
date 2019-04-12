@@ -11,8 +11,7 @@
 package cmd
 
 import (
-	client "gitlab.com/elixxir/client/api"
-	clientGlobals "gitlab.com/elixxir/client/globals"
+	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/crypto/certs"
 	"gitlab.com/elixxir/crypto/cyclic"
 	"gitlab.com/elixxir/primitives/id"
@@ -33,6 +32,8 @@ const RATE_LIMIT = 100
 // The Session file used by UDB (hard coded)
 const UDB_SESSIONFILE = ".udb-cMix-session"
 
+var clientObj *api.Client
+
 // Startup the user discovery bot:
 //  - Set up global variables
 //  - Log into the server
@@ -47,20 +48,20 @@ func StartBot(gatewayAddr string, numNodes uint, grpConf string) {
 	NUM_NODES = numNodes
 	GATEWAY_ADDRESS = gatewayAddr
 
-	// API Settings (hard coded)
-	client.DisableBlockingTransmission() // Deprecated
-	// Up to 10 messages per second
-	client.SetRateLimiting(uint32(RATE_LIMIT))
-
 	// Initialize the client
 	regCode := udb.UDB_USERID.RegistrationCode()
 	userId := Init(UDB_SESSIONFILE, regCode, grpConf)
 
-	// Register the listeners with the user discovery bot
-	udb.RegisterListeners()
+	// API Settings (hard coded)
+	clientObj.DisableBlockingTransmission() // Deprecated
+	// Up to 10 messages per second
+	clientObj.SetRateLimiting(uint32(RATE_LIMIT))
 
 	// Log into the server
 	Login(userId)
+
+	// Register the listeners with the user discovery bot
+	udb.RegisterListeners(clientObj)
 
 	// TEMPORARILY try starting the reception thread here instead-it seems to
 	// not be starting?
@@ -79,8 +80,10 @@ func Init(sessionFile string, regCode string, grpConf string) *id.User {
 	// FIXME: this is super weird -- why have to check for a file,
 	// then init that file, then register optionally based on that check?
 	_, err := os.Stat(sessionFile)
-	// Init regardless, wow this is broken...
-	initErr := client.InitClient(&clientGlobals.DefaultStorage{}, sessionFile)
+	// Get new client. Setting storage to nil internally creates a
+	// default storage
+	var initErr error
+	clientObj, initErr = api.NewClient(nil, sessionFile)
 	if initErr != nil {
 		udb.Log.FATAL.Panicf("Could not initialize: %v", initErr)
 	}
@@ -94,7 +97,7 @@ func Init(sessionFile string, regCode string, grpConf string) *id.User {
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could Not Decode group from JSON: %s\n", err.Error())
 	}
-	userId, err = client.Register(regCode, GATEWAY_ADDRESS, NUM_NODES, false, &grp)
+	userId, err = clientObj.Register(regCode, GATEWAY_ADDRESS, NUM_NODES, false, &grp)
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not register: %v", err)
 	}
@@ -104,5 +107,5 @@ func Init(sessionFile string, regCode string, grpConf string) *id.User {
 
 // Log into the server using the user id generated from Init
 func Login(userId *id.User) {
-	client.Login(userId, GATEWAY_ADDRESS, certs.GatewayTLS)
+	clientObj.Login(userId, GATEWAY_ADDRESS, certs.GatewayTLS)
 }

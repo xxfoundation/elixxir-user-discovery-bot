@@ -8,6 +8,7 @@ package udb
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
@@ -24,6 +25,8 @@ var DataStore storage.Storage
 
 var Log = jww.NewNotepad(jww.LevelDebug, jww.LevelDebug, os.Stdout,
 	ioutil.Discard, "CLIENT", log.Ldate|log.Ltime)
+
+var clientObj *api.Client
 
 func init() {
 	globals.Log = Log
