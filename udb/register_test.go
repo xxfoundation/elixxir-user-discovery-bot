@@ -9,7 +9,10 @@ package udb
 import (
 	"encoding/base64"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/cmixproto"
+	"gitlab.com/elixxir/client/crypto"
+	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/client/parse"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
@@ -132,5 +135,40 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 		if ok3 {
 			t.Errorf("Data store value rick@elixxir.io should not exist!")
 		}
+	}
+}
+
+func TestRegisterListeners(t *testing.T) {
+	grp := crypto.InitCrypto()
+	// Initialize client with ram storage
+	client, err := api.NewClient(&globals.RamStorage{}, "hello")
+	if err != nil {
+		t.Errorf("Failed to initialize UDB client: %s", err.Error())
+	}
+
+	udbID := new(id.User).SetUints(&[4]uint64{0, 0, 0, 3})
+	// Register with UDB registration code
+	userID, err := client.Register(true,
+		udbID.RegistrationCode(), "",
+		"", []string{"", ""}, false, grp)
+
+	if err != nil {
+		t.Errorf("Register failed: %s", err.Error())
+	}
+
+	// Login to gateway
+	_, err = client.Login(userID, "", "", "")
+
+	if err != nil {
+		t.Errorf("Login failed: %s", err.Error())
+	}
+
+	// Register Listeners
+	RegisterListeners(client)
+
+	err = client.Logout()
+
+	if err != nil {
+		t.Errorf("Logout failed: %v", err)
 	}
 }
