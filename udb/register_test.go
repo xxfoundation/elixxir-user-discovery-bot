@@ -14,6 +14,8 @@ import (
 	"gitlab.com/elixxir/client/crypto"
 	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/client/parse"
+	"gitlab.com/elixxir/comms/gateway"
+	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"os"
@@ -26,6 +28,9 @@ var rl = RegisterListener{}
 var sl = SearchListener{}
 var pl = PushKeyListener{}
 var gl = GetKeyListener{}
+
+var GWAddress = "localhost:12345"
+var GWHandler = api.TestInterface{LastReceivedMessage: pb.CmixMessage{}}
 
 func (d DummySender) Send(recipientID *id.User, msg string) error {
 	// do nothing
@@ -49,6 +54,9 @@ func NewMessage(msg string, msgType cmixproto.Type) *parse.Message {
 
 func TestMain(m *testing.M) {
 	UdbSender = DummySender{}
+	defer gateway.StartGateway(
+		GWAddress, &GWHandler, "", "",
+	)()
 	jww.SetStdoutThreshold(jww.LevelDebug)
 	os.Exit(m.Run())
 }
@@ -141,7 +149,7 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 func TestRegisterListeners(t *testing.T) {
 	grp := crypto.InitCrypto()
 	// Initialize client with ram storage
-	client, err := api.NewClient(&globals.RamStorage{}, "hello")
+	client, err := api.NewClient(&globals.RamStorage{}, "")
 	if err != nil {
 		t.Errorf("Failed to initialize UDB client: %s", err.Error())
 	}
@@ -150,14 +158,14 @@ func TestRegisterListeners(t *testing.T) {
 	// Register with UDB registration code
 	userID, err := client.Register(true,
 		udbID.RegistrationCode(), "",
-		"", []string{"", ""}, false, grp)
+		"", []string{GWAddress}, false, grp)
 
 	if err != nil {
 		t.Errorf("Register failed: %s", err.Error())
 	}
 
 	// Login to gateway
-	_, err = client.Login(userID, "", "", "")
+	_, err = client.Login(userID, "", GWAddress, "")
 
 	if err != nil {
 		t.Errorf("Login failed: %s", err.Error())
