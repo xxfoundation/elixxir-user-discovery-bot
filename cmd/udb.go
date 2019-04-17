@@ -20,11 +20,8 @@ import (
 	"os"
 )
 
-// FIXME: Remove
-var NUM_NODES uint
-
 // Regular globals
-var GATEWAY_ADDRESS string
+var GATEWAY_ADDRESSES []string
 
 // Message rate limit in ms (100 = 10 msg per second)
 const RATE_LIMIT = 100
@@ -38,15 +35,13 @@ var clientObj *api.Client
 //  - Set up global variables
 //  - Log into the server
 //  - Start the main loop
-func StartBot(gatewayAddr string, numNodes uint, grpConf string) {
+func StartBot(gatewayAddr []string, grpConf string) {
 	udb.Log.DEBUG.Printf("Starting User Discovery Bot...")
 
 	// Use RAM storage for now
 	udb.DataStore = storage.NewRamStorage()
 
-	// Globals we need to set
-	NUM_NODES = numNodes
-	GATEWAY_ADDRESS = gatewayAddr
+	GATEWAY_ADDRESSES = gatewayAddr
 
 	// Initialize the client
 	regCode := udb.UDB_USERID.RegistrationCode()
@@ -97,7 +92,10 @@ func Init(sessionFile string, regCode string, grpConf string) *id.User {
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could Not Decode group from JSON: %s\n", err.Error())
 	}
-	userId, err = clientObj.Register(regCode, GATEWAY_ADDRESS, NUM_NODES, false, &grp)
+
+	userId, err = clientObj.Register(true, regCode, "",
+		"", GATEWAY_ADDRESSES, false, &grp)
+
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not register: %v", err)
 	}
@@ -107,5 +105,5 @@ func Init(sessionFile string, regCode string, grpConf string) *id.User {
 
 // Log into the server using the user id generated from Init
 func Login(userId *id.User) {
-	clientObj.Login(userId, GATEWAY_ADDRESS, certs.GatewayTLS)
+	clientObj.Login(userId, "", GATEWAY_ADDRESSES[0], certs.GatewayTLS)
 }

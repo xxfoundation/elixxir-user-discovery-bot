@@ -45,9 +45,7 @@ var RootCmd = &cobra.Command{
 			udb.Log.FATAL.Panicf("Error: No gateway specified! Add to" +
 				" configuration file.")
 		} else {
-			numNodes := uint(viper.GetInt("numNodes"))
-			// TODO: Temporarily only use the first gateway in the config
-			StartBot(gateways[0], numNodes, grpConf)
+			StartBot(gateways, grpConf)
 		}
 	},
 }

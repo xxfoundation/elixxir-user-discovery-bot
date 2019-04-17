@@ -71,6 +71,32 @@ func TestRamAddAndGetUserKey(t *testing.T) {
 	}
 }
 
+func TestRamAddAndGetUserID(t *testing.T) {
+	RS := NewRamStorage()
+	email := "test@elixxir.io"
+	userID := id.NewUserFromUint(1337, t)
+	// Add key
+	err := RS.AddUserID(email, userID)
+	if err != nil {
+		t.Errorf("Ram storage AddUserID failed to add a user: %v", err)
+	}
+	// Add duplicate
+	err2 := RS.AddUserID(email, userID)
+	if err2 == nil {
+		t.Errorf("Ram storage AddUserID permits duplicates!")
+	}
+
+	// Get ID
+	resultID, ok := RS.GetUserID(email)
+	if !ok {
+		t.Errorf("Ram storage GetUserID could not retrieve key!")
+	}
+	if resultID != *userID {
+		t.Errorf("Ram storage GetUserID failed - Got: %s, Expected: %s",
+			resultID, *userID)
+	}
+}
+
 func TestValueAndKeyStore(t *testing.T) {
 	RS := NewRamStorage()
 	value := "Hello, World!"

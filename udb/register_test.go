@@ -9,8 +9,13 @@ package udb
 import (
 	"encoding/base64"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/cmixproto"
+	"gitlab.com/elixxir/client/crypto"
+	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/client/parse"
+	"gitlab.com/elixxir/comms/gateway"
+	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"os"
@@ -23,6 +28,9 @@ var rl = RegisterListener{}
 var sl = SearchListener{}
 var pl = PushKeyListener{}
 var gl = GetKeyListener{}
+
+var GWAddress = "localhost:12345"
+var GWHandler = api.TestInterface{LastReceivedMessage: pb.CmixMessage{}}
 
 func (d DummySender) Send(recipientID *id.User, msg string) error {
 	// do nothing
@@ -46,6 +54,9 @@ func NewMessage(msg string, msgType cmixproto.Type) *parse.Message {
 
 func TestMain(m *testing.M) {
 	UdbSender = DummySender{}
+	defer gateway.StartGateway(
+		GWAddress, &GWHandler, "", "",
+	)()
 	jww.SetStdoutThreshold(jww.LevelDebug)
 	os.Exit(m.Run())
 }
@@ -132,5 +143,40 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 		if ok3 {
 			t.Errorf("Data store value rick@elixxir.io should not exist!")
 		}
+	}
+}
+
+func TestRegisterListeners(t *testing.T) {
+	grp := crypto.InitCrypto()
+	// Initialize client with ram storage
+	client, err := api.NewClient(&globals.RamStorage{}, "")
+	if err != nil {
+		t.Errorf("Failed to initialize UDB client: %s", err.Error())
+	}
+
+	udbID := new(id.User).SetUints(&[4]uint64{0, 0, 0, 3})
+	// Register with UDB registration code
+	userID, err := client.Register(true,
+		udbID.RegistrationCode(), "",
+		"", []string{GWAddress}, false, grp)
+
+	if err != nil {
+		t.Errorf("Register failed: %s", err.Error())
+	}
+
+	// Login to gateway
+	_, err = client.Login(userID, "", GWAddress, "")
+
+	if err != nil {
+		t.Errorf("Login failed: %s", err.Error())
+	}
+
+	// Register Listeners
+	RegisterListeners(client)
+
+	err = client.Logout()
+
+	if err != nil {
+		t.Errorf("Logout failed: %v", err)
 	}
 }
