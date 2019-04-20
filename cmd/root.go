@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
-	"gitlab.com/elixxir/client/crypto"
+	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
 	"os"
 )
@@ -113,7 +113,7 @@ func initConfig() {
 	}
 
 	// Temporarily need to get group as JSON data into viper
-	json, err := crypto.InitCrypto().MarshalJSON()
+	json, err := globals.InitCrypto().MarshalJSON()
 	if err != nil {
 		// panic
 	}
