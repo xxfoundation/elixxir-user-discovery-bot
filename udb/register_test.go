@@ -11,7 +11,6 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/cmixproto"
-	"gitlab.com/elixxir/client/crypto"
 	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/client/parse"
 	"gitlab.com/elixxir/comms/gateway"
@@ -147,7 +146,7 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 }
 
 func TestRegisterListeners(t *testing.T) {
-	grp := crypto.InitCrypto()
+	grp := globals.InitCrypto()
 	// Initialize client with ram storage
 	client, err := api.NewClient(&globals.RamStorage{}, "")
 	if err != nil {
