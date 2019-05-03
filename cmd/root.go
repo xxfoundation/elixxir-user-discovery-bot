@@ -14,6 +14,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"gitlab.com/elixxir/client/globals"
+	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
 	"os"
 )
@@ -39,14 +40,23 @@ var RootCmd = &cobra.Command{
 		}
 
 		gateways := viper.GetStringSlice("gateways")
+		regAddr := viper.GetString("regAddr")
+		regCode := viper.GetString("regCode")
 		grpConf := viper.GetString("group")
 		if len(gateways) < 1 {
 			// No gateways in config file
 			udb.Log.FATAL.Panicf("Error: No gateway specified! Add to" +
 				" configuration file.")
-		} else {
-			StartBot(gateways, grpConf)
 		}
+		if regCode != "" && regAddr == "" {
+			udb.Log.FATAL.Panicf("Error: Registration code specified, but" +
+				" no registration address provided! Add to configuration file.")
+		}
+		// Set the GatewayCertPath explicitly to avoid data races
+		connect.GatewayCertPath = viper.GetString("gwCertPath")
+		// Set the RegistrationCertPath explicitly to avoid data races
+		connect.RegistrationCertPath = viper.GetString("regCertPath")
+		StartBot(gateways, regAddr, regCode, grpConf)
 	},
 }
 

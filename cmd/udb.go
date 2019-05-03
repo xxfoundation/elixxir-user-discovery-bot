@@ -22,6 +22,7 @@ import (
 
 // Regular globals
 var GATEWAY_ADDRESSES []string
+var REG_ADDRESS string
 
 // Message rate limit in ms (100 = 10 msg per second)
 const RATE_LIMIT = 100
@@ -35,17 +36,17 @@ var clientObj *api.Client
 //  - Set up global variables
 //  - Log into the server
 //  - Start the main loop
-func StartBot(gatewayAddr []string, grpConf string) {
+func StartBot(gatewayAddr []string, registrationAddr, regCode, grpConf string) {
 	udb.Log.DEBUG.Printf("Starting User Discovery Bot...")
 
 	// Use RAM storage for now
 	udb.DataStore = storage.NewRamStorage()
 
 	GATEWAY_ADDRESSES = gatewayAddr
+	REG_ADDRESS = registrationAddr
 
 	// Initialize the client
-	regCode := udb.UDB_USERID.RegistrationCode()
-	userId := Init(UDB_SESSIONFILE, regCode, grpConf)
+	udb.UDB_USERID = Init(UDB_SESSIONFILE, regCode, grpConf)
 
 	// API Settings (hard coded)
 	clientObj.DisableBlockingTransmission() // Deprecated
@@ -53,7 +54,7 @@ func StartBot(gatewayAddr []string, grpConf string) {
 	clientObj.SetRateLimiting(uint32(RATE_LIMIT))
 
 	// Log into the server
-	Login(userId)
+	Login(udb.UDB_USERID)
 
 	// Register the listeners with the user discovery bot
 	udb.RegisterListeners(clientObj)
@@ -69,8 +70,6 @@ func StartBot(gatewayAddr []string, grpConf string) {
 
 // Initialize a session using the given session file and other info
 func Init(sessionFile string, regCode string, grpConf string) *id.User {
-	userId := udb.UDB_USERID
-
 	// We only register when the session file does not exist
 	// FIXME: this is super weird -- why have to check for a file,
 	// then init that file, then register optionally based on that check?
@@ -93,11 +92,13 @@ func Init(sessionFile string, regCode string, grpConf string) *id.User {
 		udb.Log.FATAL.Panicf("Could Not Decode group from JSON: %s\n", err.Error())
 	}
 
-	userId, err = clientObj.Register(true, regCode, "",
-		"", GATEWAY_ADDRESSES, false, &grp)
+	userId, err := clientObj.Register(false, regCode, "UDB",
+		REG_ADDRESS, GATEWAY_ADDRESSES, false, &grp)
 
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not register: %v", err)
+	} else {
+		udb.Log.DEBUG.Printf("UDB registered as user %v", *userId)
 	}
 
 	return userId

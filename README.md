@@ -21,14 +21,19 @@ Note: Yaml prohibits the use of tabs. If you put tabs in your config file, the U
 ```yaml
 # Path where UDB will store its logs
 logPath: "udb.log"
-# Number of nodes per team
-numNodes: 3
 # List of gateways this UDB will try to connect to
 gateways:
     - "gateway-0.default.cmix.rip:11420"
     - "gateway-1.default.cmix.rip:11420"
     - "gateway-2.default.cmix.rip:11420"
+regAddr: "registration.default.cmix.rip:11420"
+regCode: "AAAA"
+gwCertPath: "../path/to/gw/tls/cert"
+regCertPath: "../path/to/reg/tls/cert"
 ```
+
+If no registration server is specified, the registration code can also be left empty, and if CMIX nodes support skipping registration server, registration will succeed.
+Otherwise, if registration server is needed, a correct registration code must be provided for UDB to register.
 
 ## Running
 

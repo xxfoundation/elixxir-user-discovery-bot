@@ -19,7 +19,7 @@ import (
 
 // The User Discovery Bot's userid & registrationn code
 // (this is global in cMix systems)
-var UDB_USERID *id.User = new(id.User).SetUints(&[4]uint64{0, 0, 0, 3})
+var UDB_USERID *id.User
 
 var DataStore storage.Storage
 
