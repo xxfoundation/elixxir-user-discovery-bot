@@ -54,6 +54,9 @@ func StartBot(gatewayAddr []string, registrationAddr, regCode, grpConf string) {
 	// Initialize the client
 	udb.UDB_USERID = Init(UDB_SESSIONFILE, regCode, grpConf)
 
+	// Save DSA public key and user ID to JSON file
+	outputDsaPubKeyToJson(udb.UDB_USERID, ".elixxir", "udb_info.json")
+
 	// API Settings (hard coded)
 	clientObj.DisableBlockingTransmission() // Deprecated
 	// Up to 10 messages per second
@@ -106,9 +109,6 @@ func Init(sessionFile string, regCode string, grpConf string) *id.User {
 	} else {
 		udb.Log.DEBUG.Printf("UDB registered as user %v", *userId)
 	}
-
-	// Save DSA public key to JSON file
-	outputDsaPubKeyToJson(userId, ".elixxir", "udb_info.json")
 
 	return userId
 }
