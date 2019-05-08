@@ -115,7 +115,12 @@ func Init(sessionFile string, regCode string, grpConf string) *id.User {
 
 // Log into the server using the user id generated from Init
 func Login(userId *id.User) {
-	clientObj.Login(userId, "", GATEWAY_ADDRESSES[0], certs.GatewayTLS)
+	_, err := clientObj.Login(userId, "", GATEWAY_ADDRESSES[0],
+		certs.GatewayTLS)
+
+	if err != nil {
+		udb.Log.FATAL.Panicf("Could not log into the server: %s", err)
+	}
 }
 
 // outputDsaPubKeyToJson encodes the DSA public key and user ID to JSON and

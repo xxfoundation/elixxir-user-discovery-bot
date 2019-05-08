@@ -42,7 +42,7 @@ func NewMessage(msg string, msgType cmixproto.Type) *parse.Message {
 	// Create the message body and assign its type
 	tmp := parse.TypedBody{
 		MessageType: int32(msgType),
-		Body:      []byte(msg),
+		Body:        []byte(msg),
 	}
 	return &parse.Message{
 		TypedBody: tmp,
@@ -150,13 +150,12 @@ func TestRegisterListeners(t *testing.T) {
 	// Initialize client with ram storage
 	client, err := api.NewClient(&globals.RamStorage{}, "")
 	if err != nil {
-		t.Errorf("Failed to initialize UDB client: %s", err.Error())
+		t.Fatalf("Failed to initialize UDB client: %s", err.Error())
 	}
 
 	udbID := new(id.User).SetUints(&[4]uint64{0, 0, 0, 3})
 	// Register with UDB registration code
-	userID, err := client.Register(true,
-		udbID.RegistrationCode(), "",
+	userID, err := client.Register(true, udbID.RegistrationCode(), "",
 		"", []string{GWAddress}, false, grp)
 
 	if err != nil {
