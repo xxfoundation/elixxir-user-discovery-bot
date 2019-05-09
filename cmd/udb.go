@@ -54,8 +54,13 @@ func StartBot(gatewayAddr []string, registrationAddr, regCode, grpConf string) {
 	// Initialize the client
 	udb.UDB_USERID = Init(UDB_SESSIONFILE, regCode, grpConf)
 
+	// Get the default parameters and generate a public key from it
+	dsaParams := signature.GetDefaultDSAParams()
+	publicKey := dsaParams.PrivateKeyGen(rand.Reader).PublicKeyGen()
+
 	// Save DSA public key and user ID to JSON file
-	outputDsaPubKeyToJson(udb.UDB_USERID, ".elixxir", "udb_info.json")
+	outputDsaPubKeyToJson(publicKey, udb.UDB_USERID, ".elixxir",
+		"server_info.json")
 
 	// API Settings (hard coded)
 	clientObj.DisableBlockingTransmission() // Deprecated
@@ -125,19 +130,21 @@ func Login(userId *id.User) {
 
 // outputDsaPubKeyToJson encodes the DSA public key and user ID to JSON and
 // outputs it to the specified directory with the specified file name.
-func outputDsaPubKeyToJson(userID *id.User, dir, fileName string) {
-
-	// Get the default parameters and generate a public key from it
-	dsaParams := signature.GetDefaultDSAParams()
-	publicKey := dsaParams.PrivateKeyGen(rand.Reader).PublicKeyGen()
+func outputDsaPubKeyToJson(publicKey *signature.DSAPublicKey, userID *id.User,
+	dir, fileName string) {
+	// Encode the public key for the pem format
+	encodedKey, err := publicKey.PemEncode()
+	if err != nil {
+		jww.ERROR.Printf("Error Pem encoding public key: %s", err)
+	}
 
 	// Setup struct that will dictate the JSON structure
 	jsonStruct := struct {
 		Id             *id.User
-		Dsa_public_key *signature.DSAPublicKey
+		Dsa_public_key string
 	}{
 		Id:             userID,
-		Dsa_public_key: publicKey,
+		Dsa_public_key: string(encodedKey),
 	}
 
 	// Generate JSON from structure
