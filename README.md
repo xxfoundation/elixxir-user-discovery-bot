@@ -28,6 +28,7 @@ gateways:
     - "gateway-0.default.cmix.rip:11420"
     - "gateway-1.default.cmix.rip:11420"
     - "gateway-2.default.cmix.rip:11420"
+certPath: "../path/to/gw/tls/cert"
 ```
 
 ## Running
