@@ -26,8 +26,8 @@ var GATEWAY_ADDRESSES []string
 // Message rate limit in ms (100 = 10 msg per second)
 const RATE_LIMIT = 100
 
-// The Session file used by UDB (hard coded)
-const UDB_SESSIONFILE = "/tmp/.udb-cMix-session"
+// The Session file used by UDB
+var UDB_SESSIONFILE string
 
 var clientObj *api.Client
 
@@ -35,13 +35,14 @@ var clientObj *api.Client
 //  - Set up global variables
 //  - Log into the server
 //  - Start the main loop
-func StartBot(gatewayAddr []string, grpConf string) {
+func StartBot(gatewayAddr []string, grpConf, sess string) {
 	udb.Log.DEBUG.Printf("Starting User Discovery Bot...")
 
 	// Use RAM storage for now
 	udb.DataStore = storage.NewRamStorage()
 
 	GATEWAY_ADDRESSES = gatewayAddr
+	UDB_SESSIONFILE = sess
 
 	// Initialize the client
 	regCode := udb.UDB_USERID.RegistrationCode()
@@ -105,5 +106,5 @@ func Init(sessionFile string, regCode string, grpConf string) *id.User {
 
 // Log into the server using the user id generated from Init
 func Login(userId *id.User) {
-	clientObj.Login(userId, "", GATEWAY_ADDRESSES[0], certs.GatewayTLS)
+	clientObj.Login(userId, "", GATEWAY_ADDRESSES[len(GATEWAY_ADDRESSES)-1], certs.GatewayTLS)
 }

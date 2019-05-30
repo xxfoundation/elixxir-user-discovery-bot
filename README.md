@@ -21,6 +21,8 @@ Note: Yaml prohibits the use of tabs. If you put tabs in your config file, the U
 ```yaml
 # Path where UDB will store its logs
 logPath: "udb.log"
+# Path where UDB will store session file
+sessionfile: "udb.session"
 # Number of nodes per team
 numNodes: 3
 # List of gateways this UDB will try to connect to

@@ -46,9 +46,10 @@ var RootCmd = &cobra.Command{
 			udb.Log.FATAL.Panicf("Error: No gateway specified! Add to" +
 				" configuration file.")
 		}
+		sess := viper.GetString("sessionfile")
 		// Set the GatewayCertPath explicitly to avoid data races
 		connect.GatewayCertPath = viper.GetString("certPath")
-		StartBot(gateways, grpConf)
+		StartBot(gateways, grpConf, sess)
 	},
 }
 
