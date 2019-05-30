@@ -27,7 +27,7 @@ var GATEWAY_ADDRESSES []string
 const RATE_LIMIT = 100
 
 // The Session file used by UDB (hard coded)
-const UDB_SESSIONFILE = ".udb-cMix-session"
+const UDB_SESSIONFILE = "/tmp/.udb-cMix-session"
 
 var clientObj *api.Client
 
