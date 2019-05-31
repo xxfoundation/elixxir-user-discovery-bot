@@ -28,13 +28,12 @@ import (
 
 // Regular globals
 var GATEWAY_ADDRESSES []string
-var REG_ADDRESS string
 
 // Message rate limit in ms (100 = 10 msg per second)
 const RATE_LIMIT = 100
 
-// The Session file used by UDB (hard coded)
-const UDB_SESSIONFILE = ".udb-cMix-session"
+// The Session file used by UDB
+var UDB_SESSIONFILE string
 
 var clientObj *api.Client
 
@@ -42,17 +41,18 @@ var clientObj *api.Client
 //  - Set up global variables
 //  - Log into the server
 //  - Start the main loop
-func StartBot(gatewayAddr []string, registrationAddr, regCode, grpConf string) {
+func StartBot(gatewayAddr []string, grpConf, sess string) {
 	udb.Log.DEBUG.Printf("Starting User Discovery Bot...")
 
 	// Use RAM storage for now
 	udb.DataStore = storage.NewRamStorage()
 
 	GATEWAY_ADDRESSES = gatewayAddr
-	REG_ADDRESS = registrationAddr
+	UDB_SESSIONFILE = sess
 
 	// Initialize the client
-	udb.UDB_USERID = Init(UDB_SESSIONFILE, regCode, grpConf)
+	regCode := udb.UDB_USERID.RegistrationCode()
+	userId := Init(UDB_SESSIONFILE, regCode, grpConf)
 
 	// Get the default parameters and generate a public key from it
 	dsaParams := signature.GetDefaultDSAParams()
@@ -60,7 +60,7 @@ func StartBot(gatewayAddr []string, registrationAddr, regCode, grpConf string) {
 
 	// Save DSA public key and user ID to JSON file
 	outputDsaPubKeyToJson(publicKey, udb.UDB_USERID, ".elixxir",
-		"server_info.json")
+		"udb_info.json")
 
 	// API Settings (hard coded)
 	clientObj.DisableBlockingTransmission() // Deprecated
@@ -68,7 +68,7 @@ func StartBot(gatewayAddr []string, registrationAddr, regCode, grpConf string) {
 	clientObj.SetRateLimiting(uint32(RATE_LIMIT))
 
 	// Log into the server
-	Login(udb.UDB_USERID)
+	Login(userId)
 
 	// Register the listeners with the user discovery bot
 	udb.RegisterListeners(clientObj)
@@ -84,6 +84,8 @@ func StartBot(gatewayAddr []string, registrationAddr, regCode, grpConf string) {
 
 // Initialize a session using the given session file and other info
 func Init(sessionFile string, regCode string, grpConf string) *id.User {
+	userId := udb.UDB_USERID
+
 	// We only register when the session file does not exist
 	// FIXME: this is super weird -- why have to check for a file,
 	// then init that file, then register optionally based on that check?
@@ -106,13 +108,11 @@ func Init(sessionFile string, regCode string, grpConf string) *id.User {
 		udb.Log.FATAL.Panicf("Could Not Decode group from JSON: %s\n", err.Error())
 	}
 
-	userId, err := clientObj.Register(false, regCode, "UDB",
-		REG_ADDRESS, GATEWAY_ADDRESSES, false, &grp)
+	userId, err = clientObj.Register(true, regCode, "",
+		"", GATEWAY_ADDRESSES, false, &grp)
 
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not register: %v", err)
-	} else {
-		udb.Log.DEBUG.Printf("UDB registered as user %v", *userId)
 	}
 
 	return userId
@@ -120,8 +120,8 @@ func Init(sessionFile string, regCode string, grpConf string) *id.User {
 
 // Log into the server using the user id generated from Init
 func Login(userId *id.User) {
-	_, err := clientObj.Login(userId, "", GATEWAY_ADDRESSES[0],
-		certs.GatewayTLS)
+	_, err := clientObj.Login(userId, "",
+		GATEWAY_ADDRESSES[len(GATEWAY_ADDRESSES)-1], certs.GatewayTLS)
 
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not log into the server: %s", err)

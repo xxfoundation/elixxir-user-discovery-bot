@@ -46,8 +46,8 @@ func NewMessage(msg string, msgType cmixproto.Type) *parse.Message {
 	}
 	return &parse.Message{
 		TypedBody: tmp,
-		Sender:    new(id.User).SetUints(&[4]uint64{0, 0, 0, 4}),
-		Receiver:  new(id.User).SetUints(&[4]uint64{0, 0, 0, 3}),
+		Sender:    id.NewUserFromUints(&[4]uint64{0, 0, 0, 4}),
+		Receiver:  id.NewUserFromUints(&[4]uint64{0, 0, 0, 3}),
 	}
 }
 
@@ -153,7 +153,7 @@ func TestRegisterListeners(t *testing.T) {
 		t.Fatalf("Failed to initialize UDB client: %s", err.Error())
 	}
 
-	udbID := new(id.User).SetUints(&[4]uint64{0, 0, 0, 3})
+	udbID := id.NewUserFromUints(&[4]uint64{0, 0, 0, 3})
 	// Register with UDB registration code
 	userID, err := client.Register(true, udbID.RegistrationCode(), "",
 		"", []string{GWAddress}, false, grp)
