@@ -14,8 +14,8 @@ import (
 	"gitlab.com/elixxir/client/cmixproto"
 	"gitlab.com/elixxir/client/parse"
 	"gitlab.com/elixxir/primitives/format"
-	"gitlab.com/elixxir/primitives/switchboard"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/elixxir/primitives/switchboard"
 )
 
 type SearchListener struct{}

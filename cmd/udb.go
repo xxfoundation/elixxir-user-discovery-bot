@@ -11,12 +11,18 @@
 package cmd
 
 import (
+	"crypto/rand"
+	"encoding/json"
+	"github.com/mitchellh/go-homedir"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/crypto/certs"
 	"gitlab.com/elixxir/crypto/cyclic"
+	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
+	"io/ioutil"
 	"os"
 )
 
@@ -47,6 +53,14 @@ func StartBot(gatewayAddr []string, grpConf, sess string) {
 	// Initialize the client
 	regCode := udb.UDB_USERID.RegistrationCode()
 	userId := Init(UDB_SESSIONFILE, regCode, grpConf)
+
+	// Get the default parameters and generate a public key from it
+	dsaParams := signature.GetDefaultDSAParams()
+	publicKey := dsaParams.PrivateKeyGen(rand.Reader).PublicKeyGen()
+
+	// Save DSA public key and user ID to JSON file
+	outputDsaPubKeyToJson(publicKey, udb.UDB_USERID, ".elixxir",
+		"udb_info.json")
 
 	// API Settings (hard coded)
 	clientObj.DisableBlockingTransmission() // Deprecated
@@ -106,5 +120,48 @@ func Init(sessionFile string, regCode string, grpConf string) *id.User {
 
 // Log into the server using the user id generated from Init
 func Login(userId *id.User) {
-	clientObj.Login(userId, "", GATEWAY_ADDRESSES[len(GATEWAY_ADDRESSES)-1], certs.GatewayTLS)
+	_, err := clientObj.Login(userId, "",
+		GATEWAY_ADDRESSES[len(GATEWAY_ADDRESSES)-1], certs.GatewayTLS)
+
+	if err != nil {
+		udb.Log.FATAL.Panicf("Could not log into the server: %s", err)
+	}
+}
+
+// outputDsaPubKeyToJson encodes the DSA public key and user ID to JSON and
+// outputs it to the specified directory with the specified file name.
+func outputDsaPubKeyToJson(publicKey *signature.DSAPublicKey, userID *id.User,
+	dir, fileName string) {
+	// Encode the public key for the pem format
+	encodedKey, err := publicKey.PemEncode()
+	if err != nil {
+		jww.ERROR.Printf("Error Pem encoding public key: %s", err)
+	}
+
+	// Setup struct that will dictate the JSON structure
+	jsonStruct := struct {
+		Id             *id.User
+		Dsa_public_key string
+	}{
+		Id:             userID,
+		Dsa_public_key: string(encodedKey),
+	}
+
+	// Generate JSON from structure
+	data, err := json.MarshalIndent(jsonStruct, "", "\t")
+	if err != nil {
+		jww.ERROR.Printf("Error encoding structure to JSON: %s", err)
+	}
+
+	// Get the user's home directory
+	homeDir, err := homedir.Dir()
+	if err != nil {
+		jww.ERROR.Printf("Unable to retrieve user's home directory: %s", err)
+	}
+
+	// Write JSON to file
+	err = ioutil.WriteFile(homeDir+"/"+dir+"/"+fileName, data, 0644)
+	if err != nil {
+		jww.ERROR.Printf("Error writing JSON file: %s", err)
+	}
 }

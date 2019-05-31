@@ -17,7 +17,7 @@ import (
 	"os"
 )
 
-// The User Discovery Bot's userid & registrationn code
+// The User Discovery Bot's user ID and registration code
 // (this is global in cMix systems)
 var UDB_USERID *id.User = id.NewUserFromUints(&[4]uint64{0, 0, 0, 3})
 

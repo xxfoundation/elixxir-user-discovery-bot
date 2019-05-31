@@ -34,14 +34,14 @@ func NewRamStorage() *RamStorage {
 	return &RS
 }
 
-// Addkey - Add a key stream, return the fingerprint
+// AddKey - Add a key stream, return the fingerprint
 func (rs RamStorage) AddKey(value []byte) (string, error) {
 	keyFingerprint := fingerprint.Fingerprint(value)
 
 	// Error out if the key exists already
 	_, ok := rs.Keys[keyFingerprint]
 	if ok {
-		return "", fmt.Errorf("Fingerprint already exists: %s", keyFingerprint)
+		return "", fmt.Errorf("fingerprint already exists: %s", keyFingerprint)
 	}
 
 	rs.Keys[keyFingerprint] = value
@@ -74,7 +74,7 @@ func (rs RamStorage) GetUserKey(userId *id.User) (string, bool) {
 func (rs RamStorage) AddUserID(email string, userID *id.User) error {
 	_, ok := rs.UserIDs[email]
 	if ok {
-		return fmt.Errorf("Email already exists: %s", email)
+		return fmt.Errorf("email already exists: %s", email)
 	}
 	rs.UserIDs[email] = *userID
 	return nil
