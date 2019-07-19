@@ -23,7 +23,6 @@ import (
 var cfgFile string
 var verbose bool
 var showVer bool
-var validConfig bool
 var ndfPath string
 
 // RootCmd represents the base command when called without any subcommands
@@ -36,9 +35,6 @@ var RootCmd = &cobra.Command{
 		if showVer {
 			printVersion()
 			return
-		}
-		if !validConfig {
-			udb.Log.WARN.Println("Invalid Config File")
 		}
 
 		sess := viper.GetString("sessionfile")
@@ -92,34 +88,33 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	// Default search paths
-	var searchDirs []string
-	searchDirs = append(searchDirs, "./") // $PWD
-	// $HOME
-	home, _ := homedir.Dir()
-	searchDirs = append(searchDirs, home+"/.elixxir/")
-	// /etc/elixxir
-	searchDirs = append(searchDirs, "/etc/elixxir")
-	udb.Log.DEBUG.Printf("Configuration search directories: %v", searchDirs)
+	if cfgFile == "" {
+		// Default search paths
+		var searchDirs []string
+		searchDirs = append(searchDirs, "./") // $PWD
+		// $HOME
+		home, _ := homedir.Dir()
+		searchDirs = append(searchDirs, home+"/.elixxir/")
+		// /etc/elixxir
+		searchDirs = append(searchDirs, "/etc/elixxir")
+		jww.DEBUG.Printf("Configuration search directories: %v", searchDirs)
 
-	validConfig = false
-	for i := range searchDirs {
-		cfgFile := searchDirs[i] + "udb.yaml"
-		_, err := os.Stat(cfgFile)
-		if !os.IsNotExist(err) {
-			validConfig = true
-			viper.SetConfigFile(cfgFile)
-			break
+		for i := range searchDirs {
+			cfgFile = searchDirs[i] + "gateway.yaml"
+			_, err := os.Stat(cfgFile)
+			if !os.IsNotExist(err) {
+				break
+			}
 		}
 	}
+	viper.SetConfigFile(cfgFile)
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err != nil {
-		udb.Log.WARN.Printf("Unable to read config file (%s): %s", cfgFile,
-			err.Error())
-		validConfig = false
+		fmt.Printf("Unable to read config file (%s): %+v", cfgFile, err.Error())
 	}
+
 }
 
 // initLog initializes logging thresholds and the log path.
