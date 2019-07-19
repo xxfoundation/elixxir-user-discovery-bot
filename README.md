@@ -24,14 +24,6 @@ Note: Yaml prohibits the use of tabs. If you put tabs in your config file, the U
 logPath: "udb.log"
 # Path where UDB will store session file
 sessionfile: "udb.session"
-# Number of nodes per team
-numNodes: 3
-# List of gateways this UDB will try to connect to
-gateways:
-    - "gateway-0.default.cmix.rip:11420"
-    - "gateway-1.default.cmix.rip:11420"
-    - "gateway-2.default.cmix.rip:11420"
-certPath: "../path/to/gw/tls/cert"
 ```
 
 ## Running

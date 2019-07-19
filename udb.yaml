@@ -1,7 +1,4 @@
-# Sample config file for UDB
-logPath: "logfile.log"
-numNodes: 1
-gateways:
-    - "gateway-0.prod.cmix.rip:11420"
-    - "gateway-1.prod.cmix.rip:11420"
-    - "gateway-2.prod.cmix.rip:11420"
+# Path where UDB will store its logs
+logPath: "udb.log"
+# Path where UDB will store session file
+sessionfile: "udb.session"
