@@ -13,7 +13,6 @@ import (
 	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/cmixproto"
 	"gitlab.com/elixxir/client/parse"
-	"gitlab.com/elixxir/primitives/format"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/switchboard"
 )
@@ -26,14 +25,10 @@ type GetKeyListener struct{}
 // Register the UDB listeners
 func RegisterListeners(cl *api.Client) {
 	Log.DEBUG.Println("Registering UDB listeners")
-	cl.Listen(id.ZeroID, format.None, int32(cmixproto.Type_UDB_SEARCH),
-		SearchListener{})
-	cl.Listen(id.ZeroID, format.None, int32(cmixproto.Type_UDB_REGISTER),
-		RegisterListener{})
-	cl.Listen(id.ZeroID, format.None, int32(cmixproto.Type_UDB_PUSH_KEY),
-		PushKeyListener{})
-	cl.Listen(id.ZeroID, format.None, int32(cmixproto.Type_UDB_GET_KEY),
-		GetKeyListener{})
+	cl.Listen(id.ZeroID, int32(cmixproto.Type_UDB_SEARCH), SearchListener{})
+	cl.Listen(id.ZeroID, int32(cmixproto.Type_UDB_REGISTER), RegisterListener{})
+	cl.Listen(id.ZeroID, int32(cmixproto.Type_UDB_PUSH_KEY), PushKeyListener{})
+	cl.Listen(id.ZeroID, int32(cmixproto.Type_UDB_GET_KEY), GetKeyListener{})
 	clientObj = cl
 }
 

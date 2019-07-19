@@ -16,18 +16,14 @@ import (
 	"github.com/mitchellh/go-homedir"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/client/api"
-	"gitlab.com/elixxir/crypto/certs"
-	"gitlab.com/elixxir/crypto/cyclic"
 	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/elixxir/primitives/ndf"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
 	"io/ioutil"
 	"os"
 )
-
-// Regular globals
-var GATEWAY_ADDRESSES []string
 
 // Message rate limit in ms (100 = 10 msg per second)
 const RATE_LIMIT = 100
@@ -41,18 +37,17 @@ var clientObj *api.Client
 //  - Set up global variables
 //  - Log into the server
 //  - Start the main loop
-func StartBot(gatewayAddr []string, grpConf, sess string) {
+func StartBot(sess string, def *ndf.NetworkDefinition) {
 	udb.Log.DEBUG.Printf("Starting User Discovery Bot...")
 
 	// Use RAM storage for now
 	udb.DataStore = storage.NewRamStorage()
 
-	GATEWAY_ADDRESSES = gatewayAddr
 	UDB_SESSIONFILE = sess
 
 	// Initialize the client
 	regCode := udb.UDB_USERID.RegistrationCode()
-	userId := Init(UDB_SESSIONFILE, regCode, grpConf)
+	userId := Init(UDB_SESSIONFILE, regCode, def)
 
 	// Get the default parameters and generate a public key from it
 	dsaParams := signature.GetDefaultDSAParams()
@@ -83,7 +78,7 @@ func StartBot(gatewayAddr []string, grpConf, sess string) {
 }
 
 // Initialize a session using the given session file and other info
-func Init(sessionFile string, regCode string, grpConf string) *id.User {
+func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.User {
 	userId := udb.UDB_USERID
 
 	// We only register when the session file does not exist
@@ -93,7 +88,7 @@ func Init(sessionFile string, regCode string, grpConf string) *id.User {
 	// Get new client. Setting storage to nil internally creates a
 	// default storage
 	var initErr error
-	clientObj, initErr = api.NewClient(nil, sessionFile)
+	clientObj, initErr = api.NewClient(nil, sessionFile, def)
 	if initErr != nil {
 		udb.Log.FATAL.Panicf("Could not initialize: %v", initErr)
 	}
@@ -102,15 +97,9 @@ func Init(sessionFile string, regCode string, grpConf string) *id.User {
 	// Need a more accurate descriptor of what the method actually does than
 	// Register, or to remove the things that aren't actually used for
 	// registration.
-	grp := cyclic.Group{}
-	err = grp.UnmarshalJSON([]byte(grpConf))
-	if err != nil {
-		udb.Log.FATAL.Panicf("Could Not Decode group from JSON: %s\n", err.Error())
-	}
 
 	userId, err = clientObj.Register(true, regCode, "",
-		"", GATEWAY_ADDRESSES, false, &grp)
-
+		"")
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not register: %v", err)
 	}
@@ -120,8 +109,7 @@ func Init(sessionFile string, regCode string, grpConf string) *id.User {
 
 // Log into the server using the user id generated from Init
 func Login(userId *id.User) {
-	_, err := clientObj.Login(userId, "",
-		GATEWAY_ADDRESSES[len(GATEWAY_ADDRESSES)-1], certs.GatewayTLS)
+	_, err := clientObj.Login(userId)
 
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not log into the server: %s", err)

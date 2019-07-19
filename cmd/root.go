@@ -13,9 +13,10 @@ import (
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
+	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/globals"
-	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
+	"io/ioutil"
 	"os"
 )
 
@@ -23,6 +24,7 @@ var cfgFile string
 var verbose bool
 var showVer bool
 var validConfig bool
+var ndfPath string
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -39,17 +41,16 @@ var RootCmd = &cobra.Command{
 			udb.Log.WARN.Println("Invalid Config File")
 		}
 
-		gateways := viper.GetStringSlice("gateways")
-		grpConf := viper.GetString("group")
-		if len(gateways) < 1 {
-			// No gateways in config file
-			udb.Log.FATAL.Panicf("Error: No gateway specified! Add to" +
-				" configuration file.")
-		}
 		sess := viper.GetString("sessionfile")
-		// Set the GatewayCertPath explicitly to avoid data races
-		connect.GatewayCertPath = viper.GetString("certPath")
-		StartBot(gateways, grpConf, sess)
+
+		ndfBytes, err := ioutil.ReadFile(ndfPath)
+		if err != nil {
+			globals.Log.FATAL.Panicf("Could not read network definition file: %v", err)
+		}
+
+		ndfJSON := api.VerifyNDF(string(ndfBytes), "")
+
+		StartBot(sess, ndfJSON)
 	},
 }
 
@@ -82,6 +83,11 @@ func init() {
 		"Verbose mode for debugging")
 	RootCmd.Flags().BoolVarP(&showVer, "version", "V", false,
 		"Show the server version information.")
+	RootCmd.PersistentFlags().StringVarP(&ndfPath,
+		"ndf",
+		"n",
+		"ndf.json",
+		"Path to the network definition JSON file")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -114,13 +120,6 @@ func initConfig() {
 			err.Error())
 		validConfig = false
 	}
-
-	// Temporarily need to get group as JSON data into viper
-	json, err := globals.InitCrypto().MarshalJSON()
-	if err != nil {
-		// panic
-	}
-	viper.Set("group", string(json))
 }
 
 // initLog initializes logging thresholds and the log path.
