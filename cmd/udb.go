@@ -92,6 +92,14 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	if initErr != nil {
 		udb.Log.FATAL.Panicf("Could not initialize: %v", initErr)
 	}
+
+	//connect udb to gateways
+	err = clientObj.Connect()
+	if err != nil {
+		udb.Log.FATAL.Printf("UDB could not connect to gateways: %+v",
+			err)
+	}
+
 	// SB: Trying to always register.
 	// I think it's needed for some things to work correctly.
 	// Need a more accurate descriptor of what the method actually does than
