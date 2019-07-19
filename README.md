@@ -13,6 +13,7 @@ The user discovery bot helps users make first contact with other users. Users ca
 |--help|-h|Shows a help message|-h|
 |--verbose|-v|Prints more log messages|-v|
 |--version|-V|Prints generated version information for the UDB and its dependencies. To regenerate log messages, run `$ go generate cmd/version.go`.|-V|
+|--ndf|-n|Path to the network definition file|-V|
 
 ## Example configuration
 
