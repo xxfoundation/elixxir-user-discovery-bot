@@ -47,7 +47,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 
 	// Initialize the client
 	regCode := udb.UDB_USERID.RegistrationCode()
-	userId := Init(UDB_SESSIONFILE, regCode, def)
+	userID := Init(UDB_SESSIONFILE, regCode, def)
 
 	// Get the default parameters and generate a public key from it
 	dsaParams := signature.GetDefaultDSAParams()
@@ -63,7 +63,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	clientObj.SetRateLimiting(uint32(RATE_LIMIT))
 
 	// Log into the server
-	Login(userId)
+	Login(userID)
 
 	// Register the listeners with the user discovery bot
 	udb.RegisterListeners(clientObj)
@@ -79,7 +79,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 
 // Initialize a session using the given session file and other info
 func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.User {
-	userId := udb.UDB_USERID
+	userID := udb.UDB_USERID
 
 	// We only register when the session file does not exist
 	// FIXME: this is super weird -- why have to check for a file,
@@ -106,18 +106,18 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	// Register, or to remove the things that aren't actually used for
 	// registration.
 
-	userId, err = clientObj.Register(true, regCode, "",
+	userID, err = clientObj.Register(true, regCode, "",
 		"")
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not register: %v", err)
 	}
 
-	return userId
+	return userID
 }
 
 // Log into the server using the user id generated from Init
-func Login(userId *id.User) {
-	_, err := clientObj.Login(userId)
+func Login(userID *id.User) {
+	_, err := clientObj.Login(userID)
 
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not log into the server: %s", err)
