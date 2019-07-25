@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
+// Copyright © 2019 Privategrity Corporation                                   /
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
@@ -25,15 +25,15 @@ import (
 	"os"
 )
 
-// Message rate limit in ms (100 = 10 msg per second)
-const RATE_LIMIT = 100
+// RateLimit for messages in ms (100 = 10 msg per second)
+const RateLimit = 100
 
-// The Session file used by UDB
-var UDB_SESSIONFILE string
+// UDBSessionFileName used by UDB
+var UDBSessionFileName string
 
 var clientObj *api.Client
 
-// Startup the user discovery bot:
+// StartBot starts the user discovery bot:
 //  - Set up global variables
 //  - Log into the server
 //  - Start the main loop
@@ -43,24 +43,24 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	// Use RAM storage for now
 	udb.DataStore = storage.NewRamStorage()
 
-	UDB_SESSIONFILE = sess
+	UDBSessionFileName = sess
 
 	// Initialize the client
 	regCode := udb.UDB_USERID.RegistrationCode()
-	userID := Init(UDB_SESSIONFILE, regCode, def)
+	userID := Init(UDBSessionFileName, regCode, def)
 
 	// Get the default parameters and generate a public key from it
 	dsaParams := signature.GetDefaultDSAParams()
 	publicKey := dsaParams.PrivateKeyGen(rand.Reader).PublicKeyGen()
 
 	// Save DSA public key and user ID to JSON file
-	outputDsaPubKeyToJson(publicKey, udb.UDB_USERID, ".elixxir",
+	outputDsaPubKeyToJSON(publicKey, udb.UDB_USERID, ".elixxir",
 		"udb_info.json")
 
 	// API Settings (hard coded)
 	clientObj.DisableBlockingTransmission() // Deprecated
 	// Up to 10 messages per second
-	clientObj.SetRateLimiting(uint32(RATE_LIMIT))
+	clientObj.SetRateLimiting(uint32(RateLimit))
 
 	// Log into the server
 	Login(userID)
@@ -77,7 +77,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	<-quit
 }
 
-// Initialize a session using the given session file and other info
+// Init -ialize a session using the given session file and other info
 func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.User {
 	userID := udb.UDB_USERID
 
@@ -115,7 +115,7 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	return userID
 }
 
-// Log into the server using the user id generated from Init
+// Login to the server using the user id generated from Init
 func Login(userID *id.User) {
 	_, err := clientObj.Login(userID)
 
@@ -124,9 +124,9 @@ func Login(userID *id.User) {
 	}
 }
 
-// outputDsaPubKeyToJson encodes the DSA public key and user ID to JSON and
+// outputDsaPubKeyToJSON encodes the DSA public key and user ID to JSON and
 // outputs it to the specified directory with the specified file name.
-func outputDsaPubKeyToJson(publicKey *signature.DSAPublicKey, userID *id.User,
+func outputDsaPubKeyToJSON(publicKey *signature.DSAPublicKey, userID *id.User,
 	dir, fileName string) {
 	// Encode the public key for the pem format
 	encodedKey, err := publicKey.PemEncode()
