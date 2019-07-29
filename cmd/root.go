@@ -39,6 +39,10 @@ var RootCmd = &cobra.Command{
 
 		sess := viper.GetString("sessionfile")
 
+		if sess == "" {
+			sess = "udb-session.blob"
+		}
+
 		ndfBytes, err := ioutil.ReadFile(ndfPath)
 		if err != nil {
 			globals.Log.FATAL.Panicf("Could not read network definition file: %v", err)
