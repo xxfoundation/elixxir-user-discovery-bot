@@ -62,6 +62,8 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	// Up to 10 messages per second
 	clientObj.SetRateLimiting(uint32(RateLimit))
 
+	clientObj.Connect()
+
 	// Log into the server
 	Login(userID)
 
