@@ -169,6 +169,12 @@ func TestRegisterListeners(t *testing.T) {
 		t.Errorf("Register failed: %s", err.Error())
 	}
 
+	err = client.Connect()
+
+	if err != nil {
+		t.Errorf("Conneting to remotes failed: %+v", err)
+	}
+
 	// Login to gateway
 	_, err = client.Login(userID)
 
@@ -178,6 +184,12 @@ func TestRegisterListeners(t *testing.T) {
 
 	// Register Listeners
 	RegisterListeners(client)
+
+	err = client.StartMessageReceiver()
+
+	if err != nil {
+		t.Errorf("Could not start message reciever: %v", err)
+	}
 
 	err = client.Logout()
 
@@ -206,7 +218,7 @@ func testMainWrapper(m *testing.M) int {
 		def.Gateways = append(def.Gateways, gw)
 
 		GWComms[i] = gateway.StartGateway(gw.Address,
-			gateway.NewImplementation(), "", "")
+			gateway.NewImplementation(), nil, nil)
 	}
 
 	for i := 0; i < NumNodes; i++ {

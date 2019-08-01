@@ -62,17 +62,27 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	// Up to 10 messages per second
 	clientObj.SetRateLimiting(uint32(RateLimit))
 
-	clientObj.Connect()
+	err := clientObj.Connect()
+
+	if err != nil {
+		jww.FATAL.Panicf("Could not connect to remotes:  %+v", err)
+	}
 
 	// Log into the server
-	Login(userID)
+	_, err = clientObj.Login(userID)
+
+	if err != nil {
+		udb.Log.FATAL.Panicf("Could not login: %s", err)
+	}
 
 	// Register the listeners with the user discovery bot
 	udb.RegisterListeners(clientObj)
 
-	// TEMPORARILY try starting the reception thread here instead-it seems to
-	// not be starting?
-	//go io.Messaging.MessageReceiver(time.Second)
+	// starting the reception thread
+	err = clientObj.StartMessageReceiver()
+	if err != nil {
+		jww.FATAL.Panicf("Could not start message recievers:  %+v", err)
+	}
 
 	// Block forever as a keepalive
 	quit := make(chan bool)
@@ -115,15 +125,6 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	}
 
 	return userID
-}
-
-// Login to the server using the user id generated from Init
-func Login(userID *id.User) {
-	_, err := clientObj.Login(userID)
-
-	if err != nil {
-		udb.Log.FATAL.Panicf("Could not log into the server: %s", err)
-	}
 }
 
 // outputDsaPubKeyToJSON encodes the DSA public key and user ID to JSON and
