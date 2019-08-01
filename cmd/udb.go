@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
+// Copyright © 2019 Privategrity Corporation                                   /
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
@@ -16,75 +16,82 @@ import (
 	"github.com/mitchellh/go-homedir"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/client/api"
-	"gitlab.com/elixxir/crypto/certs"
-	"gitlab.com/elixxir/crypto/cyclic"
 	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/elixxir/primitives/ndf"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
 	"io/ioutil"
 	"os"
 )
 
-// Regular globals
-var GATEWAY_ADDRESSES []string
+// RateLimit for messages in ms (100 = 10 msg per second)
+const RateLimit = 100
 
-// Message rate limit in ms (100 = 10 msg per second)
-const RATE_LIMIT = 100
-
-// The Session file used by UDB
-var UDB_SESSIONFILE string
+// UDBSessionFileName used by UDB
+var UDBSessionFileName string
 
 var clientObj *api.Client
 
-// Startup the user discovery bot:
+// StartBot starts the user discovery bot:
 //  - Set up global variables
 //  - Log into the server
 //  - Start the main loop
-func StartBot(gatewayAddr []string, grpConf, sess string) {
+func StartBot(sess string, def *ndf.NetworkDefinition) {
 	udb.Log.DEBUG.Printf("Starting User Discovery Bot...")
 
 	// Use RAM storage for now
 	udb.DataStore = storage.NewRamStorage()
 
-	GATEWAY_ADDRESSES = gatewayAddr
-	UDB_SESSIONFILE = sess
+	UDBSessionFileName = sess
 
 	// Initialize the client
 	regCode := udb.UDB_USERID.RegistrationCode()
-	userId := Init(UDB_SESSIONFILE, regCode, grpConf)
+	userID := Init(UDBSessionFileName, regCode, def)
 
 	// Get the default parameters and generate a public key from it
 	dsaParams := signature.GetDefaultDSAParams()
 	publicKey := dsaParams.PrivateKeyGen(rand.Reader).PublicKeyGen()
 
 	// Save DSA public key and user ID to JSON file
-	outputDsaPubKeyToJson(publicKey, udb.UDB_USERID, ".elixxir",
+	outputDsaPubKeyToJSON(publicKey, udb.UDB_USERID, ".elixxir",
 		"udb_info.json")
 
 	// API Settings (hard coded)
 	clientObj.DisableBlockingTransmission() // Deprecated
 	// Up to 10 messages per second
-	clientObj.SetRateLimiting(uint32(RATE_LIMIT))
+	clientObj.SetRateLimiting(uint32(RateLimit))
+
+	err := clientObj.Connect()
+
+	if err != nil {
+		jww.FATAL.Panicf("Could not connect to remotes:  %+v", err)
+	}
 
 	// Log into the server
-	Login(userId)
+	_, err = clientObj.Login(userID)
+
+	if err != nil {
+		udb.Log.FATAL.Panicf("Could not login: %s", err)
+	}
 
 	// Register the listeners with the user discovery bot
 	udb.RegisterListeners(clientObj)
 
-	// TEMPORARILY try starting the reception thread here instead-it seems to
-	// not be starting?
-	//go io.Messaging.MessageReceiver(time.Second)
+	// starting the reception thread
+	err = clientObj.StartMessageReceiver()
+	if err != nil {
+		jww.FATAL.Panicf("Could not start message recievers:  %+v", err)
+	}
 
 	// Block forever as a keepalive
 	quit := make(chan bool)
 	<-quit
 }
 
-// Initialize a session using the given session file and other info
-func Init(sessionFile string, regCode string, grpConf string) *id.User {
-	userId := udb.UDB_USERID
+// Init -ialize a session using the given session file and other info
+func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.User {
+	userID := udb.UDB_USERID
 
 	// We only register when the session file does not exist
 	// FIXME: this is super weird -- why have to check for a file,
@@ -93,44 +100,36 @@ func Init(sessionFile string, regCode string, grpConf string) *id.User {
 	// Get new client. Setting storage to nil internally creates a
 	// default storage
 	var initErr error
-	clientObj, initErr = api.NewClient(nil, sessionFile)
+	clientObj, initErr = api.NewClient(nil, sessionFile, def)
 	if initErr != nil {
 		udb.Log.FATAL.Panicf("Could not initialize: %v", initErr)
 	}
+
+	//connect udb to gateways
+	err = clientObj.Connect()
+	if err != nil {
+		udb.Log.FATAL.Printf("UDB could not connect to gateways: %+v",
+			err)
+	}
+
 	// SB: Trying to always register.
 	// I think it's needed for some things to work correctly.
 	// Need a more accurate descriptor of what the method actually does than
 	// Register, or to remove the things that aren't actually used for
 	// registration.
-	grp := cyclic.Group{}
-	err = grp.UnmarshalJSON([]byte(grpConf))
-	if err != nil {
-		udb.Log.FATAL.Panicf("Could Not Decode group from JSON: %s\n", err.Error())
-	}
 
-	userId, err = clientObj.Register(true, regCode, "",
-		"", GATEWAY_ADDRESSES, false, &grp)
-
+	userID, err = clientObj.Register(true, regCode, "",
+		"")
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not register: %v", err)
 	}
 
-	return userId
+	return userID
 }
 
-// Log into the server using the user id generated from Init
-func Login(userId *id.User) {
-	_, err := clientObj.Login(userId, "",
-		GATEWAY_ADDRESSES[len(GATEWAY_ADDRESSES)-1], certs.GatewayTLS)
-
-	if err != nil {
-		udb.Log.FATAL.Panicf("Could not log into the server: %s", err)
-	}
-}
-
-// outputDsaPubKeyToJson encodes the DSA public key and user ID to JSON and
+// outputDsaPubKeyToJSON encodes the DSA public key and user ID to JSON and
 // outputs it to the specified directory with the specified file name.
-func outputDsaPubKeyToJson(publicKey *signature.DSAPublicKey, userID *id.User,
+func outputDsaPubKeyToJSON(publicKey *signature.DSAPublicKey, userID *id.User,
 	dir, fileName string) {
 	// Encode the public key for the pem format
 	encodedKey, err := publicKey.PemEncode()
