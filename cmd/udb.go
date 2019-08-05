@@ -11,12 +11,9 @@
 package cmd
 
 import (
-	"crypto/rand"
 	"encoding/json"
-	"github.com/mitchellh/go-homedir"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/client/api"
-	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
@@ -49,20 +46,18 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	regCode := udb.UDB_USERID.RegistrationCode()
 	userID := Init(UDBSessionFileName, regCode, def)
 
-	// Get the default parameters and generate a public key from it
-	dsaParams := signature.GetDefaultDSAParams()
-	publicKey := dsaParams.PrivateKeyGen(rand.Reader).PublicKeyGen()
-
-	// Save DSA public key and user ID to JSON file
-	outputDsaPubKeyToJSON(publicKey, udb.UDB_USERID, ".elixxir",
-		"udb_info.json")
+	// Save user ID to JSON file
+	err := outputUserIDToJSON(udb.UDB_USERID, ".elixxir/udb_info.json")
+	if err != nil {
+		jww.FATAL.Panicf("Could not output user ID to JSON: %v", err)
+	}
 
 	// API Settings (hard coded)
 	clientObj.DisableBlockingTransmission() // Deprecated
 	// Up to 10 messages per second
 	clientObj.SetRateLimiting(uint32(RateLimit))
 
-	err := clientObj.Connect()
+	err = clientObj.Connect()
 
 	if err != nil {
 		jww.FATAL.Panicf("Could not connect to remotes:  %+v", err)
@@ -89,7 +84,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	<-quit
 }
 
-// Init -ialize a session using the given session file and other info
+// Initialize a session using the given session file and other info
 func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.User {
 	userID := udb.UDB_USERID
 
@@ -127,40 +122,18 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	return userID
 }
 
-// outputDsaPubKeyToJSON encodes the DSA public key and user ID to JSON and
-// outputs it to the specified directory with the specified file name.
-func outputDsaPubKeyToJSON(publicKey *signature.DSAPublicKey, userID *id.User,
-	dir, fileName string) {
-	// Encode the public key for the pem format
-	encodedKey, err := publicKey.PemEncode()
-	if err != nil {
-		jww.ERROR.Printf("Error Pem encoding public key: %s", err)
-	}
-
-	// Setup struct that will dictate the JSON structure
-	jsonStruct := struct {
-		Id             *id.User
-		Dsa_public_key string
-	}{
-		Id:             userID,
-		Dsa_public_key: string(encodedKey),
-	}
-
+// outputUserIDToJSON encodes the User ID to JSON and outputs it to the
+// specified file path. An error is returned if the JSON marshaling fails or if
+// the JSON file cannot be created.
+func outputUserIDToJSON(userID *id.User, filePath string) error {
 	// Generate JSON from structure
-	data, err := json.MarshalIndent(jsonStruct, "", "\t")
+	data, err := json.MarshalIndent(userID, "", "\t")
 	if err != nil {
-		jww.ERROR.Printf("Error encoding structure to JSON: %s", err)
-	}
-
-	// Get the user's home directory
-	homeDir, err := homedir.Dir()
-	if err != nil {
-		jww.ERROR.Printf("Unable to retrieve user's home directory: %s", err)
+		return err
 	}
 
 	// Write JSON to file
-	err = ioutil.WriteFile(homeDir+"/"+dir+"/"+fileName, data, 0644)
-	if err != nil {
-		jww.ERROR.Printf("Error writing JSON file: %s", err)
-	}
+	err = ioutil.WriteFile(filePath, data, 0644)
+
+	return err
 }
