@@ -134,9 +134,6 @@ func outputUserIDToJSON(userID *id.User, filePath string) error {
 
 	// Write JSON to file
 	err = ioutil.WriteFile(filePath, data, 0644)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
