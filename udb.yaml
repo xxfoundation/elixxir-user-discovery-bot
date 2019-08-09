@@ -2,3 +2,5 @@
 logPath: "udb.log"
 # Path where UDB will store session file
 sessionfile: "udb.session"
+# Path of the network definition file
+ndfPath: "ndf.json"

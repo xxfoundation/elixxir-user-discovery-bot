@@ -23,7 +23,6 @@ import (
 var cfgFile string
 var verbose bool
 var showVer bool
-var ndfPath string
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -38,16 +37,15 @@ var RootCmd = &cobra.Command{
 		}
 
 		sess := viper.GetString("sessionfile")
-
 		if sess == "" {
 			sess = "udb-session.blob"
 		}
 
-		ndfBytes, err := ioutil.ReadFile(ndfPath)
+		// Import the network definition file
+		ndfBytes, err := ioutil.ReadFile(viper.GetString("ndfPath"))
 		if err != nil {
 			globals.Log.FATAL.Panicf("Could not read network definition file: %v", err)
 		}
-
 		ndfJSON := api.VerifyNDF(string(ndfBytes), "")
 
 		StartBot(sess, ndfJSON)
@@ -83,11 +81,6 @@ func init() {
 		"Verbose mode for debugging")
 	RootCmd.Flags().BoolVarP(&showVer, "version", "V", false,
 		"Show the server version information.")
-	RootCmd.PersistentFlags().StringVarP(&ndfPath,
-		"ndf",
-		"n",
-		"ndf.json",
-		"Path to the network definition JSON file")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -104,7 +97,7 @@ func initConfig() {
 		jww.DEBUG.Printf("Configuration search directories: %v", searchDirs)
 
 		for i := range searchDirs {
-			cfgFile = searchDirs[i] + "gateway.yaml"
+			cfgFile = searchDirs[i] + "udb.yaml"
 			_, err := os.Stat(cfgFile)
 			if !os.IsNotExist(err) {
 				break
