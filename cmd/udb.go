@@ -11,14 +11,12 @@
 package cmd
 
 import (
-	"encoding/json"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
-	"io/ioutil"
 	"os"
 )
 
@@ -46,18 +44,12 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	regCode := udb.UDB_USERID.RegistrationCode()
 	userID := Init(UDBSessionFileName, regCode, def)
 
-	// Save user ID to JSON file
-	err := outputUserIDToJSON(udb.UDB_USERID, ".elixxir/udb_info.json")
-	if err != nil {
-		jww.FATAL.Panicf("Could not output user ID to JSON: %v", err)
-	}
-
 	// API Settings (hard coded)
 	clientObj.DisableBlockingTransmission() // Deprecated
 	// Up to 10 messages per second
 	clientObj.SetRateLimiting(uint32(RateLimit))
 
-	err = clientObj.Connect()
+	err := clientObj.Connect()
 
 	if err != nil {
 		jww.FATAL.Panicf("Could not connect to remotes:  %+v", err)
@@ -120,20 +112,4 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	}
 
 	return userID
-}
-
-// outputUserIDToJSON encodes the User ID to JSON and outputs it to the
-// specified file path. An error is returned if the JSON marshaling fails or if
-// the JSON file cannot be created.
-func outputUserIDToJSON(userID *id.User, filePath string) error {
-	// Generate JSON from structure
-	data, err := json.MarshalIndent(userID, "", "\t")
-	if err != nil {
-		return err
-	}
-
-	// Write JSON to file
-	err = ioutil.WriteFile(filePath, data, 0644)
-
-	return err
 }
