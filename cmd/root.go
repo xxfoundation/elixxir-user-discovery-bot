@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/viper"
 	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/globals"
+	"gitlab.com/elixxir/comms/utils"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
 	"io/ioutil"
 	"os"
@@ -42,7 +43,7 @@ var RootCmd = &cobra.Command{
 		}
 
 		// Import the network definition file
-		ndfBytes, err := ioutil.ReadFile(viper.GetString("ndfPath"))
+		ndfBytes, err := ioutil.ReadFile(utils.GetFullPath(viper.GetString("ndfPath")))
 		if err != nil {
 			globals.Log.FATAL.Panicf("Could not read network definition file: %v", err)
 		}
