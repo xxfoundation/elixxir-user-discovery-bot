@@ -55,8 +55,8 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 		jww.FATAL.Panicf("Could not connect to remotes:  %+v", err)
 	}
 
-	// Log into the server
-	_, err = clientObj.Login(userID)
+	// Log into the server with a blank password
+	_, err = clientObj.Login("")
 
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not login: %s", err)
@@ -106,7 +106,7 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	// registration.
 
 	userID, err = clientObj.Register(true, regCode, "",
-		"")
+		"", "")
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not register: %v", err)
 	}
