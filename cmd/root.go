@@ -24,6 +24,7 @@ import (
 var cfgFile string
 var verbose bool
 var showVer bool
+var noTLS bool
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -82,6 +83,8 @@ func init() {
 		"Verbose mode for debugging")
 	RootCmd.Flags().BoolVarP(&showVer, "version", "V", false,
 		"Show the server version information.")
+	RootCmd.Flags().BoolVarP(&noTLS, "noTLS", "", false,
+		"Set to ignore TLS")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -118,15 +121,6 @@ func initConfig() {
 // initLog initializes logging thresholds and the log path.
 func initLog() {
 	if viper.Get("logPath") != nil {
-		// If verbose flag set then log more info for debugging
-		if verbose || viper.GetBool("verbose") {
-			fmt.Printf("Logging verbosely\n")
-			udb.Log.SetLogThreshold(jww.LevelDebug)
-			udb.Log.SetStdoutThreshold(jww.LevelDebug)
-		} else {
-			udb.Log.SetLogThreshold(jww.LevelInfo)
-			udb.Log.SetStdoutThreshold(jww.LevelInfo)
-		}
 		// Create log file, overwrites if existing
 		logPath := viper.GetString("logPath")
 		logFile, err := os.Create(logPath)
@@ -135,5 +129,14 @@ func initLog() {
 		} else {
 			udb.Log.SetLogOutput(logFile)
 		}
+	}
+	// If verbose flag set then log more info for debugging
+	if verbose || viper.GetBool("verbose") {
+		udb.Log.SetLogThreshold(jww.LevelDebug)
+		udb.Log.SetStdoutThreshold(jww.LevelDebug)
+		udb.Log.INFO.Print("Logging Verbosely")
+	} else {
+		udb.Log.SetLogThreshold(jww.LevelInfo)
+		udb.Log.SetStdoutThreshold(jww.LevelInfo)
 	}
 }
