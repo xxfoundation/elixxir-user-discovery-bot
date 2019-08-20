@@ -80,10 +80,7 @@ func Register(userId *id.User, args []string) {
 }
 
 const PUSHKEY_USAGE = "Usage: 'PUSHKEY [temp-key-id] " +
-				"[base64-encoded-bytestream]'"
-const PUSHKEY_SIZE = 256 // 2048 bits
-var tempKeys = make(map[string][]byte)
-var tempKeysState = make(map[string][]bool)
+	"[base64-encoded-bytestream]'"
 
 // PushKey adds a key to the registration database and links it by fingerprint
 // The PushKey command has the form PUSHKEY KEYID KEYMAT
@@ -104,7 +101,8 @@ func PushKey(userId *id.User, args []string) {
 		return
 	}
 
-	keyId := args[0]
+	// keyId := args[0] Note: Legacy, key id is not needed anymore as it is
+	//                        sent as a single message
 	keyMat := args[1]
 
 	// Decode keyMat
@@ -117,24 +115,7 @@ func PushKey(userId *id.User, args []string) {
 		return
 	}
 
-	// Does it exist yet?
-	key, ok := tempKeys[keyId]
-	keyState, _ := tempKeysState[keyId]
-	if !ok {
-		key = make([]byte, PUSHKEY_SIZE)
-		keyState = make([]bool, PUSHKEY_SIZE)
-	}
-
-	// Update temporary storage
-	for i := range newKeyBytes {
-		key[i] = newKeyBytes[i]
-		keyState[i] = true
-	}
-
-	// Add key and remove from temporary storage
-	delete(tempKeys, keyId)
-	delete(tempKeysState, keyId)
-	fingerprint, err := DataStore.AddKey(key)
+	fingerprint, err := DataStore.AddKey(newKeyBytes)
 	if err != nil {
 		PushErr(err.Error())
 	}
