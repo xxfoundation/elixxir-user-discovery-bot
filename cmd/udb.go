@@ -49,14 +49,10 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	// Up to 10 messages per second
 	clientObj.SetRateLimiting(uint32(RateLimit))
 
-	err := clientObj.Connect()
-
-	if err != nil {
-		jww.FATAL.Panicf("Could not connect to remotes:  %+v", err)
-	}
+	udb.Log.INFO.Printf("Logging in")
 
 	// Log into the server
-	_, err = clientObj.Login(userID)
+	_, err := clientObj.Login(userID)
 
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not login: %s", err)
@@ -65,6 +61,8 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	// Register the listeners with the user discovery bot
 	udb.RegisterListeners(clientObj)
 
+	udb.Log.INFO.Printf("Starting UDB")
+
 	// starting the reception thread
 	err = clientObj.StartMessageReceiver()
 	if err != nil {
@@ -72,8 +70,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	}
 
 	// Block forever as a keepalive
-	quit := make(chan bool)
-	<-quit
+	select {}
 }
 
 // Initialize a session using the given session file and other info
@@ -90,6 +87,10 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	clientObj, initErr = api.NewClient(nil, sessionFile, def)
 	if initErr != nil {
 		udb.Log.FATAL.Panicf("Could not initialize: %v", initErr)
+	}
+
+	if noTLS {
+		clientObj.DisableTLS()
 	}
 
 	//connect udb to gateways
