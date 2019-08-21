@@ -162,8 +162,8 @@ func TestRegisterListeners(t *testing.T) {
 
 	udbID := id.NewUserFromUints(&[4]uint64{0, 0, 0, 3})
 	// Register with UDB registration code
-	userID, err := client.Register(true, udbID.RegistrationCode(),
-		"", "")
+	_, err = client.Register(true, udbID.RegistrationCode(),
+		"", "", "", nil)
 
 	if err != nil {
 		t.Errorf("Register failed: %s", err.Error())
@@ -176,20 +176,12 @@ func TestRegisterListeners(t *testing.T) {
 	}
 
 	// Login to gateway
-	_, err = client.Login(userID)
-
-	if err != nil {
-		t.Errorf("Login failed: %s", err.Error())
-	}
+	client.Login("")
 
 	// Register Listeners
 	RegisterListeners(client)
 
-	err = client.StartMessageReceiver()
-
-	if err != nil {
-		t.Errorf("Could not start message reciever: %v", err)
-	}
+	client.StartMessageReceiver()
 
 	err = client.Logout()
 
