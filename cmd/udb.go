@@ -11,7 +11,6 @@
 package cmd
 
 import (
-	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
@@ -42,7 +41,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 
 	// Initialize the client
 	regCode := udb.UDB_USERID.RegistrationCode()
-	userID := Init(UDBSessionFileName, regCode, def)
+	Init(UDBSessionFileName, regCode, def)
 
 	// API Settings (hard coded)
 	clientObj.DisableBlockingTransmission() // Deprecated
@@ -51,12 +50,8 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 
 	udb.Log.INFO.Printf("Logging in")
 
-	// Log into the server
-	_, err := clientObj.Login(userID)
-
-	if err != nil {
-		udb.Log.FATAL.Panicf("Could not login: %s", err)
-	}
+	// Log into the server with a blank password
+	clientObj.Login("")
 
 	// Register the listeners with the user discovery bot
 	udb.RegisterListeners(clientObj)
@@ -64,10 +59,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	udb.Log.INFO.Printf("Starting UDB")
 
 	// starting the reception thread
-	err = clientObj.StartMessageReceiver()
-	if err != nil {
-		jww.FATAL.Panicf("Could not start message recievers:  %+v", err)
-	}
+	clientObj.StartMessageReceiver()
 
 	// Block forever as a keepalive
 	select {}
@@ -107,7 +99,7 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	// registration.
 
 	userID, err = clientObj.Register(true, regCode, "",
-		"")
+		"", "", nil)
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not register: %v", err)
 	}
