@@ -176,12 +176,20 @@ func TestRegisterListeners(t *testing.T) {
 	}
 
 	// Login to gateway
-	client.Login("")
+	_, err = client.Login("")
+
+	if err != nil {
+		t.Errorf("Login failed: %s", err.Error())
+	}
 
 	// Register Listeners
 	RegisterListeners(client)
 
-	client.StartMessageReceiver()
+	err = client.StartMessageReceiver()
+
+	if err != nil {
+		t.Errorf("Could not start message reciever: %v", err)
+	}
 
 	err = client.Logout()
 

@@ -51,7 +51,11 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	udb.Log.INFO.Printf("Logging in")
 
 	// Log into the server with a blank password
-	clientObj.Login("")
+	_, err := clientObj.Login("")
+
+	if err != nil {
+		udb.Log.FATAL.Panicf("Could not login: %s", err)
+	}
 
 	// Register the listeners with the user discovery bot
 	udb.RegisterListeners(clientObj)
@@ -59,7 +63,10 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	udb.Log.INFO.Printf("Starting UDB")
 
 	// starting the reception thread
-	clientObj.StartMessageReceiver()
+	err = clientObj.StartMessageReceiver()
+	if err != nil {
+		udb.Log.FATAL.Panicf("Could not start message recievers:  %+v", err)
+	}
 
 	// Block forever as a keepalive
 	select {}
