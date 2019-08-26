@@ -7,8 +7,9 @@ package storage
 
 import (
 	"github.com/go-pg/pg"
-	jww "github.com/spf13/jwalterweatherman"
-	"pg/orm"
+	"github.com/go-pg/pg/orm"
+	"gitlab.com/elixxir/client/globals"
+	"gitlab.com/elixxir/primitives/id"
 	"time"
 )
 
@@ -17,16 +18,50 @@ type DatabaseImpl struct {
 	db *pg.DB // Stored database connection
 }
 
+// Struct implementing the Database Interface with an underlying Map
+type MapImpl struct {
+	users map[*id.User]User
+}
 
-type UserDb Database
+type UserDiscoveryDb Database
 
 type Database interface {
-	// TODO: Fill me in
+	// Insert or Update a User into the database
+	UpsertUser(user *User) error
+	// Fetch a User from the database
+	GetUser(user *User) (User, error)
+}
+
+// Struct representing the udb_users table in the database
+type User struct {
+	// Overwrite table name
+	tableName struct{} `sql:"udb_users,alias:udb_users"`
+
+	// User Id
+	Id []byte `sql:",pk"`
+	//
+	Value string
+	//
+	ValueType string `sql:"type:value_type"`
+	//
+	KeyId string
+	//
+	Key []byte
+}
+
+// Initialize a new User object
+func NewUser() *User {
+	return &User{
+		Id:        make([]byte, 0),
+		Value:     "",
+		ValueType: "",
+		KeyId:     "",
+		Key:       make([]byte, 0),
+	}
 }
 
 // Initialize the Database interface with database backend
 func NewDatabase(username, password, database, address string) Database {
-
 	// Create the database connection
 	db := pg.Connect(&pg.Options{
 		User:        username,
@@ -40,35 +75,32 @@ func NewDatabase(username, password, database, address string) Database {
 		MaxConnAge:  time.Duration(1) * time.Hour,
 	})
 
-	// Ensure an empty NodeInformation table
-	err := db.DropTable(&NodeInformation{},
-		&orm.DropTableOptions{IfExists: true})
+	// Initialize the schema
+	err := createSchema(db)
 	if err != nil {
 		// If an error is thrown with the database, run with a map backend
-		jww.INFO.Println("Using map backend for User Discovery!")
-		return Database(&MapImpl{
-			/*client: make(map[string]*RegistrationCode),
-			node:   make(map[string]*NodeInformation),*/
-		})
+		globals.Log.INFO.Println("Using map backend for User Discovery!")
+		return &MapImpl{
+			users: make(map[*id.User]User),
+		}
 	}
 
-	// Initialize the schema
-	jww.INFO.Println("Using database backend for User Discovery!")
-	err = createSchema(db)
+	// Create the ValueType enum in the database
+	_, err = db.Exec(`CREATE TYPE value_type AS ENUM ('email', 'phone');`)
 	if err != nil {
-		jww.FATAL.Panicf("Unable to initialize database backend for UDB: %+v", err)
+		globals.Log.FATAL.Panicf("Unable to create enum: %+v", err)
 	}
 
 	// Return the database-backed Database interface
-	jww.INFO.Println("Database backend initialized successfully!")
-	return Database(&DatabaseImpl{
+	globals.Log.INFO.Println("Using database backend for User Discovery!")
+	return &DatabaseImpl{
 		db: db,
-	})
+	}
 }
 
 // Create the database schema
 func createSchema(db *pg.DB) error {
-	for _, model := range []interface{}{&RegistrationCode{}, &NodeInformation{}} {
+	for _, model := range []interface{}{&User{}} {
 		err := db.CreateTable(model, &orm.CreateTableOptions{
 			// Ignore create table if already exists?
 			IfNotExists: true,
@@ -88,4 +120,4 @@ func createSchema(db *pg.DB) error {
 	}
 	// No error, return nil
 	return nil
-}'
+}

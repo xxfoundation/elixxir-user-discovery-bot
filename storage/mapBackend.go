@@ -4,7 +4,8 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// Ram-only implementation of storage type
+// Handles the Map backend for the user discovery bot
+
 package storage
 
 import (
@@ -13,25 +14,14 @@ import (
 	"gitlab.com/elixxir/user-discovery-bot/fingerprint"
 )
 
-type RamStorage struct {
-	Keys    map[string][]byte                 // keyId -> publicKey
-	Users   map[id.User]string                // cMix UID -> keyId
-	UserIDs map[string]id.User                // email -> userID
-	KeyVal  map[ValueType]map[string][]string // ValType -> search string -> keyIds
+// Insert or Update a User into the database
+func (m *MapImpl) UpsertUser(user *User) error {
+
 }
 
-// Create a blank ram storage object
-func NewRamStorage() *RamStorage {
-	RS := RamStorage{
-		Keys:    make(map[string][]byte),
-		Users:   make(map[id.User]string),
-		UserIDs: make(map[string]id.User),
-		KeyVal:  make(map[ValueType]map[string][]string),
-	}
-	// NOTE: We could init all the KeyVal maps here, but I
-	// decided to leave that to the AddValue function in favor of
-	// not needing to touch this file when we add types.
-	return &RS
+// Fetch a User from the database
+func (m *MapImpl) GetUser(user *User) (User, error) {
+
 }
 
 // AddKey - Add a key stream, return the fingerprint
