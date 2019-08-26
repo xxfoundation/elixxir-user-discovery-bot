@@ -46,7 +46,7 @@ var RootCmd = &cobra.Command{
 		}
 
 		// Set up database connection
-		storage.userDataBase = database.NewDatabase(
+		storage.UserDb = database.NewDatabase(
 			viper.GetString("dbUsername"),
 			viper.GetString("dbPassword"),
 			viper.GetString("dbName"),
