@@ -16,7 +16,6 @@ import (
 	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/comms/utils"
-	"gitlab.com/elixxir/registration/database"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
 	"io/ioutil"
@@ -46,7 +45,7 @@ var RootCmd = &cobra.Command{
 		}
 
 		// Set up database connection
-		storage.UserDb = database.NewDatabase(
+		storage.UserDiscoveryDb = storage.NewDatabase(
 			viper.GetString("dbUsername"),
 			viper.GetString("dbPassword"),
 			viper.GetString("dbName"),
