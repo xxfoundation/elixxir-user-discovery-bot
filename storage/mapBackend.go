@@ -10,20 +10,36 @@ package storage
 
 import (
 	"fmt"
-	"gitlab.com/elixxir/primitives/id"
-	"gitlab.com/elixxir/user-discovery-bot/fingerprint"
+	//"gitlab.com/elixxir/primitives/id"
+	//"gitlab.com/elixxir/user-discovery-bot/fingerprint"
+	"golang.org/x/tools/go/ssa/interp/testdata/src/errors"
 )
 
 // Insert or Update a User into the database
 func (m *MapImpl) UpsertUser(user *User) error {
-
+	m.lock.Lock()
+	if m.users[] != nil {
+		usr := NewUser()
+		m.users[user.Id].Id =
+	}
+	m.users[user.Id] = user
+	m.lock.Unlock()
+	return nil
 }
 
 // Fetch a User from the database
-func (m *MapImpl) GetUser(user *User) (User, error) {
-
+func (m *MapImpl) GetUser(user *User) (*User, error) {
+	m.lock.Lock()
+	var err error
+	retUser, ok := m.users[user.Id]
+	if ok {
+		err = errors.New(fmt.Sprintf(
+			"User %+v has not been added!", user))
+	}
+	m.lock.Unlock()
+	return &retUser, err
 }
-
+/*
 // AddKey - Add a key stream, return the fingerprint
 func (rs RamStorage) AddKey(value []byte) (string, error) {
 	keyFingerprint := fingerprint.Fingerprint(value)
@@ -104,4 +120,4 @@ func (rs RamStorage) GetKeys(value string, valType ValueType) (
 		}
 	}
 	return nil, false
-}
+}*/

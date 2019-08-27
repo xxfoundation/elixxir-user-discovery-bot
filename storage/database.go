@@ -10,6 +10,7 @@ import (
 	"github.com/go-pg/pg/orm"
 	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/primitives/id"
+	"sync"
 	"time"
 )
 
@@ -21,6 +22,7 @@ type DatabaseImpl struct {
 // Struct implementing the Database Interface with an underlying Map
 type MapImpl struct {
 	users map[*id.User]User
+	lock   sync.Mutex
 }
 
 type UserDiscoveryDb Database
