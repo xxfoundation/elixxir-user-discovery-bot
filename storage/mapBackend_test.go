@@ -8,6 +8,7 @@ package storage
 
 import (
 	"gitlab.com/elixxir/primitives/id"
+	"reflect"
 	"testing"
 )
 
@@ -45,7 +46,7 @@ func TestMap_UpsertDuplicate(t *testing.T) {
 
 	observedUser, _ := m.GetUser(usr)
 
-	if observedUser.Value !=  usr.Value {
+	if observedUser.Value != usr.Value {
 		t.Errorf("Failed to update a user with new information")
 	}
 }
@@ -56,136 +57,119 @@ func TestMapImpl_GetUser(t *testing.T) {
 		users: make(map[*id.User]*User),
 	}
 
+	//Populate the user
+	usr := NewUser()
+	usr.Key = make([]byte, 8)
+	usr.Id = make([]byte, 8)
+	usr.Value = "email"
+	usr.ValueType = 1
+
+	_ = m.UpsertUser(usr)
+	retrievedUser, _ := m.GetUser(usr)
+
+	if !reflect.DeepEqual(retrievedUser, usr) {
+		t.Errorf("Expected to retrieve %+v, recieved: %+v", usr, retrievedUser)
+	}
 
 }
 
-//Error path: nonexistant user
-func TestMapImpl_GetUser_Invalid(t *testing.T) {
+//Error path: pull a nonexistant user
+func TestMapImpl_GetUser_EmptyMap(t *testing.T) {
 	m := &MapImpl{
 		users: make(map[*id.User]*User),
 	}
 	//Create user, never insert in map
 	usr := NewUser()
 	usr.Id = make([]byte, 8)
+	usr.Value = "email"
 
 	//Search for usr in empty map
-	info, err := m.GetUser(usr)
+	retrievedUser, _ := m.GetUser(usr)
 
 	//Check that no user is obtained from an empty map
-	if info != nil || err == nil {
-		t.Errorf("Expected to not find user %+v in map %+v", usr, m)
+	if !reflect.DeepEqual(retrievedUser, NewUser()) {
+		t.Errorf("Expected to not find user in empty map. Map: %+v", m)
 	}
 
 }
 
-/*
-func TestRamAddAndGetKey(t *testing.T) {
-	RS := NewRamStorage()
-	testKey := []byte{'a', 'b', 'c', 'd'}
-
-	// Add K to the Store
-	fingerprint, err := RS.AddKey(testKey)
-	if err != nil {
-		t.Errorf("Ram storage error on AddKey: %v", err)
-	}
-	// Verify it made it
-	retKey, ok := RS.GetKey(fingerprint)
-	if !ok {
-		t.Errorf("Ram storage error GetKey: %v", err)
-	}
-	for i := range testKey {
-		if retKey[i] != testKey[i] {
-			t.Errorf("Ram Storage cannot store and load keys at index %d - "+
-				"Expected: %v, Got: %v", i, testKey[i], retKey[i])
-		}
+//Error path: request a value that doesn't exist in the map
+func TestMapImpl_GetUser_NilValue(t *testing.T) {
+	m := &MapImpl{
+		users: make(map[*id.User]*User),
 	}
 
-	// Now try to add it again and verify it fails
-	_, err3 := RS.AddKey(testKey)
-	if err3 == nil {
-		t.Errorf("Ram storage AddKey allows duplicates!")
+	//Make a user with a value set
+	usr := NewUser()
+	usr.Value = "email"
+	_ = m.UpsertUser(usr)
+
+	//Search for a user with no value set
+	usr2 := NewUser()
+	usr2.Id = make([]byte, 8)
+	retrievedUser, _ := m.GetUser(usr2)
+
+	//Should return an empty user, as map doesn't have a user with id set
+	if !reflect.DeepEqual(retrievedUser, NewUser()) {
+		t.Errorf("Should have retrieved: %+v: Recieved: %+v", NewUser(), retrievedUser)
 	}
 
-	// Now check missing key
-	_, ok2 := RS.GetKey("BlahThisIsABadKey")
-	if ok2 {
-		t.Errorf("Ram storage GetKey returns results on bad keys!")
-	}
 }
 
-func TestRamAddAndGetUserKey(t *testing.T) {
-	RS := NewRamStorage()
-	keyId := "This is my keyId"
-	userId := id.NewUserFromUint(1337, t)
-	// Add key
-	err := RS.AddUserKey(userId, keyId)
-	if err != nil {
-		t.Errorf("Ram storage AddUserKey failed to add a user: %v", err)
-	}
-	// Add duplicate
-	err2 := RS.AddUserKey(userId, keyId)
-	if err2 == nil {
-		t.Errorf("Ram storage AddUserKey permits duplicates!")
+//Happy path: Insert and get a user for every user attribute
+func TestMapImpl_GetUser_AddAndGet(t *testing.T) {
+	m := &MapImpl{
+		users: make(map[*id.User]*User),
 	}
 
-	// Get Key
-	retrievedKeyId, ok := RS.GetUserKey(userId)
-	if !ok {
-		t.Errorf("Ram storage GetUserKey could not retrieve key!")
+	//Insert user with ID and get user
+	usrID := NewUser()
+	usrID.Id = make([]byte, 8)
+	_ = m.UpsertUser(usrID)
+	retrievedUser, _ := m.GetUser(usrID)
+	if !reflect.DeepEqual(retrievedUser, usrID) {
+		t.Errorf("Inserted and pulled an id. "+
+			"Should have retrieved: %+v, recieved: %+v", retrievedUser, usrID)
 	}
-	if retrievedKeyId != keyId {
-		t.Errorf("Ram storage GetUserKey failed - Got: %s, Expected: %s",
-			retrievedKeyId, keyId)
+
+	//Insert user with val and get user
+	usrVal := NewUser()
+	usrVal.Value = "email"
+	_ = m.UpsertUser(usrVal)
+	retrievedUser, _ = m.GetUser(usrVal)
+	if !reflect.DeepEqual(retrievedUser, usrVal) {
+		t.Errorf("Inserted and pulled a value. "+
+			"Should have retrieved: %+v, recieved: %+v", retrievedUser, usrVal)
 	}
+
+	//Insert user with val type and then get user
+	usrValType := NewUser()
+	usrValType.ValueType = 1
+	_ = m.UpsertUser(usrValType)
+	retrievedUser, _ = m.GetUser(usrValType)
+	if !reflect.DeepEqual(retrievedUser, usrValType) {
+		t.Errorf("Inserted and pulled a value type. "+
+			"Should have retrieved: %+v, recieved: %+v", retrievedUser, usrValType)
+	}
+
+	//Insert a user with key and then get user
+	usrKey := NewUser()
+	usrKey.Key = make([]byte, 8)
+	_ = m.UpsertUser(usrKey)
+	retrievedUser, _ = m.GetUser(usrKey)
+	if !reflect.DeepEqual(retrievedUser, usrKey) {
+		t.Errorf("Inserted and pulled a key. "+
+			"Should have retrieved: %+v, recieved: %+v", retrievedUser, usrKey)
+	}
+
+	//Insert a user with key id and then get user
+	usrKeyId := NewUser()
+	usrKeyId.KeyId = "test"
+	_ = m.UpsertUser(usrKeyId)
+	retrievedUser, _ = m.GetUser(usrKeyId)
+	if !reflect.DeepEqual(retrievedUser, usrKeyId) {
+		t.Errorf("Inserted and pulled a keyID. "+
+			"Should have retrieved: %+v, recieved: %+v", retrievedUser, usrKeyId)
+	}
+
 }
-
-func TestRamAddAndGetUserID(t *testing.T) {
-	RS := NewRamStorage()
-	email := "test@elixxir.io"
-	userID := id.NewUserFromUint(1337, t)
-	// Add key
-	err := RS.AddUserID(email, userID)
-	if err != nil {
-		t.Errorf("Ram storage AddUserID failed to add a user: %v", err)
-	}
-	// Add duplicate
-	err2 := RS.AddUserID(email, userID)
-	if err2 == nil {
-		t.Errorf("Ram storage AddUserID permits duplicates!")
-	}
-
-	// Get ID
-	resultID, ok := RS.GetUserID(email)
-	if !ok {
-		t.Errorf("Ram storage GetUserID could not retrieve key!")
-	}
-	if resultID != *userID {
-		t.Errorf("Ram storage GetUserID failed - Got: %s, Expected: %s",
-			resultID, *userID)
-	}
-}
-
-func TestValueAndKeyStore(t *testing.T) {
-	RS := NewRamStorage()
-	value := "Hello, World!"
-	KeyId := "This is a key id"
-	err := RS.AddValue(value, Email, KeyId)
-	if err != nil {
-		t.Errorf("Ram storage could not AddValue!")
-	}
-
-	retKeys, ok := RS.GetKeys(value, Email)
-	if !ok {
-		t.Errorf("Ram storage could not GetKeys!")
-	}
-	if retKeys[0] != KeyId {
-		t.Errorf("Ram storage GetKeys returned bad result - Got: %s, Expected: %s",
-			retKeys, KeyId)
-	}
-
-	// check for empty value
-	_, ok2 := RS.GetKeys("junk value", Email)
-	if ok2 {
-		t.Errorf("Ram storage GetKeys returned on junk input!")
-	}
-}*/

@@ -43,25 +43,25 @@ func (m *MapImpl) GetUser(user *User) (*User, error) {
 		users = append(users, value)
 	}
 
-	//Iterate through the list of users and find
+	//Iterate through the list of users and find matching values
 	for _, u := range users {
-		if reflect.DeepEqual(u.Id, user.Id) {
+		if reflect.DeepEqual(u.Id, user.Id) && u.Id != nil {
 			retrievedUser.Id = u.Id
 		}
 
-		if reflect.DeepEqual(u.Value, user.Value) {
+		if reflect.DeepEqual(u.Value, user.Value) && u.Value != "" {
 			retrievedUser.Value = u.Value
 		}
 
-		if reflect.DeepEqual(u.ValueType, user.ValueType) {
+		if u.ValueType == user.ValueType {
 			retrievedUser.ValueType = u.ValueType
 		}
 
-		if reflect.DeepEqual(u.Key, user.Key) {
+		if reflect.DeepEqual(u.Key, user.Key) && u.Key != nil {
 			retrievedUser.Key = u.Key
 		}
 
-		if reflect.DeepEqual(u.KeyId, user.KeyId) {
+		if reflect.DeepEqual(u.KeyId, user.KeyId) && u.KeyId != "" {
 			retrievedUser.KeyId = u.KeyId
 		}
 
@@ -70,86 +70,3 @@ func (m *MapImpl) GetUser(user *User) (*User, error) {
 	m.lock.Unlock()
 	return retrievedUser, nil
 }
-
-/*
-// AddKey - Add a key stream, return the fingerprint
-func (rs RamStorage) AddKey(value []byte) (string, error) {
-	keyFingerprint := fingerprint.Fingerprint(value)
-
-	// Error out if the key exists already
-	_, ok := rs.Keys[keyFingerprint]
-	if ok {
-		return "", fmt.Errorf("fingerprint already exists: %s", keyFingerprint)
-	}
-
-	rs.Keys[keyFingerprint] = value
-	return keyFingerprint, nil
-}
-
-// GetKey - Get a key based on the key id (retval of AddKey)
-func (rs RamStorage) GetKey(keyId string) ([]byte, bool) {
-	publicKey, ok := rs.Keys[keyId]
-	return publicKey, ok
-}
-
-// AddUserKey - Add a user id to keyId (not used in high security)
-func (rs RamStorage) AddUserKey(userId *id.User, keyId string) error {
-	_, ok := rs.Users[*userId]
-	if ok {
-		return fmt.Errorf("UserId already exists: %d", userId)
-	}
-	rs.Users[*userId] = keyId
-	return nil
-}
-
-// GetUserKey - Get a user's keyId (not used in high security)
-func (rs RamStorage) GetUserKey(userId *id.User) (string, bool) {
-	keyId, ok := rs.Users[*userId]
-	return keyId, ok
-}
-
-// AddUserID - Add an email to userID mapping
-func (rs RamStorage) AddUserID(email string, userID *id.User) error {
-	_, ok := rs.UserIDs[email]
-	if ok {
-		return fmt.Errorf("email already exists: %s", email)
-	}
-	rs.UserIDs[email] = *userID
-	return nil
-}
-
-// GetUserID - Get a user's ID from registered email
-func (rs RamStorage) GetUserID(email string) (id.User, bool) {
-	userID, ok := rs.UserIDs[email]
-	return userID, ok
-}
-
-// AddValue - Add a searchable value (e-mail, nickname, etc)
-func (rs RamStorage) AddValue(value string, valType ValueType,
-	keyId string) error {
-	_, ok := rs.KeyVal[valType]
-	if !ok {
-		rs.KeyVal[valType] = make(map[string][]string)
-	}
-	_, ok = rs.KeyVal[valType][value]
-	if !ok {
-		rs.KeyVal[valType][value] = make([]string, 0)
-	}
-	keyIds, _ := rs.KeyVal[valType][value]
-	keyIds = append(keyIds, keyId)
-	rs.KeyVal[valType][value] = keyIds
-	return nil
-}
-
-// GetKeys - Returns all values that match the search criteria
-func (rs RamStorage) GetKeys(value string, valType ValueType) (
-	[]string, bool) {
-	_, ok := rs.KeyVal[valType]
-	if ok {
-		keyIds, ok := rs.KeyVal[valType][value]
-		if ok {
-			return keyIds, ok
-		}
-	}
-	return nil, false
-}*/

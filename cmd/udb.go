@@ -33,7 +33,7 @@ var clientObj *api.Client
 //  - Start the main loop
 func StartBot(sess string, def *ndf.NetworkDefinition) {
 	udb.Log.DEBUG.Printf("Starting User Discovery Bot...")
-
+	// TODO probs remove
 	// Use RAM storage for now
 	udb.DataStore = storage.NewRamStorage()
 
