@@ -46,29 +46,27 @@ func Search(userId *id.User, args []string) {
 	}
 	// TODO: Add parse func to storage class, embed into function and
 	// pass it a string instead
-	regTypeEnum := storage.Email
+	usr := storage.NewUser()
+	usr.SetValue(regVal)
 
 	// Get the userID associated to email
-	searchedUserID, found := DataStore.GetUserID(regVal)
-	if !found {
+	searchedUser, err := storage.UserDiscoveryDb.GetUser(usr)
+	//DataStore.GetUserID(regVal)
+	if err != nil {
 		msg := fmt.Sprintf("SEARCH %s NOTFOUND", regVal)
 		Log.INFO.Printf("User %d: %s", userId, msg)
 		Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
 		return
 	}
 
-	keyFingerprints, ok := DataStore.GetKeys(regVal, regTypeEnum)
-	if !ok {
-		msg := fmt.Sprintf("SEARCH %s NOTFOUND", regVal)
-		Log.INFO.Printf("User %d: %s", userId, msg)
-		Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
-		return
-	}
+	searchedUserID := searchedUser.Id
+	searchedUserKeyID := searchedUser.KeyId
 
 	// Correctly send the messages with actual userID based on email, followed by key fingerprint
-	for i := range keyFingerprints {
+	//TODO: Make sure this thing works
+	for i := range searchedUserKeyID {
 		msg := fmt.Sprintf("SEARCH %s FOUND %s %s", regVal,
-			base64.StdEncoding.EncodeToString(searchedUserID[:]), keyFingerprints[i])
+			base64.StdEncoding.EncodeToString(searchedUserID[:]), searchedUserKeyID[i])
 		Log.INFO.Printf("User %d: %s", userId, msg)
 		Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
 	}

@@ -63,6 +63,26 @@ func NewUser() *User {
 	}
 }
 
+func (u *User) SetID(id []byte) {
+	u.Id = id
+}
+
+func (u *User) SetValue(val string) {
+	u.Value = val
+}
+
+func (u *User) SetValueType(valType int) {
+	u.ValueType = valType
+}
+
+func (u *User) SetKeyID(keyID string) {
+	u.KeyId = keyID
+}
+
+func (u *User) SetKey(key []byte) {
+	u.Key = key
+}
+
 // Initialize the Database interface with database backend
 func NewDatabase(username, password, database, address string) Database {
 	// Create the database connection

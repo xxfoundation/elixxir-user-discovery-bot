@@ -14,7 +14,6 @@ import (
 	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
-	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
 	"os"
 )
@@ -33,9 +32,6 @@ var clientObj *api.Client
 //  - Start the main loop
 func StartBot(sess string, def *ndf.NetworkDefinition) {
 	udb.Log.DEBUG.Printf("Starting User Discovery Bot...")
-	// TODO probs remove
-	// Use RAM storage for now
-	udb.DataStore = storage.NewRamStorage()
 
 	UDBSessionFileName = sess
 
