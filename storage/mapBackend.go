@@ -9,36 +9,56 @@
 package storage
 
 import (
-	"fmt"
-	//"gitlab.com/elixxir/primitives/id"
-	//"gitlab.com/elixxir/user-discovery-bot/fingerprint"
-	"golang.org/x/tools/go/ssa/interp/testdata/src/errors"
+	"gitlab.com/elixxir/primitives/id"
 )
 
-// Insert or Update a User into the database
+// Insert or Update a User into the map backend
 func (m *MapImpl) UpsertUser(user *User) error {
 	m.lock.Lock()
-	if m.users[] != nil {
-		usr := NewUser()
-		m.users[user.Id].Id =
-	}
-	m.users[user.Id] = user
+	//Insert or update the user in the map
+	tmpIndx := id.NewUserFromBytes(user.Id)
+	m.users[tmpIndx] = user
+
 	m.lock.Unlock()
 	return nil
 }
 
-// Fetch a User from the database
+// Fetch a User from the map backend
 func (m *MapImpl) GetUser(user *User) (*User, error) {
 	m.lock.Lock()
-	var err error
-	retUser, ok := m.users[user.Id]
-	if ok {
-		err = errors.New(fmt.Sprintf(
-			"User %+v has not been added!", user))
+	/*
+		var err error
+		retUser, ok := m.users[user.Id]
+		if ok {
+			err = errors.New(fmt.Sprintf(
+				"User %+v has not been added!", user))
+		}*/
+	retrievedUser := NewUser()
+
+	users := make([]*User,0)
+
+	for _, value := range m.users {
+		users = append(users,value)
 	}
+
+	if user.Id != nil {
+		for user := range m {
+
+		}
+
+	}
+
+	if user.Value != "" {
+
+	}
+
+
+
+
 	m.lock.Unlock()
-	return &retUser, err
+	return NewUser(), nil
 }
+
 /*
 // AddKey - Add a key stream, return the fingerprint
 func (rs RamStorage) AddKey(value []byte) (string, error) {

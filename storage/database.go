@@ -21,8 +21,8 @@ type DatabaseImpl struct {
 
 // Struct implementing the Database Interface with an underlying Map
 type MapImpl struct {
-	users map[*id.User]User
-	lock   sync.Mutex
+	users map[*id.User]*User
+	lock  sync.Mutex
 }
 
 type UserDiscoveryDb Database
@@ -83,7 +83,7 @@ func NewDatabase(username, password, database, address string) Database {
 		// If an error is thrown with the database, run with a map backend
 		globals.Log.INFO.Println("Using map backend for User Discovery!")
 		return &MapImpl{
-			users: make(map[*id.User]User),
+			users: make(map[*id.User]*User),
 		}
 	}
 

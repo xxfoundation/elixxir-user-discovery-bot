@@ -16,7 +16,6 @@ import (
 	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/comms/utils"
-	"gitlab.com/elixxir/registration/database"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
 	"io/ioutil"
@@ -45,6 +44,13 @@ var RootCmd = &cobra.Command{
 			sess = "udb-session.blob"
 		}
 
+		// Import the network definition file
+		ndfBytes, err := ioutil.ReadFile(utils.GetFullPath(viper.GetString("ndfPath")))
+		if err != nil {
+			globals.Log.FATAL.Panicf("Could not read network definition file: %v", err)
+		}
+		ndfJSON := api.VerifyNDF(string(ndfBytes), "")
+
 		// Set up database connection
 		storage.UserDiscoveryDb = storage.NewDatabase(
 			viper.GetString("dbUsername"),
@@ -52,13 +58,6 @@ var RootCmd = &cobra.Command{
 			viper.GetString("dbName"),
 			viper.GetString("dbAddress"),
 		)
-
-		// Import the network definition file
-		ndfBytes, err := ioutil.ReadFile(utils.GetFullPath(viper.GetString("ndfPath")))
-		if err != nil {
-			globals.Log.FATAL.Panicf("Could not read network definition file: %v", err)
-		}
-		ndfJSON := api.VerifyNDF(string(ndfBytes), "")
 
 		StartBot(sess, ndfJSON)
 	},

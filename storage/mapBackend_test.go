@@ -11,6 +11,66 @@ import (
 	"testing"
 )
 
+//Happy path
+func TestMap_UpsertUser(t *testing.T) {
+	m := &MapImpl{
+		users: make(map[*id.User]*User),
+	}
+
+	usr := NewUser()
+	usr.Id = make([]byte, 8)
+
+	err := m.UpsertUser(usr)
+
+	if err != nil {
+		t.Errorf("Expected to successfully upsert user, recieved err: %+v", err)
+	}
+}
+
+//Test that map updates a new user being inserted with same id
+func TestMap_UpsertDuplicate(t *testing.T) {
+	m := &MapImpl{
+		users: make(map[*id.User]*User),
+	}
+
+	usr := NewUser()
+	usr.Id = make([]byte, 8)
+
+	_ = m.UpsertUser(usr)
+
+	usr2 := usr
+	usr2.Value = "email"
+
+	_ = m.UpsertUser(usr2)
+
+	observedUser, err := m.GetUser(usr)
+}
+
+//Happy path
+func TestMapImpl_GetUser(t *testing.T) {
+
+}
+
+//Error path: nonexistant user
+func TestMapImpl_GetUser_Invalid(t *testing.T) {
+	m := &MapImpl{
+		users: make(map[*id.User]*User),
+	}
+	//Create user, never insert in map
+	usr := NewUser()
+	usr.Id = make([]byte, 8)
+
+	//Search for usr in empty map
+	info, err := m.GetUser(usr)
+
+	//Check that no user is obtained from an empty map
+	if info != nil || err == nil {
+		t.Errorf("Expected to not find user %+v in map %+v", usr, m)
+	}
+
+}
+
+/*
 func TestRamAddAndGetKey(t *testing.T) {
 	RS := NewRamStorage()
 	testKey := []byte{'a', 'b', 'c', 'd'}
@@ -120,4 +180,4 @@ func TestValueAndKeyStore(t *testing.T) {
 	if ok2 {
 		t.Errorf("Ram storage GetKeys returned on junk input!")
 	}
-}
+}*/
