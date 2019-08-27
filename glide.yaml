@@ -27,3 +27,4 @@ import:
     - github.com/jinzhu/inflection
   version: v8.0.4
   vcs: git
+- package: github.com/pkg/errors

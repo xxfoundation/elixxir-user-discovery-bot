@@ -29,7 +29,7 @@ type Database interface {
 	// Insert or Update a User into the database
 	UpsertUser(user *User) error
 	// Fetch a User from the database
-	GetUser(user *User) (User, error)
+	GetUser(user *User) (*User, error)
 }
 
 // Struct representing the udb_users table in the database
