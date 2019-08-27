@@ -64,11 +64,12 @@ func NewUser() *User {
 func NewDatabase(username, password, database, address string) Database {
 	// Create the database connection
 	db := pg.Connect(&pg.Options{
-		User:       username,
-		Password:   password,
-		Database:   database,
-		Addr:       address,
-		MaxRetries: 10,
+		User:         username,
+		Password:     password,
+		Database:     database,
+		Addr:         address,
+		MaxRetries:   10,
+		MinIdleConns: 1,
 	})
 
 	// Initialize the schema
