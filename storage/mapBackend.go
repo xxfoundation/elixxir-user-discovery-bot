@@ -10,6 +10,7 @@ package storage
 
 import (
 	"gitlab.com/elixxir/primitives/id"
+	"reflect"
 )
 
 // Insert or Update a User into the map backend
@@ -23,7 +24,8 @@ func (m *MapImpl) UpsertUser(user *User) error {
 	return nil
 }
 
-// Fetch a User from the map backend
+// Fetch a User from the map backend. Pass in a user with any attribute values
+// you want to search and we will search for them
 func (m *MapImpl) GetUser(user *User) (*User, error) {
 	m.lock.Lock()
 	/*
@@ -35,28 +37,38 @@ func (m *MapImpl) GetUser(user *User) (*User, error) {
 		}*/
 	retrievedUser := NewUser()
 
-	users := make([]*User,0)
-
+	//Flatten map into a list
+	users := make([]*User, 0)
 	for _, value := range m.users {
-		users = append(users,value)
+		users = append(users, value)
 	}
 
-	if user.Id != nil {
-		for user := range m {
+	//Iterate through the list of users and find
+	for _, u := range users {
+		if reflect.DeepEqual(u.Id, user.Id) {
+			retrievedUser.Id = u.Id
+		}
 
+		if reflect.DeepEqual(u.Value, user.Value) {
+			retrievedUser.Value = u.Value
+		}
+
+		if reflect.DeepEqual(u.ValueType, user.ValueType) {
+			retrievedUser.ValueType = u.ValueType
+		}
+
+		if reflect.DeepEqual(u.Key, user.Key) {
+			retrievedUser.Key = u.Key
+		}
+
+		if reflect.DeepEqual(u.KeyId, user.KeyId) {
+			retrievedUser.KeyId = u.KeyId
 		}
 
 	}
 
-	if user.Value != "" {
-
-	}
-
-
-
-
 	m.lock.Unlock()
-	return NewUser(), nil
+	return retrievedUser, nil
 }
 
 /*

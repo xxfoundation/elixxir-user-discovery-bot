@@ -6,6 +6,7 @@
 package storage
 
 import (
+	"fmt"
 	"github.com/go-pg/pg"
 	"github.com/go-pg/pg/orm"
 	"gitlab.com/elixxir/client/globals"
@@ -25,7 +26,7 @@ type MapImpl struct {
 	lock  sync.Mutex
 }
 
-type UserDiscoveryDb Database
+var UserDiscoveryDb Database
 
 type Database interface {
 	// Insert or Update a User into the database
@@ -41,13 +42,13 @@ type User struct {
 
 	// User Id
 	Id []byte `sql:",pk"`
-	//
+	// Identifying information
 	Value string
-	//
-	ValueType string `sql:"type:value_type"`
-	//
+	// Type of identifying information as denoted by the ValueType type
+	ValueType int `sql:"type:value_type"`
+	// Hash of the User public key
 	KeyId string
-	//
+	// User public key
 	Key []byte
 }
 
@@ -56,7 +57,7 @@ func NewUser() *User {
 	return &User{
 		Id:        make([]byte, 0),
 		Value:     "",
-		ValueType: "",
+		ValueType: -1,
 		KeyId:     "",
 		Key:       make([]byte, 0),
 	}
@@ -88,7 +89,8 @@ func NewDatabase(username, password, database, address string) Database {
 	}
 
 	// Create the ValueType enum in the database
-	_, err = db.Exec(`CREATE TYPE value_type AS ENUM ('email', 'phone');`)
+	_, err = db.Exec(fmt.Sprintf(`CREATE TYPE value_type AS ENUM (%d,%d);`,
+		Email, Nick))
 	if err != nil {
 		globals.Log.FATAL.Panicf("Unable to create enum: %+v", err)
 	}

@@ -43,11 +43,19 @@ func TestMap_UpsertDuplicate(t *testing.T) {
 
 	_ = m.UpsertUser(usr2)
 
-	observedUser, err := m.GetUser(usr)
+	observedUser, _ := m.GetUser(usr)
+
+	if observedUser.Value !=  usr.Value {
+		t.Errorf("Failed to update a user with new information")
+	}
 }
 
 //Happy path
 func TestMapImpl_GetUser(t *testing.T) {
+	m := &MapImpl{
+		users: make(map[*id.User]*User),
+	}
+
 
 }
 
