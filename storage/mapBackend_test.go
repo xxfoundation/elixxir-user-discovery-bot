@@ -7,6 +7,7 @@
 package storage
 
 import (
+	"fmt"
 	"gitlab.com/elixxir/primitives/id"
 	"reflect"
 	"testing"
@@ -107,10 +108,10 @@ func TestMapImpl_GetUser_NilValue(t *testing.T) {
 	//Search for a user with no value set
 	usr2 := NewUser()
 	usr2.Id = make([]byte, 8)
-	retrievedUser, _ := m.GetUser(usr2)
-
+	retrievedUser,  err:= m.GetUser(usr2)
+	fmt.Println(err)
 	//Should return an empty user, as map doesn't have a user with id set
-	if !reflect.DeepEqual(retrievedUser, NewUser()) {
+	if !reflect.DeepEqual(retrievedUser, NewUser()) || err == nil {
 		t.Errorf("Should have retrieved: %+v: Recieved: %+v", NewUser(), retrievedUser)
 	}
 
@@ -149,7 +150,7 @@ func TestMapImpl_GetUser_AddAndGet(t *testing.T) {
 	retrievedUser, _ = m.GetUser(usrValType)
 	if !reflect.DeepEqual(retrievedUser, usrValType) {
 		t.Errorf("Inserted and pulled a value type. "+
-			"Should have retrieved: %+v, recieved: %+v", retrievedUser, usrValType)
+			"Should have retrieved: %+v, recieved: %+v", usrValType, usrValType)
 	}
 
 	//Insert a user with key and then get user

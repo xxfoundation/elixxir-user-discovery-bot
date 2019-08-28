@@ -9,7 +9,9 @@
 package storage
 
 import (
+	"bytes"
 	"gitlab.com/elixxir/primitives/id"
+	"golang.org/x/tools/go/ssa/interp/testdata/src/errors"
 	"reflect"
 )
 
@@ -35,7 +37,6 @@ func (m *MapImpl) GetUser(user *User) (*User, error) {
 			err = errors.New(fmt.Sprintf(
 				"User %+v has not been added!", user))
 		}*/
-	retrievedUser := NewUser()
 
 	//Flatten map into a list
 	users := make([]*User, 0)
@@ -45,28 +46,33 @@ func (m *MapImpl) GetUser(user *User) (*User, error) {
 
 	//Iterate through the list of users and find matching values
 	for _, u := range users {
-		if reflect.DeepEqual(u.Id, user.Id) && u.Id != nil {
-			retrievedUser.Id = u.Id
+		if reflect.DeepEqual(u.Id, user.Id) && bytes.Compare(u.Id, make([]byte, 0)) != 0 {
+			m.lock.Unlock()
+			return u, nil
 		}
 
 		if reflect.DeepEqual(u.Value, user.Value) && u.Value != "" {
-			retrievedUser.Value = u.Value
+			m.lock.Unlock()
+			return u, nil
 		}
 
-		if u.ValueType == user.ValueType {
-			retrievedUser.ValueType = u.ValueType
+		if u.ValueType == user.ValueType && u.ValueType != -1 {
+			m.lock.Unlock()
+			return u, nil
 		}
 
-		if reflect.DeepEqual(u.Key, user.Key) && u.Key != nil {
-			retrievedUser.Key = u.Key
+		if (bytes.Compare(u.Key,user.Key) == 0)  && bytes.Compare(u.Key,make([]byte,0)) != 0 {
+			m.lock.Unlock()
+			return u, nil
 		}
 
 		if reflect.DeepEqual(u.KeyId, user.KeyId) && u.KeyId != "" {
-			retrievedUser.KeyId = u.KeyId
+			m.lock.Unlock()
+			return u, nil
 		}
 
 	}
 
 	m.lock.Unlock()
-	return retrievedUser, nil
+	return NewUser(), errors.New("Unable to find any user with those values")
 }
