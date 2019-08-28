@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"gitlab.com/elixxir/client/cmixproto"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/elixxir/user-discovery-bot/fingerprint"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 )
 
@@ -40,6 +41,7 @@ func Register(userId *id.User, args []string) {
 		RegErr("Invalid command syntax!")
 		return
 	}
+	fmt.Println("in register func")
 
 	regType := args[0]
 	regVal := args[1]
@@ -77,6 +79,7 @@ func Register(userId *id.User, args []string) {
 	}
 
 	//Hardcoded email value, change later
+	//Hardcoded email value, change later
 	usr.SetValueType(0)
 
 	err = storage.UserDiscoveryDb.UpsertUser(usr)
@@ -107,6 +110,7 @@ func PushKey(userId *id.User, args []string) {
 		Send(userId, PUSHKEY_USAGE, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)
 		Log.INFO.Printf("PushKey user %d error: %s", userId, msg)
 	}
+	fmt.Println("in pushkey")
 	if len(args) != 2 {
 		PushErr("Invalid command syntax!")
 		return
@@ -115,7 +119,8 @@ func PushKey(userId *id.User, args []string) {
 	// keyId := args[0] Note: Legacy, key id is not needed anymore as it is
 	//                        sent as a single message
 	keyMat := args[1]
-
+	fmt.Println(keyMat)
+	fmt.Println(string(keyMat))
 	// Decode keyMat
 	// FIXME: Not sure I like having to base64 stuff here, but it's this or hex
 	//  Maybe add support to client for these pubkey conversions?
@@ -128,8 +133,13 @@ func PushKey(userId *id.User, args []string) {
 	usr := storage.NewUser()
 	usr.SetID(userId.Bytes())
 	usr.SetKey(newKeyBytes)
-	_ = storage.UserDiscoveryDb.UpsertUser(usr)
-
+	fmt.Println(usr)
+	keyFP := fingerprint.Fingerprint(newKeyBytes)
+	fmt.Println("keyfp")
+	fmt.Println(string(keyFP))
+	usr.SetKeyID(string(keyFP))
+	err := storage.UserDiscoveryDb.UpsertUser(usr)
+	fmt.Println(err)
 	msg := fmt.Sprintf("PUSHKEY COMPLETE  %s", keyMat)
 	Log.DEBUG.Printf("User %d: %s", userId, msg)
 	Send(userId, msg, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)

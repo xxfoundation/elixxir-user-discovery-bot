@@ -8,13 +8,11 @@ package udb
 
 import (
 	"gitlab.com/elixxir/client/cmixproto"
-	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"testing"
 )
 
 func TestSearchHappyPath(t *testing.T) {
-	DataStore = storage.NewRamStorage()
-	// Load a user
+		// Load a user
 	TestRegisterHappyPath(t)
 	// NOTE: This is kind of hard, since we can't see the response and search
 	//       does not modify data we can check
@@ -42,7 +40,7 @@ func TestSearch_Invalid_Type(t *testing.T) {
 
 // Test invalid user
 func TestSearch_Invalid_User(t *testing.T) {
-	DataStore = storage.NewRamStorage()
+
 	msgs := []string{
 		"SEARCH EMAIL cat@elixxir.io",
 	}

@@ -65,7 +65,7 @@ func Search(userId *id.User, args []string) {
 	// Correctly send the messages with actual userID based on email, followed by key fingerprint
 	//TODO: Make sure this thing works
 	for i := range searchedUserKeyID {
-		msg := fmt.Sprintf("SEARCH %s FOUND %s %s", regVal,
+		msg := fmt.Sprintf("SEARCH %s FOUND %+v %+v", regVal,
 			base64.StdEncoding.EncodeToString(searchedUserID[:]), searchedUserKeyID[i])
 		Log.INFO.Printf("User %d: %s", userId, msg)
 		Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)

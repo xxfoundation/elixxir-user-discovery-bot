@@ -73,9 +73,8 @@ func NewMessage(msg string, msgType cmixproto.Type) *parse.Message {
 //       not sure how I feel about it.
 func TestRegisterHappyPath(t *testing.T) {
 	//DataStore = storage.NewRamStorage()
-	m := &storage.MapImpl{
-		Users: make(map[*id.User]*storage.User),
-	}
+	storage.UserDiscoveryDb = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
+
 	pubKeyBits := "S8KXBczy0jins9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNzLU7a" +
 		"+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClpq4H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY7wuD96h4oaA+WV5Nh87cnIZ+fAG0uLve2LSHZ0FBZb3glOpNAOv7PFWkvN2BO37ztOQCXTJe72Y5ReoYn7nWVNxGUh0ilal+BRuJt1GZ7whOGDRE0IXfURIoK2yjyAnyZJWWMhfGsL5S6iL4aXUs03mc8BHKRq3HRjvTE10l3YFA=="
 
@@ -89,6 +88,9 @@ func TestRegisterHappyPath(t *testing.T) {
 		fingerprint,
 	}
 
+	//Preregister fingerpritn
+
+
 	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY)
 	pl.Hear(msg, false)
 	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER)
@@ -99,7 +101,8 @@ func TestRegisterHappyPath(t *testing.T) {
 	// Assert expected state
 	usr := storage.NewUser()
 	usr.SetKeyID(fingerprint)
-	retrievedUsr, err := m.GetUser(usr)
+	retrievedUsr, err := storage.UserDiscoveryDb.GetUser(usr)
+	fmt.Println(retrievedUsr)
 	if err != nil  {
 		t.Errorf("Could not retrieve key %s", fingerprint)
 	}
@@ -111,12 +114,13 @@ func TestRegisterHappyPath(t *testing.T) {
 	usr2ID := id.NewUserFromUint(4, t)
 	usr2 := storage.NewUser()
 	usr2.SetID(usr2ID.Bytes())
-	err = m.UpsertUser(usr2)
+	err = storage.UserDiscoveryDb.UpsertUser(usr2)
+	fmt.Println(err)
 	if err != nil {
 		t.Errorf("Could not retrieve user key 1!")
 	}
-	if u != fingerprint {
-		t.Errorf("GetUserKey fingerprint mismatch: %s v %s", u, fingerprint)
+	if usr2.KeyId != fingerprint {
+		t.Errorf("GetUserKey fingerprint mismatch: %s v %s", usr.KeyId, fingerprint)
 	}
 	usr3 := storage.NewUser()
 	usr3.SetValue("rick@elixxir.io")
@@ -126,7 +130,7 @@ func TestRegisterHappyPath(t *testing.T) {
 		t.Errorf("Could not retrieve by e-mail address!")
 	}
 	if retrievedUser.KeyId != fingerprint {
-		t.Errorf("GetKeys fingerprint mismatch: %v v %s", ks[0], fingerprint)
+		t.Errorf("GetKeys fingerprint mismatch: %v v %s", retrievedUsr.KeyId, fingerprint)
 	}
 }
 
