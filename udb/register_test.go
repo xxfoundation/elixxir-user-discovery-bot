@@ -21,6 +21,8 @@ import (
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"math/rand"
 	"os"
+	"reflect"
+	"strings"
 	"testing"
 	"time"
 )
@@ -90,7 +92,6 @@ func TestRegisterHappyPath(t *testing.T) {
 
 	//Preregister fingerpritn
 
-
 	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY)
 	pl.Hear(msg, false)
 	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER)
@@ -102,8 +103,7 @@ func TestRegisterHappyPath(t *testing.T) {
 	usr := storage.NewUser()
 	usr.SetKeyID(fingerprint)
 	retrievedUsr, err := storage.UserDiscoveryDb.GetUser(usr)
-	fmt.Println(retrievedUsr)
-	if err != nil  {
+	if err != nil {
 		t.Errorf("Could not retrieve key %s", fingerprint)
 	}
 
@@ -115,12 +115,12 @@ func TestRegisterHappyPath(t *testing.T) {
 	usr2 := storage.NewUser()
 	usr2.SetID(usr2ID.Bytes())
 	err = storage.UserDiscoveryDb.UpsertUser(usr2)
-	fmt.Println(err)
+	retrievedUsr, _ = storage.UserDiscoveryDb.GetUser(usr2)
 	if err != nil {
 		t.Errorf("Could not retrieve user key 1!")
 	}
-	if usr2.KeyId != fingerprint {
-		t.Errorf("GetUserKey fingerprint mismatch: %s v %s", usr.KeyId, fingerprint)
+	if !reflect.DeepEqual(retrievedUsr.KeyId, fingerprint) {
+		t.Errorf("GetUserKey fingerprint mismatch: %s v %s", usr2.KeyId, fingerprint)
 	}
 	usr3 := storage.NewUser()
 	usr3.SetValue("rick@elixxir.io")
@@ -129,7 +129,7 @@ func TestRegisterHappyPath(t *testing.T) {
 	if err != nil {
 		t.Errorf("Could not retrieve by e-mail address!")
 	}
-	if retrievedUser.KeyId != fingerprint {
+	if strings.Compare(retrievedUser.KeyId, fingerprint) != 0 {
 		t.Errorf("GetKeys fingerprint mismatch: %v v %s", retrievedUsr.KeyId, fingerprint)
 	}
 }
@@ -156,7 +156,7 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 		usr := storage.NewUser()
 		usr.SetKeyID("8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh")
 		_, err := m.GetUser(usr)
-		if err==nil {
+		if err == nil {
 			t.Errorf("Data store key 8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh should" +
 				" not exist!")
 		}
@@ -164,13 +164,13 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 		usr2.SetID(id.NewUserFromUint(1, t).Bytes())
 
 		_, err = m.GetUser(usr2)
-		if err == nil  {
+		if err == nil {
 			t.Errorf("Data store user 1 should not exist!")
 		}
 		usr3 := storage.NewUser()
 		usr3.SetValue("rick@elixxir.io")
 		_, err = m.GetUser(usr3)
-			//DataStore.GetKeys("rick@elixxir.io", storage.Email)
+		//DataStore.GetKeys("rick@elixxir.io", storage.Email)
 		if err == nil {
 			t.Errorf("Data store value rick@elixxir.io should not exist!")
 		}

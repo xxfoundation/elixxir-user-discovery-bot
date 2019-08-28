@@ -12,7 +12,6 @@ import (
 	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/primitives/id"
 	"sync"
-	"time"
 )
 
 // Struct implementing the Database Interface with an underlying DB
@@ -87,15 +86,12 @@ func (u *User) SetKey(key []byte) {
 func NewDatabase(username, password, database, address string) Database {
 	// Create the database connection
 	db := pg.Connect(&pg.Options{
-		User:        username,
-		Password:    password,
-		Database:    database,
-		Addr:        address,
-		PoolSize:    1,
-		MaxRetries:  10,
-		PoolTimeout: time.Duration(2) * time.Minute,
-		IdleTimeout: time.Duration(10) * time.Minute,
-		MaxConnAge:  time.Duration(1) * time.Hour,
+		User:         username,
+		Password:     password,
+		Database:     database,
+		Addr:         address,
+		MaxRetries:   10,
+		MinIdleConns: 1,
 	})
 
 	// Initialize the schema

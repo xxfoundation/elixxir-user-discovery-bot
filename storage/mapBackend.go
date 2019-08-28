@@ -61,7 +61,7 @@ func (m *MapImpl) GetUser(user *User) (*User, error) {
 			return u, nil
 		}
 
-		if (bytes.Compare(u.Key,user.Key) == 0)  && bytes.Compare(u.Key,make([]byte,0)) != 0 {
+		if (bytes.Compare(u.Key, user.Key) == 0) && bytes.Compare(u.Key, make([]byte, 0)) != 0 {
 			m.lock.Unlock()
 			return u, nil
 		}

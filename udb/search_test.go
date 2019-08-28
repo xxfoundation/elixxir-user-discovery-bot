@@ -12,7 +12,7 @@ import (
 )
 
 func TestSearchHappyPath(t *testing.T) {
-		// Load a user
+	// Load a user
 	TestRegisterHappyPath(t)
 	// NOTE: This is kind of hard, since we can't see the response and search
 	//       does not modify data we can check

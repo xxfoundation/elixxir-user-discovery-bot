@@ -7,7 +7,6 @@
 package storage
 
 import (
-	"fmt"
 	"gitlab.com/elixxir/primitives/id"
 	"reflect"
 	"testing"
@@ -108,8 +107,7 @@ func TestMapImpl_GetUser_NilValue(t *testing.T) {
 	//Search for a user with no value set
 	usr2 := NewUser()
 	usr2.Id = make([]byte, 8)
-	retrievedUser,  err:= m.GetUser(usr2)
-	fmt.Println(err)
+	retrievedUser, err := m.GetUser(usr2)
 	//Should return an empty user, as map doesn't have a user with id set
 	if !reflect.DeepEqual(retrievedUser, NewUser()) || err == nil {
 		t.Errorf("Should have retrieved: %+v: Recieved: %+v", NewUser(), retrievedUser)
