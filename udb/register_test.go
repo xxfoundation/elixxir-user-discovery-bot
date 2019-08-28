@@ -136,9 +136,7 @@ func TestRegisterHappyPath(t *testing.T) {
 
 func TestInvalidRegistrationCommands(t *testing.T) {
 	//DataStore = storage.NewRamStorage()
-	m := &storage.MapImpl{
-		Users: make(map[*id.User]*storage.User),
-	}
+	storage.UserDiscoveryDb = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
 	msgs := []string{
 		"PUSHKEY garbage doiandga daoinaosf adsoifn dsaoifa",
 		"REGISTER NOTEMAIL something something",
@@ -156,7 +154,7 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 		rl.Hear(msg, false)
 		usr := storage.NewUser()
 		usr.SetKeyID("8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh")
-		_, err := m.GetUser(usr)
+		_, err := storage.UserDiscoveryDb.GetUser(usr)
 		if err == nil {
 			t.Errorf("Data store key 8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh should" +
 				" not exist!")
@@ -164,18 +162,44 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 		usr2 := storage.NewUser()
 		usr2.SetID(id.NewUserFromUint(1, t).Bytes())
 
-		_, err = m.GetUser(usr2)
+		_, err = storage.UserDiscoveryDb.GetUser(usr2)
 		if err == nil {
 			t.Errorf("Data store user 1 should not exist!")
 		}
 		usr3 := storage.NewUser()
 		usr3.SetValue("rick@elixxir.io")
-		_, err = m.GetUser(usr3)
+		_, err = storage.UserDiscoveryDb.GetUser(usr3)
 		//DataStore.GetKeys("rick@elixxir.io", storage.Email)
 		if err == nil {
 			t.Errorf("Data store value rick@elixxir.io should not exist!")
 		}
 	}
+}
+
+func TestRegister_InvalidGetKeyArgument(t *testing.T) {
+	//DataStore = storage.NewRamStorage()
+	storage.UserDiscoveryDb = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
+
+	pubKeyBits := "S8KXBczy0jins9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNzLU7a" +
+		"+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClpq4H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY7wuD96h4oaA+WV5Nh87cnIZ+fAG0uLve2LSHZ0FBZb3glOpNAOv7PFWkvN2BO37ztOQCXTJe72Y5ReoYn7nWVNxGUh0ilal+BRuJt1GZ7whOGDRE0IXfURIoK2yjyAnyZJWWMhfGsL5S6iL4aXUs03mc8BHKRq3HRjvTE10l3YFA=="
+
+
+
+	fingerprint := "8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKhvcD8M="
+	msgs := []string{
+		"myKeyId " + pubKeyBits,
+		"EMAIL rick@elixxir.io " + fingerprint,
+		fingerprint + " ExtraArgument",
+	}
+
+	//Preregister fingerpritn
+
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY)
+	pl.Hear(msg, false)
+	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER)
+	rl.Hear(msg, false)
+	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY)
+	gl.Hear(msg, false)
 }
 
 func TestRegisterListeners(t *testing.T) {

@@ -30,13 +30,6 @@ func (m *MapImpl) UpsertUser(user *User) error {
 // you want to search and we will search for them
 func (m *MapImpl) GetUser(user *User) (*User, error) {
 	m.lock.Lock()
-	/*
-		var err error
-		retUser, ok := m.users[user.Id]
-		if ok {
-			err = errors.New(fmt.Sprintf(
-				"User %+v has not been added!", user))
-		}*/
 
 	//Iterate through the list of users and find matching values
 	for _, u := range m.Users {
