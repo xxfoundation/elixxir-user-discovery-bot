@@ -38,14 +38,9 @@ func (m *MapImpl) GetUser(user *User) (*User, error) {
 				"User %+v has not been added!", user))
 		}*/
 
-	//Flatten map into a list
-	users := make([]*User, 0)
-	for _, value := range m.Users {
-		users = append(users, value)
-	}
-
 	//Iterate through the list of users and find matching values
-	for _, u := range users {
+	for _, u := range m.Users {
+
 		if bytes.Compare(u.Id, user.Id) == 0 && bytes.Compare(u.Id, make([]byte, 0)) != 0 {
 			m.lock.Unlock()
 			return u, nil
@@ -70,9 +65,7 @@ func (m *MapImpl) GetUser(user *User) (*User, error) {
 			m.lock.Unlock()
 			return u, nil
 		}
-
 	}
-
 	m.lock.Unlock()
 	return NewUser(), errors.New("Unable to find any user with those values")
 }

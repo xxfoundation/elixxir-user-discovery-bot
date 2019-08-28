@@ -36,7 +36,7 @@ func TestSearch_InvalidArgs(t *testing.T) {
 	//       so.. low priority.
 	msgs := []string{
 		"EMAIL rick@elixxir.io",
-		"GETKEY MORETHAN 1ARG",
+		"notEMAIL rick@elixxir.io",
 	}
 
 	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH)
@@ -44,6 +44,8 @@ func TestSearch_InvalidArgs(t *testing.T) {
 
 	msg = NewMessage(msgs[1], cmixproto.Type_UDB_SEARCH)
 	sl.Hear(msg,false)
+
+
 }
 
 // Test invalid search type
