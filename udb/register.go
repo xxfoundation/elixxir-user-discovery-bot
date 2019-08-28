@@ -131,10 +131,8 @@ func PushKey(userId *id.User, args []string) {
 	usr.SetKey(newKeyBytes)
 	keyFP := fingerprint.Fingerprint(newKeyBytes)
 	usr.SetKeyID(string(keyFP))
-	err := storage.UserDiscoveryDb.UpsertUser(usr)
-	if err != nil {
-		PushErr(fmt.Sprintf("Failed to insert the fingerprint: %+v", err))
-	}
+	_ = storage.UserDiscoveryDb.UpsertUser(usr)
+
 	msg := fmt.Sprintf("PUSHKEY COMPLETE  %s", keyMat)
 	Log.DEBUG.Printf("User %d: %s", userId, msg)
 	Send(userId, msg, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)
