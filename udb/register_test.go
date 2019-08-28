@@ -145,6 +145,7 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 		"REGISTER EMAIL garbage this is a garbage",
 		"REGISTER EMAIL rick@elixxir 8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh" +
 			"vcD8M=",
+
 	}
 
 	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY)
