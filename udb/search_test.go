@@ -26,7 +26,6 @@ func TestSearchHappyPath(t *testing.T) {
 	sl.Hear(msg, false)
 }
 
-
 func TestSearch_InvalidArgs(t *testing.T) {
 	// Load a user
 	TestRegisterHappyPath(t)
@@ -43,8 +42,7 @@ func TestSearch_InvalidArgs(t *testing.T) {
 	sl.Hear(msg, false)
 
 	msg = NewMessage(msgs[1], cmixproto.Type_UDB_SEARCH)
-	sl.Hear(msg,false)
-
+	sl.Hear(msg, false)
 
 }
 

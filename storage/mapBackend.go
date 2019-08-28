@@ -46,7 +46,7 @@ func (m *MapImpl) GetUser(user *User) (*User, error) {
 			return u, nil
 		}
 
-		if strings.Compare(u.Value, user.Value) == 0  && u.Value != "" {
+		if strings.Compare(u.Value, user.Value) == 0 && u.Value != "" {
 			m.lock.Unlock()
 			return u, nil
 		}
