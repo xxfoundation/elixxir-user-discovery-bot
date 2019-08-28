@@ -13,7 +13,14 @@ import (
 	"gitlab.com/elixxir/primitives/id"
 	"golang.org/x/tools/go/ssa/interp/testdata/src/errors"
 	"strings"
+	"sync"
 )
+
+// Struct implementing the Database Interface with an underlying Map
+type MapImpl struct {
+	Users map[*id.User]*User
+	lock  sync.Mutex
+}
 
 // Insert or Update a User into the map backend
 func (m *MapImpl) UpsertUser(user *User) error {

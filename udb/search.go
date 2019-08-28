@@ -51,7 +51,6 @@ func Search(userId *id.User, args []string) {
 
 	// Get the userID associated to email
 	searchedUser, err := storage.UserDiscoveryDb.GetUser(usr)
-	//DataStore.GetUserID(regVal)
 	if err != nil {
 		msg := fmt.Sprintf("SEARCH %s NOTFOUND", regVal)
 		Log.INFO.Printf("User %d: %s", userId, msg)
