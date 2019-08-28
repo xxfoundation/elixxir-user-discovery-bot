@@ -12,7 +12,7 @@ import (
 	"bytes"
 	"gitlab.com/elixxir/primitives/id"
 	"golang.org/x/tools/go/ssa/interp/testdata/src/errors"
-	"reflect"
+	"strings"
 )
 
 // Insert or Update a User into the map backend
@@ -46,12 +46,12 @@ func (m *MapImpl) GetUser(user *User) (*User, error) {
 
 	//Iterate through the list of users and find matching values
 	for _, u := range users {
-		if reflect.DeepEqual(u.Id, user.Id) && bytes.Compare(u.Id, make([]byte, 0)) != 0 {
+		if bytes.Compare(u.Id, user.Id) == 0 && bytes.Compare(u.Id, make([]byte, 0)) != 0 {
 			m.lock.Unlock()
 			return u, nil
 		}
 
-		if reflect.DeepEqual(u.Value, user.Value) && u.Value != "" {
+		if strings.Compare(u.Value, user.Value) == 0  && u.Value != "" {
 			m.lock.Unlock()
 			return u, nil
 		}
@@ -66,7 +66,7 @@ func (m *MapImpl) GetUser(user *User) (*User, error) {
 			return u, nil
 		}
 
-		if reflect.DeepEqual(u.KeyId, user.KeyId) && u.KeyId != "" {
+		if strings.Compare(u.KeyId, user.KeyId) == 0 && u.KeyId != "" {
 			m.lock.Unlock()
 			return u, nil
 		}
