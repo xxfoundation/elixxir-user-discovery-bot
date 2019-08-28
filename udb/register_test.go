@@ -118,18 +118,23 @@ func TestRegisterHappyPath(t *testing.T) {
 	if u != fingerprint {
 		t.Errorf("GetUserKey fingerprint mismatch: %s v %s", u, fingerprint)
 	}
+	usr3 := storage.NewUser()
+	usr3.SetValue("rick@elixxir.io")
 
-	ks, ok3 := DataStore.GetKeys("rick@elixxir.io", storage.Email)
-	if !ok3 {
+	retrievedUser, err := storage.UserDiscoveryDb.GetUser(usr3)
+	if err != nil {
 		t.Errorf("Could not retrieve by e-mail address!")
 	}
-	if ks[0] != fingerprint {
+	if retrievedUser.KeyId != fingerprint {
 		t.Errorf("GetKeys fingerprint mismatch: %v v %s", ks[0], fingerprint)
 	}
 }
 
 func TestInvalidRegistrationCommands(t *testing.T) {
-	DataStore = storage.NewRamStorage()
+	//DataStore = storage.NewRamStorage()
+	m := &storage.MapImpl{
+		Users: make(map[*id.User]*storage.User),
+	}
 	msgs := []string{
 		"PUSHKEY garbage doiandga daoinaosf adsoifn dsaoifa",
 		"REGISTER NOTEMAIL something something",
@@ -144,17 +149,25 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 	for i := 1; i < len(msgs); i++ {
 		msg = NewMessage(msgs[i], cmixproto.Type_UDB_REGISTER)
 		rl.Hear(msg, false)
-		_, ok := DataStore.GetKey("8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh")
-		if ok {
+		usr := storage.NewUser()
+		usr.SetKeyID("8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh")
+		_, err := m.GetUser(usr)
+		if err==nil {
 			t.Errorf("Data store key 8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh should" +
 				" not exist!")
 		}
-		_, ok2 := DataStore.GetUserKey(id.NewUserFromUint(1, t))
-		if ok2 {
+		usr2 := storage.NewUser()
+		usr2.SetID(id.NewUserFromUint(1, t).Bytes())
+
+		_, err = m.GetUser(usr2)
+		if err == nil  {
 			t.Errorf("Data store user 1 should not exist!")
 		}
-		_, ok3 := DataStore.GetKeys("rick@elixxir.io", storage.Email)
-		if ok3 {
+		usr3 := storage.NewUser()
+		usr3.SetValue("rick@elixxir.io")
+		_, err = m.GetUser(usr3)
+			//DataStore.GetKeys("rick@elixxir.io", storage.Email)
+		if err == nil {
 			t.Errorf("Data store value rick@elixxir.io should not exist!")
 		}
 	}
