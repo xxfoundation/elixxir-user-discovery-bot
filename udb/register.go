@@ -130,7 +130,7 @@ func PushKey(userId *id.User, args []string) {
 	usr.SetKey(newKeyBytes)
 	_ = storage.UserDiscoveryDb.UpsertUser(usr)
 
-	msg := fmt.Sprintf("PUSHKEY COMPLETE  %s",keyMat)
+	msg := fmt.Sprintf("PUSHKEY COMPLETE  %s", keyMat)
 	Log.DEBUG.Printf("User %d: %s", userId, msg)
 	Send(userId, msg, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)
 }

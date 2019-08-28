@@ -18,7 +18,7 @@ func (m *MapImpl) UpsertUser(user *User) error {
 	m.lock.Lock()
 	//Insert or update the user in the map
 	tmpIndx := id.NewUserFromBytes(user.Id)
-	m.users[tmpIndx] = user
+	m.Users[tmpIndx] = user
 
 	m.lock.Unlock()
 	return nil
@@ -39,7 +39,7 @@ func (m *MapImpl) GetUser(user *User) (*User, error) {
 
 	//Flatten map into a list
 	users := make([]*User, 0)
-	for _, value := range m.users {
+	for _, value := range m.Users {
 		users = append(users, value)
 	}
 

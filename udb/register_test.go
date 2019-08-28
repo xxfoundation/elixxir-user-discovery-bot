@@ -7,6 +7,7 @@
 package udb
 
 import (
+	"bytes"
 	"encoding/base64"
 	"fmt"
 	jww "github.com/spf13/jwalterweatherman"
@@ -71,7 +72,10 @@ func NewMessage(msg string, msgType cmixproto.Type) *parse.Message {
 // NOTE: The send function defaults to a no-op when client is not set up. I am
 //       not sure how I feel about it.
 func TestRegisterHappyPath(t *testing.T) {
-	DataStore = storage.NewRamStorage()
+	//DataStore = storage.NewRamStorage()
+	m := &storage.MapImpl{
+		Users: make(map[*id.User]*storage.User),
+	}
 	pubKeyBits := "S8KXBczy0jins9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNzLU7a" +
 		"+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClpq4H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY7wuD96h4oaA+WV5Nh87cnIZ+fAG0uLve2LSHZ0FBZb3glOpNAOv7PFWkvN2BO37ztOQCXTJe72Y5ReoYn7nWVNxGUh0ilal+BRuJt1GZ7whOGDRE0IXfURIoK2yjyAnyZJWWMhfGsL5S6iL4aXUs03mc8BHKRq3HRjvTE10l3YFA=="
 
@@ -93,18 +97,22 @@ func TestRegisterHappyPath(t *testing.T) {
 	gl.Hear(msg, false)
 
 	// Assert expected state
-	k, ok := DataStore.GetKey(fingerprint)
-	if !ok {
+	usr := storage.NewUser()
+	usr.SetKeyID(fingerprint)
+	retrievedUsr, err := m.GetUser(usr)
+	if err != nil  {
 		t.Errorf("Could not retrieve key %s", fingerprint)
 	}
-	for i := range k {
-		if k[i] != pubKey[i] {
-			t.Errorf("pubKey byte mismatch at %d: %d v %d", i, k[i], pubKey[i])
-		}
-	}
 
-	u, ok2 := DataStore.GetUserKey(id.NewUserFromUint(4, t))
-	if !ok2 {
+	if bytes.Compare(retrievedUsr.Key, pubKey) != 0 {
+		t.Errorf("pubKey byte mismatch: %+v v %+v", retrievedUsr.Key, pubKey)
+
+	}
+	usr2ID := id.NewUserFromUint(4, t)
+	usr2 := storage.NewUser()
+	usr2.SetID(usr2ID.Bytes())
+	err = m.UpsertUser(usr2)
+	if err != nil {
 		t.Errorf("Could not retrieve user key 1!")
 	}
 	if u != fingerprint {

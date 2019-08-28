@@ -15,7 +15,7 @@ import (
 //Happy path
 func TestMap_UpsertUser(t *testing.T) {
 	m := &MapImpl{
-		users: make(map[*id.User]*User),
+		Users: make(map[*id.User]*User),
 	}
 
 	usr := NewUser()
@@ -31,7 +31,7 @@ func TestMap_UpsertUser(t *testing.T) {
 //Test that map updates a new user being inserted with same id
 func TestMap_UpsertDuplicate(t *testing.T) {
 	m := &MapImpl{
-		users: make(map[*id.User]*User),
+		Users: make(map[*id.User]*User),
 	}
 
 	usr := NewUser()
@@ -54,7 +54,7 @@ func TestMap_UpsertDuplicate(t *testing.T) {
 //Happy path
 func TestMapImpl_GetUser(t *testing.T) {
 	m := &MapImpl{
-		users: make(map[*id.User]*User),
+		Users: make(map[*id.User]*User),
 	}
 
 	//Populate the user
@@ -76,7 +76,7 @@ func TestMapImpl_GetUser(t *testing.T) {
 //Error path: pull a nonexistant user
 func TestMapImpl_GetUser_EmptyMap(t *testing.T) {
 	m := &MapImpl{
-		users: make(map[*id.User]*User),
+		Users: make(map[*id.User]*User),
 	}
 	//Create user, never insert in map
 	usr := NewUser()
@@ -96,7 +96,7 @@ func TestMapImpl_GetUser_EmptyMap(t *testing.T) {
 //Error path: request a value that doesn't exist in the map
 func TestMapImpl_GetUser_NilValue(t *testing.T) {
 	m := &MapImpl{
-		users: make(map[*id.User]*User),
+		Users: make(map[*id.User]*User),
 	}
 
 	//Make a user with a value set
@@ -119,7 +119,7 @@ func TestMapImpl_GetUser_NilValue(t *testing.T) {
 //Happy path: Insert and get a user for every user attribute
 func TestMapImpl_GetUser_AddAndGet(t *testing.T) {
 	m := &MapImpl{
-		users: make(map[*id.User]*User),
+		Users: make(map[*id.User]*User),
 	}
 
 	//Insert user with ID and get user
