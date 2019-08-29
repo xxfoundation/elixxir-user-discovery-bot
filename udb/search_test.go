@@ -40,8 +40,6 @@ func TestSearch_InvalidArgs(t *testing.T) {
 	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH)
 	sl.Hear(msg, false)
 
-
-
 }
 
 // Test invalid search type
