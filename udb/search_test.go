@@ -45,7 +45,6 @@ func TestSearch_InvalidArgs(t *testing.T) {
 
 }
 
-
 // Test invalid search type
 func TestSearch_Invalid_Type(t *testing.T) {
 	defer func() {}()
