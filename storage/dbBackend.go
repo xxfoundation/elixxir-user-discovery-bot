@@ -34,14 +34,43 @@ func (m *DatabaseImpl) UpsertUser(user *User) error {
 }
 
 // Fetch a User from the database
-func (m *DatabaseImpl) GetUser(user *User) (*User, error) {
+func (m *DatabaseImpl) GetUser(id []byte) (*User, error) {
+	user := &User{Id: id}
 	err := m.db.Select(&user)
 	if err != nil {
 		// If there was an error, no user for the given ID was found
-		return nil, errors.New(fmt.Sprintf("unable to find user %v: %+v",
-			string(user.Id),
+		return nil, errors.New(fmt.Sprintf("unable to get user with id %v: %+v",
+			string(id),
 			errors.New(err.Error())))
 	}
 	// If we found a user for the given ID, return it
+	return user, nil
+}
+
+// Fetch a User from the database by Value
+func (m *DatabaseImpl) GetUserByValue(value string) (*User, error) {
+	user := new(User)
+	err := m.db.Model(user).Where("value = ?", value).Select()
+	if err != nil {
+		// If there was an error, no user for the given Value was found
+		return nil, errors.New(fmt.Sprintf(
+			"unable to get user with value %s: %+v", value,
+			errors.New(err.Error())))
+	}
+	// If we found a user for the given Value, return it
+	return user, nil
+}
+
+// Fetch a User from the database by KeyId
+func (m *DatabaseImpl) GetUserByKeyId(keyId string) (*User, error) {
+	user := new(User)
+	err := m.db.Model(user).Where("key_id = ?", keyId).Select()
+	if err != nil {
+		// If there was an error, no user for the given KeyId was found
+		return nil, errors.New(fmt.Sprintf(
+			"unable to get user with keyId %s: %+v", keyId,
+			errors.New(err.Error())))
+	}
+	// If we found a user for the given KeyId, return it
 	return user, nil
 }
