@@ -46,11 +46,9 @@ func Search(userId *id.User, args []string) {
 	}
 	// TODO: Add parse func to storage class, embed into function and
 	// pass it a string instead
-	usr := storage.NewUser()
-	usr.SetValue(regVal)
 
 	// Get the userID associated to email
-	searchedUser, err := storage.UserDiscoveryDb.GetUser(usr)
+	searchedUser, err := storage.UserDiscoveryDb.GetUserByValue(regVal)
 	if err != nil {
 		msg := fmt.Sprintf("SEARCH %s NOTFOUND", regVal)
 		Log.INFO.Printf("User %d: %s", userId, msg)

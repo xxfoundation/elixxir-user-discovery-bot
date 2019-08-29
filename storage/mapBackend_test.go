@@ -73,12 +73,12 @@ func TestMapImpl_GetUser(t *testing.T) {
 	}
 
 	retrievedUser, _ = m.GetUserByKeyId(usr.KeyId)
-	if !reflect.DeepEqual(usr,retrievedUser) {
+	if !reflect.DeepEqual(usr, retrievedUser) {
 		t.Errorf("Failed to retrieve by key ID. Expected to retrieve %+v, recieved: %+v", usr, retrievedUser)
 	}
 
 	retrievedUser, _ = m.GetUserByValue(usr.Value)
-	if !reflect.DeepEqual(usr,retrievedUser) {
+	if !reflect.DeepEqual(usr, retrievedUser) {
 		t.Errorf("Failed to retrieve by value. Expected to retrieve %+v, recieved: %+v", usr, retrievedUser)
 	}
 
@@ -102,7 +102,7 @@ func TestMapImpl_GetUser_EmptyMap(t *testing.T) {
 		t.Errorf("Expected to not find user in empty map. Map: %+v", m)
 	}
 
-	retrievedUser, _  = m.GetUserByValue(usr.Value)
+	retrievedUser, _ = m.GetUserByValue(usr.Value)
 	//Check that no user is obtained from an empty map
 	if !reflect.DeepEqual(retrievedUser, NewUser()) {
 		t.Errorf("Expected to not find user in empty map. Map: %+v", m)

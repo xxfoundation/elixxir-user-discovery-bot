@@ -52,36 +52,33 @@ func Register(userId *id.User, args []string) {
 		return
 	}
 	// TODO: Add parse func to storage class, embed into function and
-	// pass it a string instead
+	//  pass it a string instead
 
 	// Verify the key is accounted for
-	usr := storage.NewUser()
-	usr.SetKeyID(keyFp)
-	retrievedUser, err := storage.UserDiscoveryDb.GetUser(usr)
+	retrievedUser, err := storage.UserDiscoveryDb.GetUserByKeyId(keyFp)
 	if err != nil {
 		msg := fmt.Sprintf("Could not find keyFp: %s", keyFp)
 		RegErr(msg)
 		return
 	}
+
 	//FIXME: Do you want to do these checks? My guess is no, but that's how it was done previously
 	// W/o checks, you could get someone trying to overwrite someone else's account (? maybe?)
 	//Check that the retrieved user's attributes have been set
-	if bytes.Compare(retrievedUser.Id, make([]byte, 0)) == 0 {
+	if bytes.Compare(retrievedUser.Id, make([]byte, 0)) != 0 {
 		RegErr(fmt.Sprintf("UserId already exists: %d", retrievedUser.Id))
 	} else {
-		usr.SetID(userId.Bytes())
+		retrievedUser.SetID(userId.Bytes())
 	}
 	if retrievedUser.Value != "" {
 		RegErr(fmt.Sprintf("email already exists: %s", retrievedUser.Value))
 	} else {
-		usr.SetValue(regVal)
+		retrievedUser.SetValue(regVal)
 	}
 
-	//Hardcoded email value, change later
-	//Hardcoded email value, change later
-	usr.SetValueType(0)
-
-	err = storage.UserDiscoveryDb.UpsertUser(usr)
+	//FIXME: Hardcoded to email value, change later
+	retrievedUser.SetValueType(0)
+	err = storage.UserDiscoveryDb.UpsertUser(retrievedUser)
 
 	if err != nil {
 		RegErr(err.Error())
@@ -127,10 +124,9 @@ func PushKey(userId *id.User, args []string) {
 		return
 	}
 	usr := storage.NewUser()
-	usr.SetID(userId.Bytes())
 	usr.SetKey(newKeyBytes)
 	keyFP := fingerprint.Fingerprint(newKeyBytes)
-	usr.SetKeyID(string(keyFP))
+	usr.SetKeyID(keyFP)
 	_ = storage.UserDiscoveryDb.UpsertUser(usr)
 
 	msg := fmt.Sprintf("PUSHKEY COMPLETE  %s", keyMat)
@@ -161,11 +157,14 @@ func GetKey(userId *id.User, args []string) {
 	}
 
 	keyFp := args[0]
-	usr := storage.NewUser()
-	usr.SetID(userId.Bytes())
-	usr.SetKeyID(keyFp)
-	retrievedUser, err := storage.UserDiscoveryDb.GetUser(usr)
-	//key, ok := DataStore.GetKey(keyFp)
+	retrievedUser, err := storage.UserDiscoveryDb.GetUserByKeyId(keyFp)
+	if bytes.Compare(retrievedUser.Id, userId.Bytes()) != 0 {
+		msg := fmt.Sprintf("User ID does not match requested key ID")
+		Log.INFO.Printf("UserId %d: %s", userId, msg)
+		Send(userId, msg, cmixproto.Type_UDB_GET_KEY_RESPONSE)
+		return
+	}
+
 	if err != nil {
 		msg := fmt.Sprintf("GETKEY %s NOTFOUND", keyFp)
 		Log.INFO.Printf("UserId %d: %s", userId, msg)

@@ -90,8 +90,6 @@ func TestRegisterHappyPath(t *testing.T) {
 		fingerprint,
 	}
 
-	//Preregister fingerpritn
-
 	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY)
 	pl.Hear(msg, false)
 	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER)
@@ -100,37 +98,35 @@ func TestRegisterHappyPath(t *testing.T) {
 	gl.Hear(msg, false)
 
 	// Assert expected state
-	usr := storage.NewUser()
-	usr.SetKeyID(fingerprint)
-	retrievedUsr, err := storage.UserDiscoveryDb.GetUser(usr)
+	retrievedUser, err := storage.UserDiscoveryDb.GetUserByKeyId(fingerprint)
 	if err != nil {
 		t.Errorf("Could not retrieve key %s", fingerprint)
 	}
 
-	if bytes.Compare(retrievedUsr.Key, pubKey) != 0 {
-		t.Errorf("pubKey byte mismatch: %+v v %+v", retrievedUsr.Key, pubKey)
+	if bytes.Compare(retrievedUser.Key, pubKey) != 0 {
+		t.Errorf("pubKey byte mismatch: %+v v %+v", retrievedUser.Key, pubKey)
 
 	}
 	usr2ID := id.NewUserFromUint(4, t)
 	usr2 := storage.NewUser()
 	usr2.SetID(usr2ID.Bytes())
 	err = storage.UserDiscoveryDb.UpsertUser(usr2)
-	retrievedUsr, _ = storage.UserDiscoveryDb.GetUser(usr2)
+	retrievedUser, _ = storage.UserDiscoveryDb.GetUser(usr2ID.Bytes())
+	fmt.Println(retrievedUser.Value)
 	if err != nil {
 		t.Errorf("Could not retrieve user key 1!")
 	}
-	if !reflect.DeepEqual(retrievedUsr.KeyId, fingerprint) {
+	if !reflect.DeepEqual(retrievedUser.KeyId, fingerprint) {
 		t.Errorf("GetUserKey fingerprint mismatch: %s v %s", usr2.KeyId, fingerprint)
 	}
-	usr3 := storage.NewUser()
-	usr3.SetValue("rick@elixxir.io")
 
-	retrievedUser, err := storage.UserDiscoveryDb.GetUser(usr3)
+	retrievedUser, err = storage.UserDiscoveryDb.GetUserByValue("rick@elixxir.io")
 	if err != nil {
 		t.Errorf("Could not retrieve by e-mail address!")
 	}
+	fmt.Println(retrievedUser)
 	if strings.Compare(retrievedUser.KeyId, fingerprint) != 0 {
-		t.Errorf("GetKeys fingerprint mismatch: %v v %s", retrievedUsr.KeyId, fingerprint)
+		t.Errorf("GetKeys fingerprint mismatch: %v v %s", retrievedUser.KeyId, fingerprint)
 	}
 }
 
@@ -151,23 +147,17 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 	for i := 1; i < len(msgs); i++ {
 		msg = NewMessage(msgs[i], cmixproto.Type_UDB_REGISTER)
 		rl.Hear(msg, false)
-		usr := storage.NewUser()
-		usr.SetKeyID("8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh")
-		_, err := storage.UserDiscoveryDb.GetUser(usr)
+		_, err := storage.UserDiscoveryDb.GetUserByKeyId("8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh")
 		if err == nil {
 			t.Errorf("Data store key 8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh should" +
 				" not exist!")
 		}
-		usr2 := storage.NewUser()
-		usr2.SetID(id.NewUserFromUint(1, t).Bytes())
 
-		_, err = storage.UserDiscoveryDb.GetUser(usr2)
+		_, err = storage.UserDiscoveryDb.GetUser(id.NewUserFromUint(1, t).Bytes())
 		if err == nil {
 			t.Errorf("Data store user 1 should not exist!")
 		}
-		usr3 := storage.NewUser()
-		usr3.SetValue("rick@elixxir.io")
-		_, err = storage.UserDiscoveryDb.GetUser(usr3)
+		_, err = storage.UserDiscoveryDb.GetUserByValue("rick@elixxir.io")
 		//DataStore.GetKeys("rick@elixxir.io", storage.Email)
 		if err == nil {
 			t.Errorf("Data store value rick@elixxir.io should not exist!")

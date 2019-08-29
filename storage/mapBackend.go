@@ -10,6 +10,7 @@ package storage
 
 import (
 	"bytes"
+	"fmt"
 	"gitlab.com/elixxir/primitives/id"
 	"golang.org/x/tools/go/ssa/interp/testdata/src/errors"
 	"strings"
@@ -56,6 +57,7 @@ func (m *MapImpl) GetUserByValue(value string) (*User, error) {
 	for _, u := range m.Users {
 		if strings.Compare(u.Value, value) == 0 && u.Value != "" {
 			m.lock.Unlock()
+			fmt.Println(m)
 			return u, nil
 		}
 	}
@@ -65,7 +67,7 @@ func (m *MapImpl) GetUserByValue(value string) (*User, error) {
 }
 
 // Fetch a User from the database by KeyId
-func (m *MapImpl)  GetUserByKeyId(keyId string) (*User, error) {
+func (m *MapImpl) GetUserByKeyId(keyId string) (*User, error) {
 	m.lock.Lock()
 
 	for _, u := range m.Users {
