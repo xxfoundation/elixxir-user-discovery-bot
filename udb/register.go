@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/client/cmixproto"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/user-discovery-bot/fingerprint"
@@ -128,8 +129,8 @@ func PushKey(userId *id.User, args []string) {
 	keyFP := fingerprint.Fingerprint(newKeyBytes)
 	usr.SetKeyID(keyFP)
 	_ = storage.UserDiscoveryDb.UpsertUser(usr)
-
-	msg := fmt.Sprintf("PUSHKEY COMPLETE  %s", keyMat)
+	jwalterweatherman.INFO.Printf("Database: %+v", storage.UserDiscoveryDb)
+	msg := fmt.Sprintf("PUSHKEY COMPLETE %s",  keyFP )
 	Log.DEBUG.Printf("User %d: %s", userId, msg)
 	Send(userId, msg, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)
 }
