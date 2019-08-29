@@ -53,6 +53,10 @@ func (d DummySender) Send(recipientID *id.User, msg string) error {
 	return nil
 }
 
+func dummyConnectionStatusHandler(status uint32, timeout int) {
+	return
+}
+
 // Hack around the interface for client to do what we need for testing.
 func NewMessage(msg string, msgType cmixproto.Type) *parse.Message {
 	// Create the message body and assign its type
@@ -155,7 +159,7 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 func TestRegisterListeners(t *testing.T) {
 
 	// Initialize client with ram storage
-	client, err := api.NewClient(&globals.RamStorage{}, "", def)
+	client, err := api.NewClient(&globals.RamStorage{}, "", def, dummyConnectionStatusHandler)
 	if err != nil {
 		t.Fatalf("Failed to initialize UDB client: %s", err.Error())
 	}
