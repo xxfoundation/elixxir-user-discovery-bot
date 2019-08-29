@@ -23,8 +23,12 @@ var UserDiscoveryDb Database
 type Database interface {
 	// Insert or Update a User into the database
 	UpsertUser(user *User) error
-	// Fetch a User from the database
-	GetUser(user *User) (*User, error)
+	// Fetch a User from the database by ID
+	GetUser(id []byte) (*User, error)
+	// Fetch a User from the database by Value
+	GetUserByValue(value string) (*User, error)
+	// Fetch a User from the database by KeyId
+	GetUserByKeyId(keyId string) (*User, error)
 }
 
 // Struct representing the udb_users table in the database

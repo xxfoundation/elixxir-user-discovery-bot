@@ -33,39 +33,47 @@ func (m *MapImpl) UpsertUser(user *User) error {
 	return nil
 }
 
-// Fetch a User from the map backend. Pass in a user with any attribute values
-// you want to search and we will search for them
-func (m *MapImpl) GetUser(user *User) (*User, error) {
+// Fetch a User from the database by ID
+func (m *MapImpl) GetUser(id []byte) (*User, error) {
 	m.lock.Lock()
 
 	//Iterate through the list of users and find matching values
 	for _, u := range m.Users {
 
-		if bytes.Compare(u.Id, user.Id) == 0 && bytes.Compare(u.Id, make([]byte, 0)) != 0 {
+		if bytes.Compare(u.Id, id) == 0 {
 			m.lock.Unlock()
 			return u, nil
 		}
 
-		if strings.Compare(u.Value, user.Value) == 0 && u.Value != "" {
+	}
+	m.lock.Unlock()
+	return NewUser(), errors.New("Unable to find any user with that ID")
+}
+
+// Fetch a User from the database by Value
+func (m *MapImpl) GetUserByValue(value string) (*User, error) {
+	m.lock.Lock()
+	for _, u := range m.Users {
+		if strings.Compare(u.Value, value) == 0  {
 			m.lock.Unlock()
 			return u, nil
 		}
+	}
 
-		if u.ValueType == user.ValueType && u.ValueType != -1 {
-			m.lock.Unlock()
-			return u, nil
-		}
+	m.lock.Unlock()
+	return NewUser(), errors.New("Unable to find any user with that value")
+}
 
-		if (bytes.Compare(u.Key, user.Key) == 0) && bytes.Compare(u.Key, make([]byte, 0)) != 0 {
-			m.lock.Unlock()
-			return u, nil
-		}
+// Fetch a User from the database by KeyId
+func (m *MapImpl)  GetUserByKeyId(keyId string) (*User, error) {
+	m.lock.Lock()
 
-		if strings.Compare(u.KeyId, user.KeyId) == 0 && u.KeyId != "" {
+	for _, u := range m.Users {
+		if strings.Compare(u.KeyId, keyId) == 0 {
 			m.lock.Unlock()
 			return u, nil
 		}
 	}
 	m.lock.Unlock()
-	return NewUser(), errors.New("Unable to find any user with those values")
+	return NewUser(), errors.New("Unable to find any user with that keyID")
 }
