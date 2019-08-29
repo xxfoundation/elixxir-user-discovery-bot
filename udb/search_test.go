@@ -7,7 +7,9 @@
 package udb
 
 import (
+	"fmt"
 	"gitlab.com/elixxir/client/cmixproto"
+	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"testing"
 )
 
@@ -21,6 +23,7 @@ func TestSearchHappyPath(t *testing.T) {
 	msgs := []string{
 		"EMAIL rick@elixxir.io",
 	}
+	fmt.Println(storage.UserDiscoveryDb)
 
 	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH)
 	sl.Hear(msg, false)
@@ -42,7 +45,6 @@ func TestSearch_InvalidArgs(t *testing.T) {
 
 }
 
-
 func TestSearch_InvalidArgs_Email(t *testing.T) {
 	// Load a user
 	TestRegisterHappyPath(t)
@@ -58,8 +60,10 @@ func TestSearch_InvalidArgs_Email(t *testing.T) {
 	sl.Hear(msg, false)
 
 }
+
 // Test invalid search type
 func TestSearch_Invalid_Type(t *testing.T) {
+	defer func() {}()
 	fingerprint := "8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKhvcD8M="
 	msgs := []string{
 		"SEARCH INVALID test",
