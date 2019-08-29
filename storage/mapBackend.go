@@ -40,7 +40,7 @@ func (m *MapImpl) GetUser(id []byte) (*User, error) {
 	//Iterate through the list of users and find matching values
 	for _, u := range m.Users {
 
-		if bytes.Compare(u.Id, id) == 0 {
+		if bytes.Compare(u.Id, id) == 0 && bytes.Compare(u.Id, make([]byte, 0)) != 0 {
 			m.lock.Unlock()
 			return u, nil
 		}
@@ -54,7 +54,7 @@ func (m *MapImpl) GetUser(id []byte) (*User, error) {
 func (m *MapImpl) GetUserByValue(value string) (*User, error) {
 	m.lock.Lock()
 	for _, u := range m.Users {
-		if strings.Compare(u.Value, value) == 0  {
+		if strings.Compare(u.Value, value) == 0 && u.Value != "" {
 			m.lock.Unlock()
 			return u, nil
 		}
@@ -69,7 +69,7 @@ func (m *MapImpl)  GetUserByKeyId(keyId string) (*User, error) {
 	m.lock.Lock()
 
 	for _, u := range m.Users {
-		if strings.Compare(u.KeyId, keyId) == 0 {
+		if strings.Compare(u.KeyId, keyId) == 0 && u.KeyId != "" {
 			m.lock.Unlock()
 			return u, nil
 		}
