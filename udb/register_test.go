@@ -112,7 +112,6 @@ func TestRegisterHappyPath(t *testing.T) {
 	usr2.SetID(usr2ID.Bytes())
 	err = storage.UserDiscoveryDb.UpsertUser(usr2)
 	retrievedUser, _ = storage.UserDiscoveryDb.GetUser(usr2ID.Bytes())
-	fmt.Println(retrievedUser.Value)
 	if err != nil {
 		t.Errorf("Could not retrieve user key 1!")
 	}
@@ -124,7 +123,6 @@ func TestRegisterHappyPath(t *testing.T) {
 	if err != nil {
 		t.Errorf("Could not retrieve by e-mail address!")
 	}
-	fmt.Println(retrievedUser)
 	if strings.Compare(retrievedUser.KeyId, fingerprint) != 0 {
 		t.Errorf("GetKeys fingerprint mismatch: %v v %s", retrievedUser.KeyId, fingerprint)
 	}
