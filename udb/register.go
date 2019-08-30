@@ -8,10 +8,13 @@
 package udb
 
 import (
+	"bytes"
 	"encoding/base64"
 	"fmt"
+	"github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/client/cmixproto"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/elixxir/user-discovery-bot/fingerprint"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 )
 
@@ -50,26 +53,34 @@ func Register(userId *id.User, args []string) {
 		return
 	}
 	// TODO: Add parse func to storage class, embed into function and
-	// pass it a string instead
-	regTypeEnum := storage.Email
+	//  pass it a string instead
 
 	// Verify the key is accounted for
-	_, ok := DataStore.GetKey(keyFp)
-	if !ok {
+	retrievedUser, err := storage.UserDiscoveryDb.GetUserByKeyId(keyFp)
+	if err != nil {
 		msg := fmt.Sprintf("Could not find keyFp: %s", keyFp)
 		RegErr(msg)
 		return
 	}
 
-	err := DataStore.AddUserKey(userId, keyFp)
-	if err != nil {
-		RegErr(err.Error())
+	//FIXME: Do you want to do these checks? My guess is no, but that's how it was done previously
+	// W/o checks, you could get someone trying to overwrite someone else's account (? maybe?)
+	//Check that the retrieved user's attributes have been set
+	if bytes.Compare(retrievedUser.Id, make([]byte, 0)) != 0 {
+		RegErr(fmt.Sprintf("UserId already exists: %d", retrievedUser.Id))
+	} else {
+		retrievedUser.SetID(userId.Bytes())
 	}
-	err = DataStore.AddUserID(regVal, userId)
-	if err != nil {
-		RegErr(err.Error())
+	if retrievedUser.Value != "" {
+		RegErr(fmt.Sprintf("email already exists: %s", retrievedUser.Value))
+	} else {
+		retrievedUser.SetValue(regVal)
 	}
-	err = DataStore.AddValue(regVal, regTypeEnum, keyFp)
+
+	//FIXME: Hardcoded to email value, change later
+	retrievedUser.SetValueType(0)
+	err = storage.UserDiscoveryDb.UpsertUser(retrievedUser)
+
 	if err != nil {
 		RegErr(err.Error())
 	}
@@ -104,22 +115,22 @@ func PushKey(userId *id.User, args []string) {
 	// keyId := args[0] Note: Legacy, key id is not needed anymore as it is
 	//                        sent as a single message
 	keyMat := args[1]
-
 	// Decode keyMat
 	// FIXME: Not sure I like having to base64 stuff here, but it's this or hex
-	// Maybe add suppor to client for these pubkey conversions?
+	//  Maybe add support to client for these pubkey conversions?
 	newKeyBytes, decErr := base64.StdEncoding.DecodeString(keyMat)
 	if decErr != nil {
 		PushErr(fmt.Sprintf("Could not decode new key bytes, "+
 			"it must be in base64! %s", decErr))
 		return
 	}
-
-	fingerprint, err := DataStore.AddKey(newKeyBytes)
-	if err != nil {
-		PushErr(err.Error())
-	}
-	msg := fmt.Sprintf("PUSHKEY COMPLETE %s", fingerprint)
+	usr := storage.NewUser()
+	usr.SetKey(newKeyBytes)
+	keyFP := fingerprint.Fingerprint(newKeyBytes)
+	usr.SetKeyID(keyFP)
+	_ = storage.UserDiscoveryDb.UpsertUser(usr)
+	jwalterweatherman.INFO.Printf("Database: %+v", storage.UserDiscoveryDb)
+	msg := fmt.Sprintf("PUSHKEY COMPLETE %s", keyFP)
 	Log.DEBUG.Printf("User %d: %s", userId, msg)
 	Send(userId, msg, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)
 }
@@ -147,16 +158,22 @@ func GetKey(userId *id.User, args []string) {
 	}
 
 	keyFp := args[0]
+	retrievedUser, err := storage.UserDiscoveryDb.GetUserByKeyId(keyFp)
+	if bytes.Compare(retrievedUser.Id, userId.Bytes()) != 0 {
+		msg := fmt.Sprintf("User ID does not match requested key ID")
+		Log.INFO.Printf("UserId %d: %s", userId, msg)
+		Send(userId, msg, cmixproto.Type_UDB_GET_KEY_RESPONSE)
+		return
+	}
 
-	key, ok := DataStore.GetKey(keyFp)
-	if !ok {
+	if err != nil {
 		msg := fmt.Sprintf("GETKEY %s NOTFOUND", keyFp)
 		Log.INFO.Printf("UserId %d: %s", userId, msg)
 		Send(userId, msg, cmixproto.Type_UDB_GET_KEY_RESPONSE)
 		return
 	}
 
-	keymat := base64.StdEncoding.EncodeToString(key)
+	keymat := base64.StdEncoding.EncodeToString(retrievedUser.Key)
 	msg := fmt.Sprintf("GETKEY %s %s", keyFp, keymat)
 	Log.DEBUG.Printf("UserId %d: %s", userId, msg)
 	Send(userId, msg, cmixproto.Type_UDB_GET_KEY_RESPONSE)

@@ -7,10 +7,6 @@
 // Interface and enums for UDB storage systems
 package storage
 
-import (
-	"gitlab.com/elixxir/primitives/id"
-)
-
 // The ValueType constant stores the allowable types we search on
 // (e-mail, group, nickname, etc).
 type ValueType int
@@ -22,30 +18,6 @@ const (
 	Nick  ValueType = 1 // The user's nickname
 	// TODO: Add more as necessary
 )
-
-type Storage interface {
-	// AddKey - Add a key stream, return the fingerprint
-	AddKey(value []byte) (string, error)
-	// GetKey - Get a key based on the key id (retval of AddKey)
-	GetKey(keyId string) ([]byte, bool)
-
-	// NOTE: See doc on user discovery for these 2 functions.
-	//       At this time we can't do a high-security version because
-	//       we lack the anonymous return receipts.
-	// AddUserKey - Add a user id to keyId (not used in high security)
-	AddUserKey(userId *id.User, keyId string) error
-	// GetUserKey - Get a user's keyId (not used in high security)
-	GetUserKey(userId *id.User) (string, bool)
-	// AddUserID - Add an email to userID mapping
-	AddUserID(email string, userID *id.User) error
-	// GetUserID - Get a user's ID based on registered email
-	GetUserID(email string) (id.User, bool)
-
-	// AddValue - Add a searchable value (e-mail, nickname, etc)
-	AddValue(value string, valType ValueType, keyId string) error
-	// GetKeys - Returns all values that match the search criteria
-	GetKeys(value string, valType ValueType) ([]string, bool)
-}
 
 // Print strings for ValueType
 func (v ValueType) String() string {

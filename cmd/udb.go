@@ -12,9 +12,9 @@ package cmd
 
 import (
 	"gitlab.com/elixxir/client/api"
+	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
-	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
 	"os"
 )
@@ -33,9 +33,6 @@ var clientObj *api.Client
 //  - Start the main loop
 func StartBot(sess string, def *ndf.NetworkDefinition) {
 	udb.Log.DEBUG.Printf("Starting User Discovery Bot...")
-
-	// Use RAM storage for now
-	udb.DataStore = storage.NewRamStorage()
 
 	UDBSessionFileName = sess
 
@@ -83,7 +80,12 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	// Get new client. Setting storage to nil internally creates a
 	// default storage
 	var initErr error
-	clientObj, initErr = api.NewClient(nil, sessionFile, def)
+
+	dummyConnectionStatusHandler := func(status uint32, timeout int) {
+		globals.Log.INFO.Printf("Network status: %+v, %+v", status, timeout)
+	}
+
+	clientObj, initErr = api.NewClient(nil, sessionFile, def, dummyConnectionStatusHandler)
 	if initErr != nil {
 		udb.Log.FATAL.Panicf("Could not initialize: %v", initErr)
 	}
