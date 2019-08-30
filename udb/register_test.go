@@ -109,7 +109,6 @@ func TestRegisterHappyPath(t *testing.T) {
 
 	if bytes.Compare(retrievedUser.Key, pubKey) != 0 {
 		t.Errorf("pubKey byte mismatch: %+v v %+v", retrievedUser.Key, pubKey)
-
 	}
 	usr2ID := id.NewUserFromUint(4, t)
 	usr2 := storage.NewUser()
