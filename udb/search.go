@@ -48,7 +48,7 @@ func Search(userId *id.User, args []string) {
 	// pass it a string instead
 
 	// Get the userID associated to email
-	searchedUser, err := storage.UserDiscoveryDb.GetUserByValue(regVal)
+	foundUser, err := storage.UserDiscoveryDb.GetUserByValue(regVal)
 	if err != nil {
 		msg := fmt.Sprintf("SEARCH %s NOTFOUND", regVal)
 		Log.INFO.Printf("User %d: %s", userId, msg)
@@ -56,8 +56,8 @@ func Search(userId *id.User, args []string) {
 		return
 	}
 
-	searchedUserID := searchedUser.Id
-	searchedUserKeyID := searchedUser.KeyId
+	searchedUserID := foundUser.Id
+	searchedUserKeyID := foundUser.KeyId
 
 	// Correctly send the messages with actual userID based on email, followed by key fingerprint
 	//TODO: Make sure this thing works

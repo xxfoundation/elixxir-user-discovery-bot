@@ -27,8 +27,8 @@ type MapImpl struct {
 func (m *MapImpl) UpsertUser(user *User) error {
 	m.lock.Lock()
 	//Insert or update the user in the map
-	tmpIndx := id.NewUserFromBytes(user.Id)
-	m.Users[tmpIndx] = user
+	tempIndex := id.NewUserFromBytes(user.Id)
+	m.Users[tempIndex] = user
 
 	m.lock.Unlock()
 	return nil
