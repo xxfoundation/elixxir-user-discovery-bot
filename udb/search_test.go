@@ -9,6 +9,7 @@ package udb
 import (
 	"fmt"
 	"gitlab.com/elixxir/client/cmixproto"
+	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"testing"
 )
@@ -25,7 +26,9 @@ func TestSearchHappyPath(t *testing.T) {
 	}
 	fmt.Println(storage.UserDiscoveryDb)
 
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH)
+	sender := id.NewUserFromUint(89, t)
+
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH, sender)
 	sl.Hear(msg, false)
 }
 
@@ -39,8 +42,8 @@ func TestSearch_InvalidArgs(t *testing.T) {
 	msgs := []string{
 		"EMAIL rick@elixxir.io",
 	}
-
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH)
+	sender := id.NewUserFromUint(122, t)
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH, sender)
 	sl.Hear(msg, false)
 
 }
@@ -56,7 +59,9 @@ func TestSearch_InvalidArgs_Email(t *testing.T) {
 		"NotEMAIL rick@elixxir.io",
 	}
 
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH)
+	sender := id.NewUserFromUint(43, t)
+
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH, sender)
 	sl.Hear(msg, false)
 
 }
@@ -69,8 +74,8 @@ func TestSearch_Invalid_Type(t *testing.T) {
 		"SEARCH INVALID test",
 		"GETKEY " + fingerprint,
 	}
-
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH)
+	sender := id.NewUserFromUint(222, t)
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH, sender)
 	sl.Hear(msg, false)
 }
 
@@ -80,7 +85,7 @@ func TestSearch_Invalid_User(t *testing.T) {
 	msgs := []string{
 		"SEARCH EMAIL cat@elixxir.io",
 	}
-
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH)
+	sender := id.NewUserFromUint(9000, t)
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH, sender)
 	sl.Hear(msg, false)
 }
