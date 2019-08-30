@@ -18,6 +18,7 @@ import (
 	"gitlab.com/elixxir/comms/gateway"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
+	fingerprint2 "gitlab.com/elixxir/user-discovery-bot/fingerprint"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"math/rand"
 	"os"
@@ -61,7 +62,7 @@ func dummyConnectionStatusHandler(status uint32, timeout int) {
 }
 
 // Hack around the interface for client to do what we need for testing.
-func NewMessage(msg string, msgType cmixproto.Type) *parse.Message {
+func NewMessage(msg string, msgType cmixproto.Type, sender *id.User) *parse.Message {
 	// Create the message body and assign its type
 	tmp := parse.TypedBody{
 		MessageType: int32(msgType),
@@ -87,18 +88,20 @@ func TestRegisterHappyPath(t *testing.T) {
 	pubKey := make([]byte, 256)
 	pubKey, _ = base64.StdEncoding.DecodeString(pubKeyBits)
 
-	fingerprint := "8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKhvcD8M="
+	fingerprint := fingerprint2.Fingerprint(pubKey)
 	msgs := []string{
 		"myKeyId " + pubKeyBits,
 		"EMAIL rick@elixxir.io " + fingerprint,
 		fingerprint,
 	}
 
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY)
+	sender := id.NewUserFromUint(5, t)
+
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
 	pl.Hear(msg, false)
-	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER)
+	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender)
 	rl.Hear(msg, false)
-	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY)
+	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
 	gl.Hear(msg, false)
 
 	// Assert expected state
@@ -144,11 +147,13 @@ func TestIncorrectKeyFP(t *testing.T) {
 		fingerprint,
 	}
 
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY)
+	sender := id.NewUserFromUint(9, t)
+
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
 	pl.Hear(msg, false)
-	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER)
+	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender)
 	rl.Hear(msg, false)
-	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY)
+	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
 	gl.Hear(msg, false)
 
 }
@@ -166,11 +171,13 @@ func TestIncorrectValueType(t *testing.T) {
 		fingerprint,
 	}
 
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY)
+	sender := id.NewUserFromUint(22, t)
+
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
 	pl.Hear(msg, false)
-	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER)
+	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender)
 	rl.Hear(msg, false)
-	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY)
+	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
 	gl.Hear(msg, false)
 
 }
@@ -186,11 +193,13 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 			"vcD8M=",
 	}
 
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY)
+	sender := id.NewUserFromUint(33, t)
+
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
 	pl.Hear(msg, false)
 
 	for i := 1; i < len(msgs); i++ {
-		msg = NewMessage(msgs[i], cmixproto.Type_UDB_REGISTER)
+		msg = NewMessage(msgs[i], cmixproto.Type_UDB_REGISTER, sender)
 		rl.Hear(msg, false)
 		_, err := storage.UserDiscoveryDb.GetUserByKeyId("8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh")
 		if err == nil {
@@ -226,11 +235,13 @@ func TestRegister_InvalidGetKeyArgument(t *testing.T) {
 
 	//Preregister fingerpritn
 
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY)
+	sender := id.NewUserFromUint(44, t)
+
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
 	pl.Hear(msg, false)
-	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER)
+	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender)
 	rl.Hear(msg, false)
-	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY)
+	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
 	gl.Hear(msg, false)
 }
 
