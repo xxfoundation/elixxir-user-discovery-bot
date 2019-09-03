@@ -62,6 +62,13 @@ func Register(userId *id.User, args []string) {
 		return
 	}
 
+	//Check that the email has not been registered before
+	_, err = storage.UserDiscoveryDb.GetUserByValue(regVal)
+	if err==nil{
+		msg := fmt.Sprintf("Can not register with existing email: %s", regVal)
+		RegErr(msg)
+	}
+
 	//FIXME: Do you want to do these checks? My guess is no, but that's how it was done previously
 	// W/o checks, you could get someone trying to overwrite someone else's account (? maybe?)
 	//Check that the retrieved user's attributes have been set
@@ -158,13 +165,6 @@ func GetKey(userId *id.User, args []string) {
 
 	keyFp := args[0]
 	retrievedUser, err := storage.UserDiscoveryDb.GetUserByKeyId(keyFp)
-	if bytes.Compare(retrievedUser.Id, userId.Bytes()) != 0 {
-		msg := fmt.Sprintf("User ID does not match requested key ID")
-		Log.INFO.Printf("UserId %d: %s", userId, msg)
-		Send(userId, msg, cmixproto.Type_UDB_GET_KEY_RESPONSE)
-		return
-	}
-
 	if err != nil {
 		msg := fmt.Sprintf("GETKEY %s NOTFOUND", keyFp)
 		Log.INFO.Printf("UserId %d: %s", userId, msg)
