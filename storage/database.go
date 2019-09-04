@@ -95,6 +95,7 @@ func NewDatabase(username, password, database, address string) Database {
 	err := createSchema(db)
 	if err != nil {
 		// If an error is thrown with the database, run with a map backend
+		globals.Log.ERROR.Printf("Unable to initalize database backend: %+v", err)
 		globals.Log.INFO.Println("Using map backend for User Discovery!")
 		return &MapImpl{
 			Users: make(map[*id.User]*User),
