@@ -11,8 +11,8 @@ package storage
 import (
 	"bytes"
 	"fmt"
+	"github.com/pkg/errors"
 	"gitlab.com/elixxir/primitives/id"
-	"golang.org/x/tools/go/ssa/interp/testdata/src/errors"
 	"strings"
 	"sync"
 )
