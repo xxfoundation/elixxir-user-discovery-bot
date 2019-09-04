@@ -6,7 +6,6 @@
 package storage
 
 import (
-	"fmt"
 	"github.com/go-pg/pg"
 	"github.com/go-pg/pg/orm"
 	"gitlab.com/elixxir/client/globals"
@@ -41,7 +40,7 @@ type User struct {
 	// Identifying information
 	Value string
 	// Type of identifying information as denoted by the ValueType type
-	ValueType int `sql:"type:value_type"`
+	ValueType int
 	// Hash of the User public key
 	KeyId string
 	// User public key
@@ -100,13 +99,6 @@ func NewDatabase(username, password, database, address string) Database {
 		return &MapImpl{
 			Users: make(map[*id.User]*User),
 		}
-	}
-
-	// Create the ValueType enum in the database
-	_, err = db.Exec(fmt.Sprintf(`CREATE TYPE value_type AS ENUM (%d,%d);`,
-		Email, Nick))
-	if err != nil {
-		globals.Log.FATAL.Panicf("Unable to create enum: %+v", err)
 	}
 
 	// Return the database-backed Database interface
