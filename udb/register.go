@@ -33,7 +33,7 @@ const REGISTER_USAGE = "Usage: 'REGISTER [EMAIL] [email-address] " +
 // when a registrar comes online.
 // Registration fails if the KEYID is not already pushed and confirmed.
 func Register(userId *id.User, args []string) {
-	Log.INFO.Printf("Register %d: %v", userId, args)
+	Log.DEBUG.Printf("Register %d: %v", userId, args)
 	RegErr := func(msg string) {
 		Send(userId, msg, cmixproto.Type_UDB_REGISTER_RESPONSE)
 		Send(userId, REGISTER_USAGE, cmixproto.Type_UDB_REGISTER_RESPONSE)
@@ -64,19 +64,19 @@ func Register(userId *id.User, args []string) {
 		return
 	}
 
-	if retrievedUser.Value!=""{
+	if retrievedUser.Value != "" {
 		RegErr("Cannot write to a user that already exists")
 	}
 
 	err = storage.UserDiscoveryDb.DeleteUser(retrievedUser.Id)
 
-	if err!=nil{
+	if err != nil {
 		RegErr("Could not delete premade user")
 	}
 
 	//Check that the email has not been registered before
 	_, err = storage.UserDiscoveryDb.GetUserByValue(regVal)
-	if err==nil{
+	if err == nil {
 		msg := fmt.Sprintf("Can not register with existing email: %s", regVal)
 		RegErr(msg)
 	}
@@ -143,9 +143,6 @@ func PushKey(userId *id.User, args []string) {
 		return
 	}
 
-
-
-
 	usr := storage.NewUser()
 	usr.SetKey(newKeyBytes)
 	rng := csprng.NewSystemRNG()
@@ -157,7 +154,7 @@ func PushKey(userId *id.User, args []string) {
 
 	_, err := storage.UserDiscoveryDb.GetUserByKeyId(keyFP)
 
-	if err==nil{
+	if err == nil {
 		PushErr(fmt.Sprintf("Could not push key %s becasue key already exists", keyFP))
 	}
 

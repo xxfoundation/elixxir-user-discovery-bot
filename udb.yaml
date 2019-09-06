@@ -6,7 +6,7 @@ sessionfile: "udb.session"
 ndfPath: "ndf.json"
 
 # Database connection information
-dbUsername: "cmix"
-dbPassword: "cmix"
-dbName: "cmix_server"
-dbAddress: "0.0.0.0:5432"
+dbUsername: ""
+dbPassword: ""
+dbName: ""
+dbAddress: ""

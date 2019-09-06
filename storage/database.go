@@ -29,7 +29,7 @@ type Database interface {
 	// Fetch a User from the database by KeyId
 	GetUserByKeyId(keyId string) (*User, error)
 	//Delete a user
-	DeleteUser  (id []byte) error
+	DeleteUser(id []byte) error
 }
 
 // Struct representing the udb_users table in the database

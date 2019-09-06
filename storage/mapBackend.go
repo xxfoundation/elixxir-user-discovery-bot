@@ -12,7 +12,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/pkg/errors"
-	"gitlab.com/elixxir/client/globals"
 	idimport "gitlab.com/elixxir/primitives/id"
 	"strings"
 	"sync"
@@ -27,7 +26,6 @@ type MapImpl struct {
 // Insert or Update a User into the map backend
 func (m *MapImpl) UpsertUser(user *User) error {
 	m.lock.Lock()
-	globals.Log.INFO.Printf("upserting user in map: %v", user)
 
 	//Insert or update the user in the map
 	tempIndex := idimport.NewUserFromBytes(user.Id)
@@ -86,7 +84,7 @@ func (m *MapImpl) GetUserByKeyId(keyId string) (*User, error) {
 //Delete user
 func (m *MapImpl) DeleteUser(id []byte) error {
 	m.lock.Lock()
-	delete(m.Users,idimport.NewUserFromBytes(id))
+	delete(m.Users, idimport.NewUserFromBytes(id))
 	m.lock.Unlock()
 	return nil
 

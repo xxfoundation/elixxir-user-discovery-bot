@@ -162,7 +162,7 @@ func TestMapImpl_DeleteUser(t *testing.T) {
 
 	//Insert user with ID and get user
 	usrID := NewUser()
-	usrID.Id = []byte{0,0,0,0,8}
+	usrID.Id = []byte{0, 0, 0, 0, 8}
 	_ = m.UpsertUser(usrID)
 	err := m.DeleteUser(usrID.Id)
 
