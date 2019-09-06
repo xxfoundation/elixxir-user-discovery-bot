@@ -81,7 +81,7 @@ func (m *MapImpl) GetUserByKeyId(keyId string) (*User, error) {
 	return NewUser(), errors.New("Unable to find any user with that keyID")
 }
 
-//Delete user
+//Delete user by user id
 func (m *MapImpl) DeleteUser(id []byte) error {
 	m.lock.Lock()
 	delete(m.Users, idimport.NewUserFromBytes(id))

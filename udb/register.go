@@ -160,7 +160,7 @@ func PushKey(userId *id.User, args []string) {
 
 	err = storage.UserDiscoveryDb.UpsertUser(usr)
 	if err != nil {
-		globals.Log.WARN.Printf("unable to upsert user in pushkey: %v")
+		globals.Log.WARN.Printf("unable to upsert user in pushkey: %v", err)
 	}
 	msg := fmt.Sprintf("PUSHKEY COMPLETE %s", keyFP)
 	Log.DEBUG.Printf("User %d: %s", userId, msg)

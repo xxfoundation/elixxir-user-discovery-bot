@@ -75,12 +75,14 @@ func (m *DatabaseImpl) GetUserByKeyId(keyId string) (*User, error) {
 	return user, nil
 }
 
+//Delete a User from the database by the userID
 func (m *DatabaseImpl) DeleteUser(id []byte) error {
 	user := &User{Id: id}
 	err := m.db.Delete(user)
 	if err != nil {
+		// If there was an error, no user for the given id was found
 		return errors.New(fmt.Sprintf(
-			"unable to get user with keyId %s: %+v", id,
+			"unable to delete user with keyId %s: %+v", id,
 			errors.New(err.Error())))
 	}
 
