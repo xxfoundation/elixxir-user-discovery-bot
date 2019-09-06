@@ -4,3 +4,9 @@ logPath: "udb.log"
 sessionfile: "udb.session"
 # Path of the network definition file
 ndfPath: "ndf.json"
+
+# Database connection information
+dbUsername: "cmix"
+dbPassword: "cmix"
+dbName: "cmix_server"
+dbAddress: "0.0.0.0:5432"

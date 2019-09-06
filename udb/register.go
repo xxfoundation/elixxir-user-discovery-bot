@@ -12,6 +12,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"gitlab.com/elixxir/client/cmixproto"
+	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/user-discovery-bot/fingerprint"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
@@ -31,7 +32,7 @@ const REGISTER_USAGE = "Usage: 'REGISTER [EMAIL] [email-address] " +
 // when a registrar comes online.
 // Registration fails if the KEYID is not already pushed and confirmed.
 func Register(userId *id.User, args []string) {
-	Log.DEBUG.Printf("Register %d: %v", userId, args)
+	Log.INFO.Printf("Register %d: %v", userId, args)
 	RegErr := func(msg string) {
 		Send(userId, msg, cmixproto.Type_UDB_REGISTER_RESPONSE)
 		Send(userId, REGISTER_USAGE, cmixproto.Type_UDB_REGISTER_RESPONSE)
@@ -135,7 +136,10 @@ func PushKey(userId *id.User, args []string) {
 	keyFP := fingerprint.Fingerprint(newKeyBytes)
 	fmt.Println()
 	usr.SetKeyID(keyFP)
-	_ = storage.UserDiscoveryDb.UpsertUser(usr)
+	err := storage.UserDiscoveryDb.UpsertUser(usr)
+	if err != nil {
+		globals.Log.WARN.Printf("unable to upsert user in pushkey: %v")
+	}
 	msg := fmt.Sprintf("PUSHKEY COMPLETE %s", keyFP)
 	Log.DEBUG.Printf("User %d: %s", userId, msg)
 	Send(userId, msg, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)

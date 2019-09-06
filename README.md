@@ -24,6 +24,12 @@ Note: Yaml prohibits the use of tabs. If you put tabs in your config file, the U
 logPath: "udb.log"
 # Path where UDB will store session file
 sessionfile: "udb.session"
+
+# Database connection information
+dbUsername: "cmix"
+dbPassword: ""
+dbName: "cmix_server"
+dbAddress: ""q
 ```
 
 ## Running

@@ -153,3 +153,24 @@ func TestMapImpl_GetUser_AddAndGet(t *testing.T) {
 	}
 
 }
+
+//Happy path: Deletes a user from the map backend
+func TestMapImpl_DeleteUser(t *testing.T) {
+	m := &MapImpl{
+		Users: make(map[*id.User]*User),
+	}
+
+	//Insert user with ID and get user
+	usrID := NewUser()
+	usrID.Id = []byte{0,0,0,0,8}
+	_ = m.UpsertUser(usrID)
+	err := m.DeleteUser(usrID.Id)
+
+	if err != nil {
+		t.Errorf("Failed to delete map")
+	}
+	if m.Users[id.NewUserFromBytes(usrID.Id)] != nil {
+		t.Errorf("Failed to delete user that was inserted")
+	}
+
+}

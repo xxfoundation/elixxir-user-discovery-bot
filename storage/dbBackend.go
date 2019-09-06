@@ -11,11 +11,13 @@ package storage
 import (
 	"fmt"
 	"github.com/pkg/errors"
+	"gitlab.com/elixxir/client/globals"
 )
 
 // Insert or Update a User into the database
 func (m *DatabaseImpl) UpsertUser(user *User) error {
 	// Perform the upsert
+	globals.Log.INFO.Printf("upserting user: %v", user)
 	_, err := m.db.Model(user).
 		// On conflict, update the user's fields
 		OnConflict("(id) DO UPDATE").
@@ -26,6 +28,7 @@ func (m *DatabaseImpl) UpsertUser(user *User) error {
 		// Otherwise, insert the new user
 		Insert()
 	if err != nil {
+		globals.Log.INFO.Printf("returned an error %v", err)
 		return errors.New(fmt.Sprintf("unable to upsert user %s: %+v",
 			string(user.Id),
 			errors.New(err.Error())))
@@ -73,4 +76,16 @@ func (m *DatabaseImpl) GetUserByKeyId(keyId string) (*User, error) {
 	}
 	// If we found a user for the given KeyId, return it
 	return user, nil
+}
+
+func (m *DatabaseImpl) DeleteUser(id []byte) error {
+	user := &User{Id:id}
+	err := m.db.Delete(user)
+	if err != nil {
+		return errors.New(fmt.Sprintf(
+			"unable to get user with keyId %s: %+v", id,
+			errors.New(err.Error())))
+	}
+
+	return nil
 }
