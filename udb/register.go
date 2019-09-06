@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"gitlab.com/elixxir/client/cmixproto"
 	"gitlab.com/elixxir/client/globals"
+	"gitlab.com/elixxir/crypto/csprng"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/user-discovery-bot/fingerprint"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
@@ -61,6 +62,16 @@ func Register(userId *id.User, args []string) {
 		msg := fmt.Sprintf("Could not find keyFp: %s", keyFp)
 		RegErr(msg)
 		return
+	}
+
+	if retrievedUser.Value!=""{
+		RegErr("Cannot write to a user that already exists")
+	}
+
+	err = storage.UserDiscoveryDb.DeleteUser(retrievedUser.Id)
+
+	if err!=nil{
+		RegErr("Could not delete premade user")
 	}
 
 	//Check that the email has not been registered before
@@ -131,12 +142,26 @@ func PushKey(userId *id.User, args []string) {
 			"it must be in base64! %s", decErr))
 		return
 	}
+
+
+
+
 	usr := storage.NewUser()
 	usr.SetKey(newKeyBytes)
+	rng := csprng.NewSystemRNG()
+	UIDBytes := make([]byte, id.UserLen)
+	rng.Read(UIDBytes)
 	keyFP := fingerprint.Fingerprint(newKeyBytes)
-	fmt.Println()
+	usr.Id = UIDBytes
 	usr.SetKeyID(keyFP)
-	err := storage.UserDiscoveryDb.UpsertUser(usr)
+
+	_, err := storage.UserDiscoveryDb.GetUserByKeyId(keyFP)
+
+	if err==nil{
+		PushErr(fmt.Sprintf("Could not push key %s becasue key already exists", keyFP))
+	}
+
+	err = storage.UserDiscoveryDb.UpsertUser(usr)
 	if err != nil {
 		globals.Log.WARN.Printf("unable to upsert user in pushkey: %v")
 	}
