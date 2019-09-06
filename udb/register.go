@@ -8,10 +8,11 @@
 package udb
 
 import (
-	"bytes"
 	"encoding/base64"
 	"fmt"
 	"gitlab.com/elixxir/client/cmixproto"
+	"gitlab.com/elixxir/client/globals"
+	"gitlab.com/elixxir/crypto/csprng"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/user-discovery-bot/fingerprint"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
@@ -34,7 +35,6 @@ func Register(userId *id.User, args []string) {
 	Log.DEBUG.Printf("Register %d: %v", userId, args)
 	RegErr := func(msg string) {
 		Send(userId, msg, cmixproto.Type_UDB_REGISTER_RESPONSE)
-		Send(userId, REGISTER_USAGE, cmixproto.Type_UDB_REGISTER_RESPONSE)
 		Log.INFO.Printf("Register user %d error: %s", userId, msg)
 	}
 	if len(args) != 3 {
@@ -62,21 +62,23 @@ func Register(userId *id.User, args []string) {
 		return
 	}
 
+	if retrievedUser.Value != "" {
+		RegErr("Cannot write to a user that already exists")
+	}
+
+	err = storage.UserDiscoveryDb.DeleteUser(retrievedUser.Id)
+
+	if err != nil {
+		RegErr("Could not delete premade user")
+	}
+
 	//Check that the email has not been registered before
 	_, err = storage.UserDiscoveryDb.GetUserByValue(regVal)
-	if err==nil{
+	if err == nil {
 		msg := fmt.Sprintf("Can not register with existing email: %s", regVal)
 		RegErr(msg)
 	}
 
-	//FIXME: Do you want to do these checks? My guess is no, but that's how it was done previously
-	// W/o checks, you could get someone trying to overwrite someone else's account (? maybe?)
-	//Check that the retrieved user's attributes have been set
-	if bytes.Compare(retrievedUser.Id, make([]byte, 0)) != 0 {
-		RegErr(fmt.Sprintf("UserId already exists: %d", retrievedUser.Id))
-	} else {
-		retrievedUser.SetID(userId.Bytes())
-	}
 	if retrievedUser.Value != "" {
 		RegErr(fmt.Sprintf("email already exists: %s", retrievedUser.Value))
 	} else {
@@ -110,7 +112,6 @@ func PushKey(userId *id.User, args []string) {
 	Log.DEBUG.Printf("PushKey %d, %v", userId, args)
 	PushErr := func(msg string) {
 		Send(userId, msg, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)
-		Send(userId, PUSHKEY_USAGE, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)
 		Log.INFO.Printf("PushKey user %d error: %s", userId, msg)
 	}
 	if len(args) != 2 {
@@ -130,12 +131,26 @@ func PushKey(userId *id.User, args []string) {
 			"it must be in base64! %s", decErr))
 		return
 	}
+
 	usr := storage.NewUser()
 	usr.SetKey(newKeyBytes)
+	rng := csprng.NewSystemRNG()
+	UIDBytes := make([]byte, id.UserLen)
+	rng.Read(UIDBytes)
 	keyFP := fingerprint.Fingerprint(newKeyBytes)
-	fmt.Println()
+	usr.Id = UIDBytes
 	usr.SetKeyID(keyFP)
-	_ = storage.UserDiscoveryDb.UpsertUser(usr)
+
+	_, err := storage.UserDiscoveryDb.GetUserByKeyId(keyFP)
+
+	if err == nil {
+		PushErr(fmt.Sprintf("Could not push key %s becasue key already exists", keyFP))
+	}
+
+	err = storage.UserDiscoveryDb.UpsertUser(usr)
+	if err != nil {
+		globals.Log.WARN.Printf("unable to upsert user in pushkey: %v", err)
+	}
 	msg := fmt.Sprintf("PUSHKEY COMPLETE %s", keyFP)
 	Log.DEBUG.Printf("User %d: %s", userId, msg)
 	Send(userId, msg, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)

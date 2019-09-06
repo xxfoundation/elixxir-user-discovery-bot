@@ -133,7 +133,7 @@ func TestRegisterHappyPath(t *testing.T) {
 		t.Errorf("GetKeys fingerprint mismatch: %v v %s", retrievedUser.KeyId, fingerprint)
 	}
 
-	time.Sleep(10*time.Second)
+	time.Sleep(10 * time.Second)
 }
 
 func TestIncorrectKeyFP(t *testing.T) {
@@ -158,7 +158,7 @@ func TestIncorrectKeyFP(t *testing.T) {
 	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
 	gl.Hear(msg, false)
 
-	time.Sleep(10*time.Second)
+	time.Sleep(10 * time.Second)
 
 }
 
@@ -184,7 +184,7 @@ func TestIncorrectValueType(t *testing.T) {
 	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
 	gl.Hear(msg, false)
 
-	time.Sleep(10*time.Second)
+	time.Sleep(10 * time.Second)
 
 }
 
@@ -223,7 +223,7 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 			t.Errorf("Data store value rick@elixxir.io should not exist!")
 		}
 	}
-	time.Sleep(10*time.Second)
+	time.Sleep(10 * time.Second)
 }
 
 func TestRegister_InvalidGetKeyArgument(t *testing.T) {
@@ -251,7 +251,7 @@ func TestRegister_InvalidGetKeyArgument(t *testing.T) {
 	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
 	gl.Hear(msg, false)
 
-	time.Sleep(10*time.Second)
+	time.Sleep(10 * time.Second)
 }
 
 func TestRegisterListeners(t *testing.T) {
@@ -299,7 +299,7 @@ func TestRegisterListeners(t *testing.T) {
 		t.Errorf("Logout failed: %v", err)
 	}
 
-	time.Sleep(10*time.Second)
+	time.Sleep(10 * time.Second)
 }
 
 // Handles initialization of mock registration server,

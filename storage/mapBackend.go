@@ -12,22 +12,23 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/pkg/errors"
-	"gitlab.com/elixxir/primitives/id"
+	idimport "gitlab.com/elixxir/primitives/id"
 	"strings"
 	"sync"
 )
 
 // Struct implementing the Database Interface with an underlying Map
 type MapImpl struct {
-	Users map[*id.User]*User
+	Users map[*idimport.User]*User
 	lock  sync.Mutex
 }
 
 // Insert or Update a User into the map backend
 func (m *MapImpl) UpsertUser(user *User) error {
 	m.lock.Lock()
+
 	//Insert or update the user in the map
-	tempIndex := id.NewUserFromBytes(user.Id)
+	tempIndex := idimport.NewUserFromBytes(user.Id)
 	m.Users[tempIndex] = user
 
 	m.lock.Unlock()
@@ -78,4 +79,13 @@ func (m *MapImpl) GetUserByKeyId(keyId string) (*User, error) {
 	}
 	m.lock.Unlock()
 	return NewUser(), errors.New("Unable to find any user with that keyID")
+}
+
+//Delete user by user id
+func (m *MapImpl) DeleteUser(id []byte) error {
+	m.lock.Lock()
+	delete(m.Users, idimport.NewUserFromBytes(id))
+	m.lock.Unlock()
+	return nil
+
 }
