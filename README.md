@@ -29,7 +29,7 @@ sessionfile: "udb.session"
 dbUsername: "cmix"
 dbPassword: ""
 dbName: "cmix_server"
-dbAddress: ""q
+dbAddress: ""
 ```
 
 ## Running
