@@ -89,6 +89,7 @@ func Register(userId *id.User, args []string) {
 
 	//FIXME: Hardcoded to email value, change later
 	retrievedUser.SetValueType(0)
+	retrievedUser.SetID(userId.Bytes())
 	err = storage.UserDiscoveryDb.UpsertUser(retrievedUser)
 
 	if err != nil {
