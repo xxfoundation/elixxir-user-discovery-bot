@@ -96,9 +96,10 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 
 	//connect udb to gateways
 	err = clientObj.Connect()
-	if err != nil {
-		udb.Log.FATAL.Printf("UDB could not connect to gateways: %+v",
-			err)
+	for err != nil {
+		udb.Log.ERROR.Printf("UDB could not connect to gateways, "+
+			"reconnecting: %+v", err)
+		err = clientObj.Connect()
 	}
 
 	// SB: Trying to always register.

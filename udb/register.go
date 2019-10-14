@@ -75,18 +75,21 @@ func Register(userId *id.User, args []string) {
 	//Check that the email has not been registered before
 	_, err = storage.UserDiscoveryDb.GetUserByValue(regVal)
 	if err == nil {
-		msg := fmt.Sprintf("Can not register with existing email: %s", regVal)
+		msg := fmt.Sprintf("Can not register with existing email: %s",
+			regVal)
 		RegErr(msg)
 	}
 
 	if retrievedUser.Value != "" {
-		RegErr(fmt.Sprintf("email already exists: %s", retrievedUser.Value))
+		RegErr(fmt.Sprintf("email already exists: %s",
+			retrievedUser.Value))
 	} else {
 		retrievedUser.SetValue(regVal)
 	}
 
 	//FIXME: Hardcoded to email value, change later
 	retrievedUser.SetValueType(0)
+	retrievedUser.SetID(userId.Bytes())
 	err = storage.UserDiscoveryDb.UpsertUser(retrievedUser)
 
 	if err != nil {
@@ -95,7 +98,8 @@ func Register(userId *id.User, args []string) {
 
 	Log.INFO.Printf("User %v registered successfully with %s, %s",
 		*userId, regVal, keyFp)
-	Send(userId, "REGISTRATION COMPLETE", cmixproto.Type_UDB_REGISTER_RESPONSE)
+	Send(userId, "REGISTRATION COMPLETE",
+		cmixproto.Type_UDB_REGISTER_RESPONSE)
 }
 
 const PUSHKEY_USAGE = "Usage: 'PUSHKEY [temp-key-id] " +
@@ -123,8 +127,9 @@ func PushKey(userId *id.User, args []string) {
 	//                        sent as a single message
 	keyMat := args[1]
 	// Decode keyMat
-	// FIXME: Not sure I like having to base64 stuff here, but it's this or hex
-	//  Maybe add support to client for these pubkey conversions?
+	// FIXME: Not sure I like having to base64 stuff here, but
+	// it's this or hex Maybe add support to client for these
+	// pubkey conversions?
 	newKeyBytes, decErr := base64.StdEncoding.DecodeString(keyMat)
 	if decErr != nil {
 		PushErr(fmt.Sprintf("Could not decode new key bytes, "+
@@ -144,12 +149,14 @@ func PushKey(userId *id.User, args []string) {
 	_, err := storage.UserDiscoveryDb.GetUserByKeyId(keyFP)
 
 	if err == nil {
-		PushErr(fmt.Sprintf("Could not push key %s becasue key already exists", keyFP))
+		PushErr(fmt.Sprintf("Could not push key %s because key"+
+			" already exists", keyFP))
 	}
 
 	err = storage.UserDiscoveryDb.UpsertUser(usr)
 	if err != nil {
-		globals.Log.WARN.Printf("unable to upsert user in pushkey: %v", err)
+		globals.Log.WARN.Printf("unable to upsert user in pushkey: %v",
+			err)
 	}
 	msg := fmt.Sprintf("PUSHKEY COMPLETE %s", keyFP)
 	Log.DEBUG.Printf("User %d: %s", userId, msg)
