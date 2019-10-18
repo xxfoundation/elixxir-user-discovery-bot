@@ -267,6 +267,12 @@ func TestRegisterListeners(t *testing.T) {
 		t.Fatalf("Failed to initialize UDB client: %s", err.Error())
 	}
 
+	err = client.Connect()
+
+	if err != nil {
+		t.Errorf("Conneting to remotes failed: %+v", err)
+	}
+
 	udbID := id.NewUserFromUints(&[4]uint64{0, 0, 0, 3})
 	// Register with UDB registration code
 	_, err = client.Register(true, udbID.RegistrationCode(),
@@ -274,12 +280,6 @@ func TestRegisterListeners(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("Register failed: %s", err.Error())
-	}
-
-	err = client.Connect()
-
-	if err != nil {
-		t.Errorf("Conneting to remotes failed: %+v", err)
 	}
 
 	// Login to gateway
