@@ -40,11 +40,6 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	regCode := udb.UDB_USERID.RegistrationCode()
 	Init(UDBSessionFileName, regCode, def)
 
-	// API Settings (hard coded)
-	clientObj.DisableBlockingTransmission() // Deprecated
-	// Up to 10 messages per second
-	clientObj.SetRateLimiting(uint32(RateLimit))
-
 	udb.Log.INFO.Printf("Logging in")
 
 	// Log into the server with a blank password
@@ -93,6 +88,11 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	if noTLS {
 		clientObj.DisableTLS()
 	}
+
+	// API Settings (hard coded)
+	clientObj.DisableBlockingTransmission() // Deprecated
+	// Up to 10 messages per second
+	clientObj.SetRateLimiting(uint32(RateLimit))
 
 	//connect udb to gateways
 	err = clientObj.Connect()
