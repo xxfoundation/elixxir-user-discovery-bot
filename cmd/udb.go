@@ -17,6 +17,7 @@ import (
 	"gitlab.com/elixxir/primitives/ndf"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
 	"os"
+	"time"
 )
 
 // RateLimit for messages in ms (100 = 10 msg per second)
@@ -100,6 +101,7 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 		udb.Log.ERROR.Printf("UDB could not connect to gateways, "+
 			"reconnecting: %+v", err)
 		err = clientObj.Connect()
+		time.Sleep(10 * time.Second)
 	}
 
 	// SB: Trying to always register.
