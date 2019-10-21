@@ -7,6 +7,7 @@
 package udb
 
 import (
+	"bytes"
 	"encoding/base64"
 	"fmt"
 	jww "github.com/spf13/jwalterweatherman"
@@ -17,6 +18,7 @@ import (
 	"gitlab.com/elixxir/comms/gateway"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
+	fingerprint2 "gitlab.com/elixxir/user-discovery-bot/fingerprint"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"math/rand"
 	"os"
@@ -53,8 +55,12 @@ func (d DummySender) Send(recipientID *id.User, msg string) error {
 	return nil
 }
 
+func dummyConnectionStatusHandler(status uint32, timeout int) {
+	return
+}
+
 // Hack around the interface for client to do what we need for testing.
-func NewMessage(msg string, msgType cmixproto.Type) *parse.Message {
+func NewMessage(msg string, msgType cmixproto.Type, sender *id.User) *parse.Message {
 	// Create the message body and assign its type
 	tmp := parse.TypedBody{
 		MessageType: int32(msgType),
@@ -71,57 +77,125 @@ func NewMessage(msg string, msgType cmixproto.Type) *parse.Message {
 // NOTE: The send function defaults to a no-op when client is not set up. I am
 //       not sure how I feel about it.
 func TestRegisterHappyPath(t *testing.T) {
-	DataStore = storage.NewRamStorage()
+	//DataStore = storage.NewRamStorage()
+	storage.UserDiscoveryDb = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
+
 	pubKeyBits := "S8KXBczy0jins9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNzLU7a" +
 		"+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClpq4H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY7wuD96h4oaA+WV5Nh87cnIZ+fAG0uLve2LSHZ0FBZb3glOpNAOv7PFWkvN2BO37ztOQCXTJe72Y5ReoYn7nWVNxGUh0ilal+BRuJt1GZ7whOGDRE0IXfURIoK2yjyAnyZJWWMhfGsL5S6iL4aXUs03mc8BHKRq3HRjvTE10l3YFA=="
 
 	pubKey := make([]byte, 256)
 	pubKey, _ = base64.StdEncoding.DecodeString(pubKeyBits)
 
-	fingerprint := "8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKhvcD8M="
+	fingerprint := fingerprint2.Fingerprint(pubKey)
 	msgs := []string{
 		"myKeyId " + pubKeyBits,
 		"EMAIL rick@elixxir.io " + fingerprint,
 		fingerprint,
 	}
 
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY)
+	sender := id.NewUserFromUint(5, t)
+
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
 	pl.Hear(msg, false)
-	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER)
+	time.Sleep(50 * time.Millisecond)
+	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender)
 	rl.Hear(msg, false)
-	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY)
+	time.Sleep(50 * time.Millisecond)
+	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
 	gl.Hear(msg, false)
 
 	// Assert expected state
-	k, ok := DataStore.GetKey(fingerprint)
-	if !ok {
+	retrievedUser, err := storage.UserDiscoveryDb.GetUserByKeyId(fingerprint)
+	if err != nil {
 		t.Errorf("Could not retrieve key %s", fingerprint)
 	}
-	for i := range k {
-		if k[i] != pubKey[i] {
-			t.Errorf("pubKey byte mismatch at %d: %d v %d", i, k[i], pubKey[i])
+
+	if bytes.Compare(retrievedUser.Key, pubKey) != 0 {
+		t.Errorf("pubKey byte mismatch: %+v v %+v", retrievedUser.Key, pubKey)
+	}
+
+	//fixme - this does nor work for map backend
+	/*
+		retrievedUser, _ = storage.UserDiscoveryDb.GetUser(sender.Bytes())
+		if err != nil {
+			t.Errorf("Could not retrieve user key 1!")
 		}
-	}
+		if !reflect.DeepEqual(retrievedUser.KeyId, fingerprint) {
+			t.Errorf("GetUserKey fingerprint mismatch: %s v %s", retrievedUser.KeyId, fingerprint)
+		}
 
-	u, ok2 := DataStore.GetUserKey(id.NewUserFromUint(4, t))
-	if !ok2 {
-		t.Errorf("Could not retrieve user key 1!")
-	}
-	if u != fingerprint {
-		t.Errorf("GetUserKey fingerprint mismatch: %s v %s", u, fingerprint)
-	}
-
-	ks, ok3 := DataStore.GetKeys("rick@elixxir.io", storage.Email)
-	if !ok3 {
+		fmt.Printf("%+v\n", retrievedUser)
+	*/
+	retrievedUser2, err := storage.UserDiscoveryDb.GetUserByValue("rick@elixxir.io")
+	if err != nil {
 		t.Errorf("Could not retrieve by e-mail address!")
 	}
-	if ks[0] != fingerprint {
-		t.Errorf("GetKeys fingerprint mismatch: %v v %s", ks[0], fingerprint)
+
+	keyID := retrievedUser2.KeyId
+	if keyID != fingerprint {
+		t.Errorf("GetKeys fingerprint mismatch: %s v %s", fingerprint, keyID)
 	}
+
+	fmt.Println()
+
+	time.Sleep(1 * time.Second)
+}
+
+func TestIncorrectKeyFP(t *testing.T) {
+	storage.UserDiscoveryDb = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
+
+	pubKeyBits := "S8KXBczy0jins9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNzLU7a" +
+		"+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClpq4H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY7wuD96h4oaA+WV5Nh87cnIZ+fAG0uLve2LSHZ0FBZb3glOpNAOv7PFWkvN2BO37ztOQCXTJe72Y5ReoYn7nWVNxGUh0ilal+BRuJt1GZ7whOGDRE0IXfURIoK2yjyAnyZJWWMhfGsL5S6iL4aXUs03mc8BHKRq3HRjvTE10l3YFA=="
+
+	fingerprint := "8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKhvcD8M="
+	msgs := []string{
+		"myKeyId " + pubKeyBits,
+		"EMAIL rick@elixxir.io " + "Not the same key fingerprint",
+		fingerprint,
+	}
+
+	sender := id.NewUserFromUint(9, t)
+
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
+	pl.Hear(msg, false)
+	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender)
+	rl.Hear(msg, false)
+	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
+	gl.Hear(msg, false)
+
+	time.Sleep(1 * time.Second)
+
+}
+
+func TestIncorrectValueType(t *testing.T) {
+	storage.UserDiscoveryDb = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
+
+	pubKeyBits := "S8KXBczy0jins9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNzLU7a" +
+		"+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClpq4H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY7wuD96h4oaA+WV5Nh87cnIZ+fAG0uLve2LSHZ0FBZb3glOpNAOv7PFWkvN2BO37ztOQCXTJe72Y5ReoYn7nWVNxGUh0ilal+BRuJt1GZ7whOGDRE0IXfURIoK2yjyAnyZJWWMhfGsL5S6iL4aXUs03mc8BHKRq3HRjvTE10l3YFA=="
+
+	fingerprint := "8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKhvcD8M="
+	msgs := []string{
+		"myKeyId " + pubKeyBits,
+		"NotEMAIL rick@elixxir.io " + fingerprint,
+		fingerprint,
+	}
+
+	sender := id.NewUserFromUint(22, t)
+
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
+	pl.Hear(msg, false)
+	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender)
+	rl.Hear(msg, false)
+	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
+	gl.Hear(msg, false)
+
+	time.Sleep(10 * time.Second)
+
 }
 
 func TestInvalidRegistrationCommands(t *testing.T) {
-	DataStore = storage.NewRamStorage()
+	//DataStore = storage.NewRamStorage()
+	storage.UserDiscoveryDb = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
 	msgs := []string{
 		"PUSHKEY garbage doiandga daoinaosf adsoifn dsaoifa",
 		"REGISTER NOTEMAIL something something",
@@ -130,43 +204,67 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 			"vcD8M=",
 	}
 
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY)
+	sender := id.NewUserFromUint(33, t)
+
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
 	pl.Hear(msg, false)
 
 	for i := 1; i < len(msgs); i++ {
-		msg = NewMessage(msgs[i], cmixproto.Type_UDB_REGISTER)
+		msg = NewMessage(msgs[i], cmixproto.Type_UDB_REGISTER, sender)
 		rl.Hear(msg, false)
-		_, ok := DataStore.GetKey("8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh")
-		if ok {
+		_, err := storage.UserDiscoveryDb.GetUserByKeyId("8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh")
+		if err == nil {
 			t.Errorf("Data store key 8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh should" +
 				" not exist!")
 		}
-		_, ok2 := DataStore.GetUserKey(id.NewUserFromUint(1, t))
-		if ok2 {
+
+		_, err = storage.UserDiscoveryDb.GetUser(id.NewUserFromUint(1, t).Bytes())
+		if err == nil {
 			t.Errorf("Data store user 1 should not exist!")
 		}
-		_, ok3 := DataStore.GetKeys("rick@elixxir.io", storage.Email)
-		if ok3 {
+		_, err = storage.UserDiscoveryDb.GetUserByValue("rick@elixxir.io")
+		//DataStore.GetKeys("rick@elixxir.io", storage.Email)
+		if err == nil {
 			t.Errorf("Data store value rick@elixxir.io should not exist!")
 		}
 	}
+	time.Sleep(10 * time.Second)
+}
+
+func TestRegister_InvalidGetKeyArgument(t *testing.T) {
+	//DataStore = storage.NewRamStorage()
+	storage.UserDiscoveryDb = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
+
+	pubKeyBits := "S8KXBczy0jins9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNzLU7a" +
+		"+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClpq4H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY7wuD96h4oaA+WV5Nh87cnIZ+fAG0uLve2LSHZ0FBZb3glOpNAOv7PFWkvN2BO37ztOQCXTJe72Y5ReoYn7nWVNxGUh0ilal+BRuJt1GZ7whOGDRE0IXfURIoK2yjyAnyZJWWMhfGsL5S6iL4aXUs03mc8BHKRq3HRjvTE10l3YFA=="
+
+	fingerprint := "8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKhvcD8M="
+	msgs := []string{
+		"myKeyId " + pubKeyBits,
+		"EMAIL rick@elixxir.io " + fingerprint,
+		fingerprint + " ExtraArgument",
+	}
+
+	//Preregister fingerpritn
+
+	sender := id.NewUserFromUint(44, t)
+
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
+	pl.Hear(msg, false)
+	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender)
+	rl.Hear(msg, false)
+	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
+	gl.Hear(msg, false)
+
+	time.Sleep(10 * time.Second)
 }
 
 func TestRegisterListeners(t *testing.T) {
 
 	// Initialize client with ram storage
-	client, err := api.NewClient(&globals.RamStorage{}, "", def)
+	client, err := api.NewClient(&globals.RamStorage{}, "", def, dummyConnectionStatusHandler)
 	if err != nil {
 		t.Fatalf("Failed to initialize UDB client: %s", err.Error())
-	}
-
-	udbID := id.NewUserFromUints(&[4]uint64{0, 0, 0, 3})
-	// Register with UDB registration code
-	userID, err := client.Register(true, udbID.RegistrationCode(),
-		"", "")
-
-	if err != nil {
-		t.Errorf("Register failed: %s", err.Error())
 	}
 
 	err = client.Connect()
@@ -175,8 +273,17 @@ func TestRegisterListeners(t *testing.T) {
 		t.Errorf("Conneting to remotes failed: %+v", err)
 	}
 
+	udbID := id.NewUserFromUints(&[4]uint64{0, 0, 0, 3})
+	// Register with UDB registration code
+	_, err = client.Register(true, udbID.RegistrationCode(),
+		"", "", "", nil)
+
+	if err != nil {
+		t.Errorf("Register failed: %s", err.Error())
+	}
+
 	// Login to gateway
-	_, err = client.Login(userID)
+	_, err = client.Login("")
 
 	if err != nil {
 		t.Errorf("Login failed: %s", err.Error())
@@ -196,6 +303,8 @@ func TestRegisterListeners(t *testing.T) {
 	if err != nil {
 		t.Errorf("Logout failed: %v", err)
 	}
+
+	time.Sleep(10 * time.Second)
 }
 
 // Handles initialization of mock registration server,

@@ -4,3 +4,9 @@ logPath: "udb.log"
 sessionfile: "udb.session"
 # Path of the network definition file
 ndfPath: "ndf.json"
+
+# Database connection information
+dbUsername: ""
+dbPassword: ""
+dbName: ""
+dbAddress: ""

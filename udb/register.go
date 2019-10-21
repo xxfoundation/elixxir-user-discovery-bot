@@ -11,7 +11,10 @@ import (
 	"encoding/base64"
 	"fmt"
 	"gitlab.com/elixxir/client/cmixproto"
+	"gitlab.com/elixxir/client/globals"
+	"gitlab.com/elixxir/crypto/csprng"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/elixxir/user-discovery-bot/fingerprint"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 )
 
@@ -32,7 +35,6 @@ func Register(userId *id.User, args []string) {
 	Log.DEBUG.Printf("Register %d: %v", userId, args)
 	RegErr := func(msg string) {
 		Send(userId, msg, cmixproto.Type_UDB_REGISTER_RESPONSE)
-		Send(userId, REGISTER_USAGE, cmixproto.Type_UDB_REGISTER_RESPONSE)
 		Log.INFO.Printf("Register user %d error: %s", userId, msg)
 	}
 	if len(args) != 3 {
@@ -50,33 +52,54 @@ func Register(userId *id.User, args []string) {
 		return
 	}
 	// TODO: Add parse func to storage class, embed into function and
-	// pass it a string instead
-	regTypeEnum := storage.Email
+	//  pass it a string instead
 
 	// Verify the key is accounted for
-	_, ok := DataStore.GetKey(keyFp)
-	if !ok {
+	retrievedUser, err := storage.UserDiscoveryDb.GetUserByKeyId(keyFp)
+	if err != nil {
 		msg := fmt.Sprintf("Could not find keyFp: %s", keyFp)
 		RegErr(msg)
 		return
 	}
 
-	err := DataStore.AddUserKey(userId, keyFp)
-	if err != nil {
-		RegErr(err.Error())
+	if retrievedUser.Value != "" {
+		RegErr("Cannot write to a user that already exists")
 	}
-	err = DataStore.AddUserID(regVal, userId)
+
+	err = storage.UserDiscoveryDb.DeleteUser(retrievedUser.Id)
+
 	if err != nil {
-		RegErr(err.Error())
+		RegErr("Could not delete premade user")
 	}
-	err = DataStore.AddValue(regVal, regTypeEnum, keyFp)
+
+	//Check that the email has not been registered before
+	_, err = storage.UserDiscoveryDb.GetUserByValue(regVal)
+	if err == nil {
+		msg := fmt.Sprintf("Can not register with existing email: %s",
+			regVal)
+		RegErr(msg)
+	}
+
+	if retrievedUser.Value != "" {
+		RegErr(fmt.Sprintf("email already exists: %s",
+			retrievedUser.Value))
+	} else {
+		retrievedUser.SetValue(regVal)
+	}
+
+	//FIXME: Hardcoded to email value, change later
+	retrievedUser.SetValueType(0)
+	retrievedUser.SetID(userId.Bytes())
+	err = storage.UserDiscoveryDb.UpsertUser(retrievedUser)
+
 	if err != nil {
 		RegErr(err.Error())
 	}
 
 	Log.INFO.Printf("User %v registered successfully with %s, %s",
 		*userId, regVal, keyFp)
-	Send(userId, "REGISTRATION COMPLETE", cmixproto.Type_UDB_REGISTER_RESPONSE)
+	Send(userId, "REGISTRATION COMPLETE",
+		cmixproto.Type_UDB_REGISTER_RESPONSE)
 }
 
 const PUSHKEY_USAGE = "Usage: 'PUSHKEY [temp-key-id] " +
@@ -93,7 +116,6 @@ func PushKey(userId *id.User, args []string) {
 	Log.DEBUG.Printf("PushKey %d, %v", userId, args)
 	PushErr := func(msg string) {
 		Send(userId, msg, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)
-		Send(userId, PUSHKEY_USAGE, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)
 		Log.INFO.Printf("PushKey user %d error: %s", userId, msg)
 	}
 	if len(args) != 2 {
@@ -104,10 +126,10 @@ func PushKey(userId *id.User, args []string) {
 	// keyId := args[0] Note: Legacy, key id is not needed anymore as it is
 	//                        sent as a single message
 	keyMat := args[1]
-
 	// Decode keyMat
-	// FIXME: Not sure I like having to base64 stuff here, but it's this or hex
-	// Maybe add suppor to client for these pubkey conversions?
+	// FIXME: Not sure I like having to base64 stuff here, but
+	// it's this or hex Maybe add support to client for these
+	// pubkey conversions?
 	newKeyBytes, decErr := base64.StdEncoding.DecodeString(keyMat)
 	if decErr != nil {
 		PushErr(fmt.Sprintf("Could not decode new key bytes, "+
@@ -115,11 +137,28 @@ func PushKey(userId *id.User, args []string) {
 		return
 	}
 
-	fingerprint, err := DataStore.AddKey(newKeyBytes)
-	if err != nil {
-		PushErr(err.Error())
+	usr := storage.NewUser()
+	usr.SetKey(newKeyBytes)
+	rng := csprng.NewSystemRNG()
+	UIDBytes := make([]byte, id.UserLen)
+	rng.Read(UIDBytes)
+	keyFP := fingerprint.Fingerprint(newKeyBytes)
+	usr.Id = UIDBytes
+	usr.SetKeyID(keyFP)
+
+	_, err := storage.UserDiscoveryDb.GetUserByKeyId(keyFP)
+
+	if err == nil {
+		PushErr(fmt.Sprintf("Could not push key %s because key"+
+			" already exists", keyFP))
 	}
-	msg := fmt.Sprintf("PUSHKEY COMPLETE %s", fingerprint)
+
+	err = storage.UserDiscoveryDb.UpsertUser(usr)
+	if err != nil {
+		globals.Log.WARN.Printf("unable to upsert user in pushkey: %v",
+			err)
+	}
+	msg := fmt.Sprintf("PUSHKEY COMPLETE %s", keyFP)
 	Log.DEBUG.Printf("User %d: %s", userId, msg)
 	Send(userId, msg, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)
 }
@@ -147,16 +186,15 @@ func GetKey(userId *id.User, args []string) {
 	}
 
 	keyFp := args[0]
-
-	key, ok := DataStore.GetKey(keyFp)
-	if !ok {
+	retrievedUser, err := storage.UserDiscoveryDb.GetUserByKeyId(keyFp)
+	if err != nil {
 		msg := fmt.Sprintf("GETKEY %s NOTFOUND", keyFp)
 		Log.INFO.Printf("UserId %d: %s", userId, msg)
 		Send(userId, msg, cmixproto.Type_UDB_GET_KEY_RESPONSE)
 		return
 	}
 
-	keymat := base64.StdEncoding.EncodeToString(key)
+	keymat := base64.StdEncoding.EncodeToString(retrievedUser.Key)
 	msg := fmt.Sprintf("GETKEY %s %s", keyFp, keymat)
 	Log.DEBUG.Printf("UserId %d: %s", userId, msg)
 	Send(userId, msg, cmixproto.Type_UDB_GET_KEY_RESPONSE)

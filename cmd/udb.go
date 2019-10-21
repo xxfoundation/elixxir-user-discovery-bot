@@ -11,11 +11,10 @@
 package cmd
 
 import (
-	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/client/api"
+	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
-	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
 	"os"
 )
@@ -35,24 +34,16 @@ var clientObj *api.Client
 func StartBot(sess string, def *ndf.NetworkDefinition) {
 	udb.Log.DEBUG.Printf("Starting User Discovery Bot...")
 
-	// Use RAM storage for now
-	udb.DataStore = storage.NewRamStorage()
-
 	UDBSessionFileName = sess
 
 	// Initialize the client
 	regCode := udb.UDB_USERID.RegistrationCode()
-	userID := Init(UDBSessionFileName, regCode, def)
-
-	// API Settings (hard coded)
-	clientObj.DisableBlockingTransmission() // Deprecated
-	// Up to 10 messages per second
-	clientObj.SetRateLimiting(uint32(RateLimit))
+	Init(UDBSessionFileName, regCode, def)
 
 	udb.Log.INFO.Printf("Logging in")
 
-	// Log into the server
-	_, err := clientObj.Login(userID)
+	// Log into the server with a blank password
+	_, err := clientObj.Login("")
 
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not login: %s", err)
@@ -66,7 +57,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	// starting the reception thread
 	err = clientObj.StartMessageReceiver()
 	if err != nil {
-		jww.FATAL.Panicf("Could not start message recievers:  %+v", err)
+		udb.Log.FATAL.Panicf("Could not start message recievers:  %+v", err)
 	}
 
 	// Block forever as a keepalive
@@ -84,7 +75,12 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	// Get new client. Setting storage to nil internally creates a
 	// default storage
 	var initErr error
-	clientObj, initErr = api.NewClient(nil, sessionFile, def)
+
+	dummyConnectionStatusHandler := func(status uint32, timeout int) {
+		globals.Log.INFO.Printf("Network status: %+v, %+v", status, timeout)
+	}
+
+	clientObj, initErr = api.NewClient(nil, sessionFile, def, dummyConnectionStatusHandler)
 	if initErr != nil {
 		udb.Log.FATAL.Panicf("Could not initialize: %v", initErr)
 	}
@@ -93,11 +89,17 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 		clientObj.DisableTLS()
 	}
 
+	// API Settings (hard coded)
+	clientObj.DisableBlockingTransmission() // Deprecated
+	// Up to 10 messages per second
+	clientObj.SetRateLimiting(uint32(RateLimit))
+
 	//connect udb to gateways
 	err = clientObj.Connect()
-	if err != nil {
-		udb.Log.FATAL.Printf("UDB could not connect to gateways: %+v",
-			err)
+	for err != nil {
+		udb.Log.ERROR.Printf("UDB could not connect to gateways, "+
+			"reconnecting: %+v", err)
+		err = clientObj.Connect()
 	}
 
 	// SB: Trying to always register.
@@ -107,7 +109,7 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	// registration.
 
 	userID, err = clientObj.Register(true, regCode, "",
-		"")
+		"", "", nil)
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not register: %v", err)
 	}
