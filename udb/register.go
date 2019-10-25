@@ -64,12 +64,14 @@ func Register(userId *id.User, args []string) {
 
 	if retrievedUser.Value != "" {
 		RegErr("Cannot write to a user that already exists")
+		return
 	}
 
 	err = storage.UserDiscoveryDb.DeleteUser(retrievedUser.Id)
 
 	if err != nil {
 		RegErr("Could not delete premade user")
+		return
 	}
 
 	//Check that the email has not been registered before
@@ -78,11 +80,13 @@ func Register(userId *id.User, args []string) {
 		msg := fmt.Sprintf("Can not register with existing email: %s",
 			regVal)
 		RegErr(msg)
+		return
 	}
 
 	if retrievedUser.Value != "" {
 		RegErr(fmt.Sprintf("email already exists: %s",
 			retrievedUser.Value))
+		return
 	} else {
 		retrievedUser.SetValue(regVal)
 	}
@@ -94,6 +98,7 @@ func Register(userId *id.User, args []string) {
 
 	if err != nil {
 		RegErr(err.Error())
+		return
 	}
 
 	Log.INFO.Printf("User %v registered successfully with %s, %s",
@@ -151,6 +156,7 @@ func PushKey(userId *id.User, args []string) {
 	if err == nil {
 		PushErr(fmt.Sprintf("Could not push key %s because key"+
 			" already exists", keyFP))
+		return
 	}
 
 	err = storage.UserDiscoveryDb.UpsertUser(usr)
