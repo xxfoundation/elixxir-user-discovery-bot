@@ -13,9 +13,11 @@ require (
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.4.0
-	gitlab.com/elixxir/client v0.0.0-20191025190300-7fee48f859ca
-	gitlab.com/elixxir/comms v0.0.0-20191024163610-c21e2523e3db
-	gitlab.com/elixxir/crypto v0.0.0-20191024163612-1d67595237e4
-	gitlab.com/elixxir/primitives v0.0.0-20191024163559-539ed465e76f
+	gitlab.com/elixxir/client v0.0.0-20191029164102-3db4490935cf
+	gitlab.com/elixxir/comms v0.0.0-20191029164223-5cf4a84da97f
+	gitlab.com/elixxir/crypto v0.0.0-20191029164123-324be42ee600
+	gitlab.com/elixxir/primitives v0.0.0-20191029164023-7f6b4088b191
+	golang.org/x/crypto v0.0.0-20191029031824-8986dd9e96cf // indirect
+	golang.org/x/sys v0.0.0-20191029155521-f43be2a4598c // indirect
 	mellium.im/sasl v0.2.1 // indirect
 )
