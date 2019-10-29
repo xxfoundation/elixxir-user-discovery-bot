@@ -1,6 +1,6 @@
 module gitlab.com/elixxir/user-discovery-bot
 
-go 1.12
+go 1.13
 
 require (
 	github.com/go-pg/pg v8.0.6+incompatible
