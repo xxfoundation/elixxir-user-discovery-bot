@@ -4,9 +4,9 @@ setup:
 	git config --global --add url."git@gitlab.com:".insteadOf "https://gitlab.com/"
 
 update:
-	rm -r vendor/
+	rm -rf vendor/
 	go mod vendor
-	GOFLAGS="" go get -u
+	GOFLAGS="" go get -u all
 
 build:
 	go build ./...
