@@ -87,7 +87,7 @@ func Register(userId *id.User, args []string) {
 
 	if !strings.Contains(err.Error(),"pg: no rows in result set") &&
 		!strings.Contains(err.Error(),"Unable to find any user with that value"){
-		msg := fmt.Sprintf("Can not register, encoured unexpected " +
+		msg := fmt.Sprintf("Cannot register, encouraged encountered " +
 			"error on duplicate email check for %s: %s",
 			regVal, err.Error())
 		RegErr(msg)
