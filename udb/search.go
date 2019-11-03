@@ -51,7 +51,7 @@ func Search(userId *id.User, args []string) {
 	foundUser, err := storage.UserDiscoveryDb.GetUserByValue(regVal)
 	if err != nil {
 		msg := fmt.Sprintf("SEARCH %s NOTFOUND", regVal)
-		Log.INFO.Printf("User %d: %s", userId, msg)
+		Log.INFO.Printf("User %d: %s: %s", userId, msg, err)
 		Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
 		return
 	}
