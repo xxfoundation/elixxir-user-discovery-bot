@@ -16,6 +16,7 @@ import (
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/user-discovery-bot/fingerprint"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"strings"
 )
 
 const REGISTER_USAGE = "Usage: 'REGISTER [EMAIL] [email-address] " +
@@ -76,9 +77,19 @@ func Register(userId *id.User, args []string) {
 
 	//Check that the email has not been registered before
 	_, err = storage.UserDiscoveryDb.GetUserByValue(regVal)
-	if err == nil {
+
+	if err==nil{
 		msg := fmt.Sprintf("Can not register with existing email: %s",
 			regVal)
+		RegErr(msg)
+		return
+	}
+
+	if !strings.Contains(err.Error(),"pg: no rows in result set") &&
+		!strings.Contains(err.Error(),"Unable to find any user with that value"){
+		msg := fmt.Sprintf("Cannot register, encouraged encountered " +
+			"error on duplicate email check for %s: %s",
+			regVal, err.Error())
 		RegErr(msg)
 		return
 	}
