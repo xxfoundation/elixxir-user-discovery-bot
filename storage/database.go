@@ -38,15 +38,15 @@ type User struct {
 	tableName struct{} `sql:"udb_users,alias:udb_users"`
 
 	// User Id
-	Id []byte `sql:",pk"`
-	// Identifying information
-	Value string
+	Id []byte `sql:",pk,unique"`
+	// Identifying informationgo-pg
+	Value string `sql:",unique"`
 	// Type of identifying information as denoted by the ValueType type
 	ValueType int
 	// Hash of the User public key
-	KeyId string
+	KeyId string `sql:",unique"`
 	// User public key
-	Key []byte
+	Key []byte `sql:",unique"`
 }
 
 // Initialize a new User object
@@ -121,7 +121,7 @@ func createSchema(db *pg.DB) error {
 			// FKConstraints causes CreateTable to create foreign key constraints
 			// for has one relations. ON DELETE hook can be added using tag
 			// `sql:"on_delete:RESTRICT"` on foreign key field.
-			FKConstraints: true,
+			FKConstraints: false,
 			// Replaces PostgreSQL data type `text` with `varchar(n)`
 			// Varchar: 255
 		})

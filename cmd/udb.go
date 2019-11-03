@@ -13,6 +13,7 @@ package cmd
 import (
 	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/globals"
+	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
@@ -49,6 +50,12 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not login: %s", err)
 	}
+
+	// get the newest message ID on the reception gateway to stop the UDB from
+	// replaying old messages in the event of a redeploy where the session file
+	// is lost
+	lastMessageID := getLatestMessageID()
+	clientObj.GetSession().SetLastMessageID(lastMessageID)
 
 	// Register the listeners with the user discovery bot
 	udb.RegisterListeners(clientObj)
@@ -117,4 +124,30 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	}
 
 	return userID
+}
+
+// getLatestMessageID gets the newest message ID on the reception gateway, used
+// to stop the UDB from replaying old messages in the event of a redeploy where
+// the session file is lost
+func getLatestMessageID()string{
+	//get the newest message id to
+	msg := &mixmessages.ClientRequest{
+		UserID:udb.UDB_USERID.Bytes(),
+		LastMessageID:"",
+	}
+
+	receiveGateway := id.NewNodeFromBytes(clientObj.GetNDF().Nodes[len(clientObj.GetNDF().Gateways)-1].ID).NewGateway()
+
+	idList, err := clientObj.GetCommManager().Comms.SendCheckMessages(receiveGateway, msg)
+
+	if err!=nil{
+		globals.Log.FATAL.Panicf("failed to get the latest message " +
+			"IDs from the reception gateway: %s", err.Error())
+	}
+
+	if len(idList.IDs)==0{
+		return ""
+	}
+
+	return idList.IDs[len( idList.IDs)-1]
 }
