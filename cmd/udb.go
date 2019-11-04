@@ -54,8 +54,8 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	// get the newest message ID on the reception gateway to stop the UDB from
 	// replaying old messages in the event of a redeploy where the session file
 	// is lost
-	lastMessageID := getLatestMessageID()
-	clientObj.GetSession().SetLastMessageID(lastMessageID)
+	//lastMessageID := getLatestMessageID()
+	//clientObj.GetSession().SetLastMessageID(lastMessageID)
 
 	// Register the listeners with the user discovery bot
 	udb.RegisterListeners(clientObj)
@@ -138,16 +138,30 @@ func getLatestMessageID()string{
 
 	receiveGateway := id.NewNodeFromBytes(clientObj.GetNDF().Nodes[len(clientObj.GetNDF().Gateways)-1].ID).NewGateway()
 
-	idList, err := clientObj.GetCommManager().Comms.SendCheckMessages(receiveGateway, msg)
+	var idList *mixmessages.IDList
 
-	if err!=nil{
-		globals.Log.FATAL.Panicf("failed to get the latest message " +
-			"IDs from the reception gateway: %s", err.Error())
+	for {
+		var err error
+		idList, err = clientObj.GetCommManager().Comms.SendCheckMessages(receiveGateway, msg)
+
+		if err!=nil{
+			globals.Log.WARN.Printf("failed to get the latest message " +
+				"IDs from the reception gateway: %s", err.Error())
+		}else{
+			break
+		}
+
+		time.Sleep(2*time.Second)
 	}
 
-	if len(idList.IDs)==0{
-		return ""
+
+	lastMessage := ""
+
+	if len(idList.IDs)!=0{
+		lastMessage = idList.IDs[len( idList.IDs)-1]
 	}
 
-	return idList.IDs[len( idList.IDs)-1]
+	globals.Log.INFO.Printf("Discarding messages before ID `%s`", lastMessage)
+
+	return lastMessage
 }
