@@ -145,11 +145,13 @@ func getLatestMessageID()string{
 		idList, err = clientObj.GetCommManager().Comms.SendCheckMessages(receiveGateway, msg)
 
 		if err!=nil{
-			globals.Log.WARN.Panicf("failed to get the latest message " +
+			globals.Log.WARN.Printf("failed to get the latest message " +
 				"IDs from the reception gateway: %s", err.Error())
 		}else{
 			break
 		}
+
+		time.Sleep(2*time.Second)
 	}
 
 
