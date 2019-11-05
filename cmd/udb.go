@@ -124,10 +124,6 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not register with Permissioning: %v", err)
 	}
-	err = clientObj.RegisterWithNodes()
-	if err != nil {
-		udb.Log.FATAL.Panicf("Could not register with Nodes: %v", err)
-	}
 
 	return userID
 }

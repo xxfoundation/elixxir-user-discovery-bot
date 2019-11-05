@@ -280,10 +280,6 @@ func TestRegisterListeners(t *testing.T) {
 	if err != nil {
 		t.Errorf("Register failed: %s", err.Error())
 	}
-	err = client.RegisterWithNodes()
-	if err != nil {
-		t.Errorf("Register failed: %s", err.Error())
-	}
 
 	// Login to gateway
 	_, err = client.Login("")
