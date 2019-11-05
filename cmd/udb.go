@@ -162,7 +162,7 @@ func getLatestMessageID() string {
 
 	lastMessage := ""
 
-	if idList.IDs!=nil && len(idList.IDs) != 0 {
+	if idList != nil && idList.IDs != nil && len(idList.IDs) != 0 {
 		lastMessage = idList.IDs[len(idList.IDs)-1]
 	}
 
