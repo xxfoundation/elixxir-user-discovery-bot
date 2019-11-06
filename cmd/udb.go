@@ -119,10 +119,10 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	// Need a more accurate descriptor of what the method actually does than
 	// Register, or to remove the things that aren't actually used for
 	// registration.
-	userID, err = clientObj.Register(true, regCode, "",
+	userID, err = clientObj.RegisterWithPermissioning(true, regCode, "",
 		"", "", nil)
 	if err != nil {
-		udb.Log.FATAL.Panicf("Could not register: %v", err)
+		udb.Log.FATAL.Panicf("Could not register with Permissioning: %v", err)
 	}
 
 	return userID
