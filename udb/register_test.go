@@ -262,7 +262,7 @@ func TestRegister_InvalidGetKeyArgument(t *testing.T) {
 func TestRegisterListeners(t *testing.T) {
 
 	// Initialize client with ram storage
-	client, err := api.NewClient(&globals.RamStorage{}, "", def, dummyConnectionStatusHandler)
+	client, err := api.NewClient(&globals.RamStorage{}, "", "", def, dummyConnectionStatusHandler)
 	if err != nil {
 		t.Fatalf("Failed to initialize UDB client: %s", err.Error())
 	}

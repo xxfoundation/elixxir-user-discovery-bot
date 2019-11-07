@@ -88,8 +88,8 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	dummyConnectionStatusHandler := func(status uint32, timeout int) {
 		globals.Log.INFO.Printf("Network status: %+v, %+v", status, timeout)
 	}
-
-	clientObj, initErr = api.NewClient(nil, sessionFile, def, dummyConnectionStatusHandler)
+	secondarySessionFile := sessionFile + "-2"
+	clientObj, initErr = api.NewClient(nil, sessionFile, secondarySessionFile, def, dummyConnectionStatusHandler)
 	if initErr != nil {
 		udb.Log.FATAL.Panicf("Could not initialize: %v", initErr)
 	}
