@@ -101,14 +101,13 @@ func BlacklistFileParse(filePath string) ([]string, error) {
 
 // Searches if the specified key exists in the blacklist. Returns true if it
 // exists and false otherwise.
-func (wl *BlackList) Exists(key string) bool {
+func (bl *BlackList) Exists(key string) bool {
 	// Enable read lock while reading from the map
-	wl.RLock()
-
+	bl.RLock()
 	// Check if the key exists in the map
-	_, ok := wl.list[key]
+	_, ok := bl.list[strings.ToLower(key)]
 	// Disable read lock when reading is done
-	wl.RUnlock()
+	bl.RUnlock()
 
 	return ok
 }

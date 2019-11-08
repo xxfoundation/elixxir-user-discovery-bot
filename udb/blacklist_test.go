@@ -58,6 +58,10 @@ func TestBlackList_Exists(t *testing.T) {
 		t.Error("Failed to detect a banned name")
 	}
 
+	if testBlackList.Exists("DavidChauM") != true {
+		t.Error("Failed to detect a banned name")
+	}
+
 	if testBlackList.Exists("UnicornKitty") != false {
 		t.Error("False positive: Detected a non-blacklisted username")
 	}
