@@ -157,10 +157,10 @@ func TestRegisterBlacklist(t *testing.T) {
 	fingerprint := fingerprint2.Fingerprint(pubKey)
 	msgs := []string{
 		"myKeyId " + pubKeyBits,
-		"EMAIL rick@elixxir.io " + fingerprint,
+		"EMAIL DavidChaum " + fingerprint,
 		fingerprint,
 	}
-	BannedUsernameList = *InitBlackList("./whitelists/bannedNames.txt")
+	BannedUsernameList = *InitBlackList("./blacklists/bannedNames.txt")
 
 	sender := id.NewUserFromUint(5, t)
 
