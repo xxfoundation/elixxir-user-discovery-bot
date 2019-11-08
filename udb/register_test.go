@@ -43,7 +43,8 @@ var def *ndf.NetworkDefinition
 var bannedNames []string
 
 func TestMain(m *testing.M) {
-	bannedNames = []string{"DavidChaum\nElixxirAdmin\nPraxxisAdmin\nJoshManning"}
+	bannedNames = []string{"DavidChaum", "Elixxir", "Praxxis", "ElixxirAssistant", "PraxxisAssistant",
+		"JoshManning", "JoshBrooks", "JakeTaylor", "PraxxisAdmin"}
 
 	UdbSender = DummySender{}
 	jww.SetStdoutThreshold(jww.LevelDebug)

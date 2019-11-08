@@ -15,33 +15,33 @@ import (
 
 type BlackList struct {
 	list         map[string]bool // Contains the list of keys
-	file         string          // Absolute URL for the whitelist file
+	file         string          // Absolute URL for the blacklist file
 	sync.RWMutex                 // Only allows one writer at a time
 }
 
-// Initialises a map for the whitelist with the specified keys. The
+// Initialises a map for the blacklist with the specified keys. The
 // updateFinished channel receives a value when the map finises updating.
 func InitBlackList(filePath string) *BlackList {
 	bl := BlackList{
 		list: make(map[string]bool),
 		file: filePath,
 	}
-	// Update the whitelist from the specified file
-	bl.UpdateWhitelist()
+	// Update the blacklist from the specified file
+	bl.UpdateBlacklist()
 
 	return &bl
 }
 
-// Initialises a map for the whitelist with the specified keys.
-func (bl *BlackList) UpdateWhitelist() {
-	// Get list of strings from the whitelist file
-	list, err := WhitelistFileParse(bl.file)
+// Initialises a map for the blacklist with the specified keys.
+func (bl *BlackList) UpdateBlacklist() {
+	// Get list of strings from the blacklist file
+	list, err := BlacklistFileParse(bl.file)
 	// If the file was read successfully, update the list
 	if err == nil {
 		// Enable write lock while writing to the map
 		bl.Lock()
 
-		// Reset the whitelist to empty
+		// Reset the blacklist to empty
 		bl.list = make(map[string]bool)
 
 		// Add all the keys to the map
@@ -54,17 +54,17 @@ func (bl *BlackList) UpdateWhitelist() {
 	}
 }
 
-// Initialises a map for the whitelist with the specified keys.
+// Initialises a map for the blacklist with the specified keys.
 func (bl *BlackList) UpdateBlackList() {
-	// Get list of strings from the whitelist file
-	list, err := WhitelistFileParse(bl.file)
+	// Get list of strings from the blacklist file
+	list, err := BlacklistFileParse(bl.file)
 
 	// If the file was read successfully, update the list
 	if err == nil {
 		// Enable write lock while writing to the map
 		bl.Lock()
 
-		// Reset the whitelist to empty
+		// Reset the blacklist to empty
 		bl.list = make(map[string]bool)
 
 		// Add all the keys to the map
@@ -79,7 +79,7 @@ func (bl *BlackList) UpdateBlackList() {
 
 // Parses the given file and stores each value in a slice. Returns the slice and
 // an error. The file is expected to have value separated by new lines.
-func WhitelistFileParse(filePath string) ([]string, error) {
+func BlacklistFileParse(filePath string) ([]string, error) {
 	// Load file contents into memory
 	data, err := utils.ReadFile(filePath)
 	if err != nil {
@@ -99,7 +99,7 @@ func WhitelistFileParse(filePath string) ([]string, error) {
 	return strings.Split(dataStr, "\n"), nil
 }
 
-// Searches if the specified key exists in the whitelist. Returns true if it
+// Searches if the specified key exists in the blacklist. Returns true if it
 // exists and false otherwise.
 func (wl *BlackList) Exists(key string) bool {
 	// Enable read lock while reading from the map
