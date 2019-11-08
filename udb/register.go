@@ -46,7 +46,7 @@ func Register(userId *id.User, args []string) {
 	regType := args[0]
 	regVal := args[1]
 	keyFp := args[2]
-	if BannedUsernameList.Exists(regVal) {
+	if BannedUsernameList.Exists(strings.ToLower(regVal)) {
 		RegErr("Blacklisted username! Please try registering with a different username")
 		return
 	}

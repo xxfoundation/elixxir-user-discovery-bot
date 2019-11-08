@@ -46,7 +46,7 @@ func (bl *BlackList) UpdateBlacklist() {
 
 		// Add all the keys to the map
 		for _, key := range list {
-			bl.list[key] = true
+			bl.list[strings.ToLower(key)] = true
 		}
 
 		// Disable write lock when writing is done
