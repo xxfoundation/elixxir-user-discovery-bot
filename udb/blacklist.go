@@ -8,7 +8,7 @@ package udb
 import (
 	"bytes"
 	"gitlab.com/elixxir/client/globals"
-	"io/ioutil"
+	"gitlab.com/elixxir/primitives/utils"
 	"strings"
 	"sync"
 )
@@ -26,9 +26,32 @@ func InitBlackList(filePath string) *BlackList {
 		list: make(map[string]bool),
 		file: filePath,
 	}
-
 	// Update the whitelist from the specified file
+	bl.UpdateWhitelist()
+
 	return &bl
+}
+
+// Initialises a map for the whitelist with the specified keys.
+func (bl *BlackList) UpdateWhitelist() {
+	// Get list of strings from the whitelist file
+	list, err := WhitelistFileParse(bl.file)
+	// If the file was read successfully, update the list
+	if err == nil {
+		// Enable write lock while writing to the map
+		bl.Lock()
+
+		// Reset the whitelist to empty
+		bl.list = make(map[string]bool)
+
+		// Add all the keys to the map
+		for _, key := range list {
+			bl.list[key] = true
+		}
+
+		// Disable write lock when writing is done
+		bl.Unlock()
+	}
 }
 
 // Initialises a map for the whitelist with the specified keys.
@@ -58,13 +81,13 @@ func (bl *BlackList) UpdateBlackList() {
 // an error. The file is expected to have value separated by new lines.
 func WhitelistFileParse(filePath string) ([]string, error) {
 	// Load file contents into memory
-	data, err := ioutil.ReadFile(filePath)
+	data, err := utils.ReadFile(filePath)
 	if err != nil {
 		globals.Log.ERROR.Printf("Failed to read file: %v", err)
 		return []string{}, err
 	}
 
-	// Convert the data to string, trim whitespace, and normalize new lines
+	// Convert the data to string, triim whitespace, and normalize new lines
 	dataStr := strings.TrimSpace(string(normalizeNewlines(data)))
 
 	// Return empty slice if the file is empty or only contains whitespace
@@ -84,11 +107,10 @@ func (wl *BlackList) Exists(key string) bool {
 
 	// Check if the key exists in the map
 	_, ok := wl.list[key]
-
 	// Disable read lock when reading is done
 	wl.RUnlock()
 
-	return !ok
+	return ok
 }
 
 // Normalizes \r\n (Windows) and \r (Mac) into \n (UNIX).

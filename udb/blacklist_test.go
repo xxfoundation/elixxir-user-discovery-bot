@@ -10,7 +10,7 @@ import (
 )
 
 func TestBlackList_Exists(t *testing.T) {
-	testBlackList := InitBlackList("./whitelists/bannedNames.txt")
+	testBlackList := InitBlackList("./blacklists/bannedNames.txt")
 
 	if testBlackList.Exists("DavidChaum") != true {
 		t.Error("Failed to detect a banned name")
