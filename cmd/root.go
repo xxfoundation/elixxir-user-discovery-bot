@@ -43,6 +43,8 @@ var RootCmd = &cobra.Command{
 			sess = "udb-session.blob"
 		}
 
+		udb.BannedUsernameList = *udb.InitBlackList(viper.GetString("blacklistedNamesFilePath"))
+
 		// Set up database connection
 		storage.UserDiscoveryDb = storage.NewDatabase(
 			viper.GetString("dbUsername"),

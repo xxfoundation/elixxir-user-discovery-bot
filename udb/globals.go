@@ -22,6 +22,7 @@ var UDB_USERID *id.User = id.NewUserFromUints(&[4]uint64{0, 0, 0, 3})
 
 var Log = jww.NewNotepad(jww.LevelDebug, jww.LevelDebug, os.Stdout,
 	ioutil.Discard, "CLIENT", log.Ldate|log.Ltime)
+var BannedUsernameList BlackList
 
 var clientObj *api.Client
 
