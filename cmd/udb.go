@@ -13,10 +13,13 @@ package cmd
 import (
 	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/globals"
+	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
 	"os"
+	"strings"
+	"time"
 )
 
 // RateLimit for messages in ms (100 = 10 msg per second)
@@ -49,6 +52,12 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 		udb.Log.FATAL.Panicf("Could not login: %s", err)
 	}
 
+	// get the newest message ID on the reception gateway to stop the UDB from
+	// replaying old messages in the event of a redeploy where the session file
+	// is lost
+	lastMessageID := getLatestMessageID()
+	clientObj.GetSession().SetLastMessageID(lastMessageID)
+
 	// Register the listeners with the user discovery bot
 	udb.RegisterListeners(clientObj)
 
@@ -79,8 +88,8 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	dummyConnectionStatusHandler := func(status uint32, timeout int) {
 		globals.Log.INFO.Printf("Network status: %+v, %+v", status, timeout)
 	}
-
-	clientObj, initErr = api.NewClient(nil, sessionFile, def, dummyConnectionStatusHandler)
+	secondarySessionFile := sessionFile + "-2"
+	clientObj, initErr = api.NewClient(nil, sessionFile, secondarySessionFile, def, dummyConnectionStatusHandler)
 	if initErr != nil {
 		udb.Log.FATAL.Panicf("Could not initialize: %v", initErr)
 	}
@@ -94,12 +103,15 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	// Up to 10 messages per second
 	clientObj.SetRateLimiting(uint32(RateLimit))
 
-	//connect udb to gateways
-	err = clientObj.Connect()
-	for err != nil {
+	// connect udb to gateways
+	for {
+		err = clientObj.Connect()
+		if err == nil {
+			break
+		}
+		time.Sleep(10 * time.Second)
 		udb.Log.ERROR.Printf("UDB could not connect to gateways, "+
 			"reconnecting: %+v", err)
-		err = clientObj.Connect()
 	}
 
 	// SB: Trying to always register.
@@ -107,12 +119,54 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	// Need a more accurate descriptor of what the method actually does than
 	// Register, or to remove the things that aren't actually used for
 	// registration.
-
-	userID, err = clientObj.Register(true, regCode, "",
+	userID, err = clientObj.RegisterWithPermissioning(true, regCode, "",
 		"", "", nil)
 	if err != nil {
-		udb.Log.FATAL.Panicf("Could not register: %v", err)
+		udb.Log.FATAL.Panicf("Could not register with Permissioning: %v", err)
 	}
 
 	return userID
+}
+
+// getLatestMessageID gets the newest message ID on the reception gateway, used
+// to stop the UDB from replaying old messages in the event of a redeploy where
+// the session file is lost
+func getLatestMessageID() string {
+	//get the newest message id to
+	msg := &mixmessages.ClientRequest{
+		UserID:        udb.UDB_USERID.Bytes(),
+		LastMessageID: "",
+	}
+
+	receiveGateway := id.NewNodeFromBytes(clientObj.GetNDF().Nodes[len(clientObj.GetNDF().Gateways)-1].ID).NewGateway()
+
+	var idList *mixmessages.IDList
+
+	for {
+		var err error
+		idList, err = clientObj.GetCommManager().Comms.SendCheckMessages(receiveGateway, msg)
+
+		if err != nil {
+			globals.Log.WARN.Printf("Failed to get the latest message "+
+				"IDs from the reception gateway: %s", err.Error())
+			if strings.Contains(err.Error(),
+				"Could not find any message IDs for this user") {
+				break
+			}
+		} else {
+			break
+		}
+
+		time.Sleep(2 * time.Second)
+	}
+
+	lastMessage := ""
+
+	if idList != nil && idList.IDs != nil && len(idList.IDs) != 0 {
+		lastMessage = idList.IDs[len(idList.IDs)-1]
+	}
+
+	globals.Log.INFO.Printf("Discarding messages before ID `%s`", lastMessage)
+
+	return lastMessage
 }

@@ -16,6 +16,7 @@ import (
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/user-discovery-bot/fingerprint"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"strings"
 )
 
 const REGISTER_USAGE = "Usage: 'REGISTER [EMAIL] [email-address] " +
@@ -64,28 +65,36 @@ func Register(userId *id.User, args []string) {
 
 	if retrievedUser.Value != "" {
 		RegErr("Cannot write to a user that already exists")
+		return
 	}
 
 	err = storage.UserDiscoveryDb.DeleteUser(retrievedUser.Id)
 
 	if err != nil {
 		RegErr("Could not delete premade user")
+		return
 	}
 
 	//Check that the email has not been registered before
 	_, err = storage.UserDiscoveryDb.GetUserByValue(regVal)
+
 	if err == nil {
 		msg := fmt.Sprintf("Can not register with existing email: %s",
 			regVal)
 		RegErr(msg)
+		return
 	}
 
-	if retrievedUser.Value != "" {
-		RegErr(fmt.Sprintf("email already exists: %s",
-			retrievedUser.Value))
-	} else {
-		retrievedUser.SetValue(regVal)
+	if !strings.Contains(err.Error(), "pg: no rows in result set") &&
+		!strings.Contains(err.Error(), "Unable to find any user with that value") {
+		msg := fmt.Sprintf("Cannot register, encouraged encountered "+
+			"error on duplicate email check for %s: %s",
+			regVal, err.Error())
+		RegErr(msg)
+		return
 	}
+
+	retrievedUser.SetValue(regVal)
 
 	//FIXME: Hardcoded to email value, change later
 	retrievedUser.SetValueType(0)
@@ -94,6 +103,7 @@ func Register(userId *id.User, args []string) {
 
 	if err != nil {
 		RegErr(err.Error())
+		return
 	}
 
 	Log.INFO.Printf("User %v registered successfully with %s, %s",
@@ -137,26 +147,30 @@ func PushKey(userId *id.User, args []string) {
 		return
 	}
 
-	usr := storage.NewUser()
-	usr.SetKey(newKeyBytes)
-	rng := csprng.NewSystemRNG()
-	UIDBytes := make([]byte, id.UserLen)
-	rng.Read(UIDBytes)
+	//check that the key has not been registered before, refuse to overwrite if
+	//it has
 	keyFP := fingerprint.Fingerprint(newKeyBytes)
-	usr.Id = UIDBytes
-	usr.SetKeyID(keyFP)
-
 	_, err := storage.UserDiscoveryDb.GetUserByKeyId(keyFP)
 
 	if err == nil {
 		PushErr(fmt.Sprintf("Could not push key %s because key"+
 			" already exists", keyFP))
+		return
 	}
+
+	usr := storage.NewUser()
+	usr.SetKey(newKeyBytes)
+	rng := csprng.NewSystemRNG()
+	UIDBytes := make([]byte, id.UserLen)
+	rng.Read(UIDBytes)
+	usr.Id = UIDBytes
+	usr.SetKeyID(keyFP)
 
 	err = storage.UserDiscoveryDb.UpsertUser(usr)
 	if err != nil {
 		globals.Log.WARN.Printf("unable to upsert user in pushkey: %v",
 			err)
+		return
 	}
 	msg := fmt.Sprintf("PUSHKEY COMPLETE %s", keyFP)
 	Log.DEBUG.Printf("User %d: %s", userId, msg)
