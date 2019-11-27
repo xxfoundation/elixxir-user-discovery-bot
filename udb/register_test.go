@@ -37,7 +37,7 @@ const NumNodes = 1
 const NumGWs = NumNodes
 const GWsStartPort = 10000
 
-var GWComms [NumGWs]*gateway.GatewayComms
+var GWComms [NumGWs]*gateway.Comms
 
 var def *ndf.NetworkDefinition
 
@@ -262,12 +262,12 @@ func TestRegister_InvalidGetKeyArgument(t *testing.T) {
 func TestRegisterListeners(t *testing.T) {
 
 	// Initialize client with ram storage
-	client, err := api.NewClient(&globals.RamStorage{}, "", "", def, dummyConnectionStatusHandler)
+	client, err := api.NewClient(&globals.RamStorage{}, "", "", def)
 	if err != nil {
 		t.Fatalf("Failed to initialize UDB client: %s", err.Error())
 	}
 
-	err = client.Connect()
+	err = client.InitNetwork()
 
 	if err != nil {
 		t.Errorf("Conneting to remotes failed: %+v", err)
@@ -291,7 +291,11 @@ func TestRegisterListeners(t *testing.T) {
 	// Register Listeners
 	RegisterListeners(client)
 
-	err = client.StartMessageReceiver()
+	startMessageRecieverHandler := func(err error){
+		t.Errorf("Start message reciever encountered an issue:  %+v", err)
+	}
+
+	err = client.StartMessageReceiver(startMessageRecieverHandler)
 
 	if err != nil {
 		t.Errorf("Could not start message reciever: %v", err)

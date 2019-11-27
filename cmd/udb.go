@@ -64,7 +64,12 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	udb.Log.INFO.Printf("Starting UDB")
 
 	// starting the reception thread
-	err = clientObj.StartMessageReceiver()
+	startMessageRecieverHandler := func(err error){
+		udb.Log.FATAL.Panicf("Start message reciever encountered an issue:  %+v", err)
+
+	}
+
+	err = clientObj.StartMessageReceiver(startMessageRecieverHandler)
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not start message recievers:  %+v", err)
 	}
@@ -75,7 +80,6 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 
 // Initialize a session using the given session file and other info
 func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.User {
-	userID := udb.UDB_USERID
 
 	// We only register when the session file does not exist
 	// FIXME: this is super weird -- why have to check for a file,
@@ -85,17 +89,18 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	// default storage
 	var initErr error
 
-	dummyConnectionStatusHandler := func(status uint32, timeout int) {
-		globals.Log.INFO.Printf("Network status: %+v, %+v", status, timeout)
-	}
-	secondarySessionFile := sessionFile + "-2"
-	clientObj, initErr = api.NewClient(nil, sessionFile, secondarySessionFile, def, dummyConnectionStatusHandler)
-	if initErr != nil {
-		udb.Log.FATAL.Panicf("Could not initialize: %v", initErr)
-	}
 
 	if noTLS {
-		clientObj.DisableTLS()
+		//Set all tls certificates as empty effectively disabling tls
+		for i :=0; i < len(def.Gateways); i++ {
+			def.Gateways[i].TlsCertificate = ""
+		}
+	}
+
+	secondarySessionFile := sessionFile + "-2"
+	clientObj, initErr = api.NewClient(nil, sessionFile, secondarySessionFile, def)
+	if initErr != nil {
+		udb.Log.FATAL.Panicf("Could not initialize: %v", initErr)
 	}
 
 	// API Settings (hard coded)
@@ -105,7 +110,7 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 
 	// connect udb to gateways
 	for {
-		err = clientObj.Connect()
+		err = clientObj.InitNetwork()
 		if err == nil {
 			break
 		}
@@ -119,7 +124,9 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	// Need a more accurate descriptor of what the method actually does than
 	// Register, or to remove the things that aren't actually used for
 	// registration.
-	userID, err = clientObj.RegisterWithPermissioning(true, regCode, "",
+	//  RegisterWithPermissioning(preCan bool, registrationCode, nick, email,
+	//	password string, privateKeyRSA *rsa.PrivateKey) (*id.User, error)
+	userID, err := clientObj.RegisterWithPermissioning(true, regCode, "",
 		"", "", nil)
 	if err != nil {
 		udb.Log.FATAL.Panicf("Could not register with Permissioning: %v", err)
@@ -133,6 +140,7 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 // the session file is lost
 func getLatestMessageID() string {
 	//get the newest message id to
+	// HACK HACK HACK
 	msg := &mixmessages.ClientRequest{
 		UserID:        udb.UDB_USERID.Bytes(),
 		LastMessageID: "",
@@ -144,7 +152,13 @@ func getLatestMessageID() string {
 
 	for {
 		var err error
-		idList, err = clientObj.GetCommManager().Comms.SendCheckMessages(receiveGateway, msg)
+		host, ok := clientObj.GetCommManager().Comms.GetHost(receiveGateway.String())
+		if !ok{
+			//ERRROR getting host log it here
+			globals.Log.WARN.Printf("Failed to find the host with ID %v", receiveGateway.String())
+		}
+
+		idList, err = clientObj.GetCommManager().Comms.SendCheckMessages(host, msg)
 
 		if err != nil {
 			globals.Log.WARN.Printf("Failed to get the latest message "+
