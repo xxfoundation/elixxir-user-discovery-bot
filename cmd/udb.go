@@ -34,7 +34,7 @@ var clientObj *api.Client
 //  - Set up global variables
 //  - Log into the server
 //  - Start the main loop
-func StartBot(sess string, def *ndf.NetworkDefinition) {
+func StartBot(sess string, def *ndf.NetworkDefinition) error {
 	udb.Log.DEBUG.Printf("Starting User Discovery Bot...")
 
 	UDBSessionFileName = sess
@@ -49,7 +49,8 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	_, err := clientObj.Login("")
 
 	if err != nil {
-		udb.Log.FATAL.Panicf("Could not login: %s", err)
+		udb.Log.FATAL.Printf("Could not login: %s", err)
+		return err
 	}
 
 	// get the newest message ID on the reception gateway to stop the UDB from
@@ -66,16 +67,15 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	// starting the reception thread
 	startMessageRecieverHandler := func(err error) {
 		udb.Log.FATAL.Panicf("Start message reciever encountered an issue:  %+v", err)
-
 	}
 
 	err = clientObj.StartMessageReceiver(startMessageRecieverHandler)
 	if err != nil {
-		udb.Log.FATAL.Panicf("Could not start message recievers:  %+v", err)
+		udb.Log.FATAL.Printf("Could not start message recievers:  %+v", err)
+		return err
 	}
 
-	// Block forever as a keepalive
-	select {}
+	return nil
 }
 
 // Initialize a session using the given session file and other info
@@ -91,7 +91,7 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 
 	if noTLS {
 		//Set all tls certificates as empty effectively disabling tls
-		for i := 0; i < len(def.Gateways); i++ {
+		for i := range def.Gateways {
 			def.Gateways[i].TlsCertificate = ""
 		}
 	}
