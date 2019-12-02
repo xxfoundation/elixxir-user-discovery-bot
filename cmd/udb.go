@@ -64,7 +64,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) {
 	udb.Log.INFO.Printf("Starting UDB")
 
 	// starting the reception thread
-	startMessageRecieverHandler := func(err error){
+	startMessageRecieverHandler := func(err error) {
 		udb.Log.FATAL.Panicf("Start message reciever encountered an issue:  %+v", err)
 
 	}
@@ -89,10 +89,9 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	// default storage
 	var initErr error
 
-
 	if noTLS {
 		//Set all tls certificates as empty effectively disabling tls
-		for i :=0; i < len(def.Gateways); i++ {
+		for i := 0; i < len(def.Gateways); i++ {
 			def.Gateways[i].TlsCertificate = ""
 		}
 	}
@@ -140,7 +139,8 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 // the session file is lost
 func getLatestMessageID() string {
 	//get the newest message id to
-	// HACK HACK HACK
+	clientComms := clientObj.GetCommManager().Comms
+
 	msg := &mixmessages.ClientRequest{
 		UserID:        udb.UDB_USERID.Bytes(),
 		LastMessageID: "",
@@ -152,13 +152,13 @@ func getLatestMessageID() string {
 
 	for {
 		var err error
-		host, ok := clientObj.GetCommManager().Comms.GetHost(receiveGateway.String())
-		if !ok{
+		host, ok := clientComms.GetHost(receiveGateway.String())
+		if !ok {
 			//ERRROR getting host log it here
 			globals.Log.WARN.Printf("Failed to find the host with ID %v", receiveGateway.String())
 		}
 
-		idList, err = clientObj.GetCommManager().Comms.SendCheckMessages(host, msg)
+		idList, err = clientComms.SendCheckMessages(host, msg)
 
 		if err != nil {
 			globals.Log.WARN.Printf("Failed to get the latest message "+
