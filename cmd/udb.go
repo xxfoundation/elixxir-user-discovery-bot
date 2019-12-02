@@ -49,7 +49,6 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 	_, err := clientObj.Login("")
 
 	if err != nil {
-		udb.Log.FATAL.Printf("Could not login: %s", err)
 		return err
 	}
 
@@ -71,7 +70,6 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 
 	err = clientObj.StartMessageReceiver(startMessageRecieverHandler)
 	if err != nil {
-		udb.Log.FATAL.Printf("Could not start message recievers:  %+v", err)
 		return err
 	}
 
