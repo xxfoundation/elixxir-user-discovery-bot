@@ -291,7 +291,7 @@ func TestRegisterListeners(t *testing.T) {
 	// Register Listeners
 	RegisterListeners(client)
 
-	startMessageRecieverHandler := func(err error){
+	startMessageRecieverHandler := func(err error) {
 		t.Errorf("Start message reciever encountered an issue:  %+v", err)
 	}
 
