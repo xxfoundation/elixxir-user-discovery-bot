@@ -18,6 +18,7 @@ import (
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -100,6 +101,8 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) (*id.U
 		for i := range def.Gateways {
 			def.Gateways[i].TlsCertificate = ""
 		}
+
+		log.Printf("THESE ARE THE GATEWAYS %V", def.Gateways)
 	}
 
 	secondarySessionFile := sessionFile + "-2"
