@@ -102,7 +102,7 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) (*id.U
 			def.Gateways[i].TlsCertificate = ""
 		}
 
-		log.Printf("THESE ARE THE GATEWAYS %V", def.Gateways)
+		log.Printf("THESE ARE THE GATEWAYS %v", def.Gateways)
 	}
 
 	secondarySessionFile := sessionFile + "-2"
