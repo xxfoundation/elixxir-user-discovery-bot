@@ -11,6 +11,7 @@
 package cmd
 
 import (
+	"github.com/pkg/errors"
 	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/comms/mixmessages"
@@ -55,7 +56,10 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 	// get the newest message ID on the reception gateway to stop the UDB from
 	// replaying old messages in the event of a redeploy where the session file
 	// is lost
-	lastMessageID := getLatestMessageID()
+	lastMessageID, err := getLatestMessageID()
+	if err != nil {
+		return err
+	}
 
 	clientObj.GetSession().SetLastMessageID(lastMessageID)
 
@@ -65,7 +69,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 	udb.Log.INFO.Printf("Starting UDB")
 
 	// starting the reception thread
-	startMessageRecieverHandler := func(err error){
+	startMessageRecieverHandler := func(err error) {
 		udb.Log.FATAL.Panicf("Start message reciever encountered an issue:  %+v", err)
 	}
 
@@ -136,7 +140,7 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 // getLatestMessageID gets the newest message ID on the reception gateway, used
 // to stop the UDB from replaying old messages in the event of a redeploy where
 // the session file is lost
-func getLatestMessageID() string {
+func getLatestMessageID() (string, error) {
 	//get the newest message id to
 	clientComms := clientObj.GetCommManager().Comms
 
@@ -149,16 +153,13 @@ func getLatestMessageID() string {
 
 	var idList *mixmessages.IDList
 
-
-
 	for {
 		var err error
 		host, ok := clientComms.GetHost(receiveGateway.String())
 		if !ok {
 			//ERROR getting host log it here
 			//Needs to be part of a larger discussion for error handling
-			globals.Log.WARN.Printf("Failed to find the host with ID %v", receiveGateway.String())
-			continue
+			return "", errors.Errorf("Failed to find the host with ID %v", receiveGateway.String())
 		}
 
 		idList, err = clientComms.SendCheckMessages(host, msg)
@@ -184,5 +185,5 @@ func getLatestMessageID() string {
 
 	globals.Log.INFO.Printf("Discarding messages before ID `%s`", lastMessage)
 
-	return lastMessage
+	return lastMessage, nil
 }
