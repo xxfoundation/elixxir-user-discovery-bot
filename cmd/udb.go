@@ -158,7 +158,6 @@ func getLatestMessageID() string {
 			//ERROR getting host log it here
 			//Needs to be part of a larger discussion for error handling
 			globals.Log.WARN.Printf("Failed to find the host with ID %v", receiveGateway.String())
-
 			continue
 		}
 
