@@ -100,9 +100,10 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) (*id.U
 		//Set all tls certificates as empty effectively disabling tls
 		for i := range def.Gateways {
 			def.Gateways[i].TlsCertificate = ""
+			//def.Registration.TlsCertificate = ""
 		}
 
-		log.Printf("THESE ARE THE GATEWAYS %v", def.Gateways)
+		log.Printf("TURNING OFF TLS NOW, THESE ARE THE GATEWAYS %v, and this is Registration", def.Gateways, def.Registration)
 	}
 
 	secondarySessionFile := sessionFile + "-2"
