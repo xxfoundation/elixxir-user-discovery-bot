@@ -56,6 +56,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 	// replaying old messages in the event of a redeploy where the session file
 	// is lost
 	lastMessageID := getLatestMessageID()
+
 	clientObj.GetSession().SetLastMessageID(lastMessageID)
 
 	// Register the listeners with the user discovery bot
@@ -64,7 +65,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 	udb.Log.INFO.Printf("Starting UDB")
 
 	// starting the reception thread
-	startMessageRecieverHandler := func(err error) {
+	startMessageRecieverHandler := func(err error){
 		udb.Log.FATAL.Panicf("Start message reciever encountered an issue:  %+v", err)
 	}
 
@@ -148,16 +149,19 @@ func getLatestMessageID() string {
 
 	var idList *mixmessages.IDList
 
+
+
 	for {
 		var err error
 		host, ok := clientComms.GetHost(receiveGateway.String())
 		if !ok {
-			//ERRROR getting host log it here
+			//ERROR getting host log it here
+			//Needs to be part of a larger discussion for error handling
 			globals.Log.WARN.Printf("Failed to find the host with ID %v", receiveGateway.String())
+			continue
 		}
 
 		idList, err = clientComms.SendCheckMessages(host, msg)
-
 		if err != nil {
 			globals.Log.WARN.Printf("Failed to get the latest message "+
 				"IDs from the reception gateway: %s", err.Error())

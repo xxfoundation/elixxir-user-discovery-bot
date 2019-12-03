@@ -4,7 +4,6 @@ go 1.13
 
 require (
 	github.com/go-pg/pg v8.0.6+incompatible
-	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/mattn/go-shellwords v1.0.6
 	github.com/mitchellh/go-homedir v1.1.0
@@ -20,5 +19,6 @@ require (
 	gitlab.com/elixxir/primitives v0.0.0-20191127003541-24cf2deded6b
 	golang.org/x/crypto v0.0.0-20191202143827-86a70503ff7e // indirect
 	golang.org/x/sys v0.0.0-20191128015809-6d18c012aee9 // indirect
+	google.golang.org/genproto v0.0.0-20191203145615-049a07e0debe // indirect
 	mellium.im/sasl v0.2.1 // indirect
 )
