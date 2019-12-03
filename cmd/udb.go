@@ -42,12 +42,15 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 
 	// Initialize the client
 	regCode := udb.UDB_USERID.RegistrationCode()
-	Init(UDBSessionFileName, regCode, def)
+	_, err := Init(UDBSessionFileName, regCode, def)
+	if err != nil {
+		return err
+	}
 
 	udb.Log.INFO.Printf("Logging in")
 
 	// Log into the server with a blank password
-	_, err := clientObj.Login("")
+	_, err = clientObj.Login("")
 
 	if err != nil {
 		return err
@@ -82,7 +85,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 }
 
 // Initialize a session using the given session file and other info
-func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.User {
+func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) (*id.User, error) {
 
 	// We only register when the session file does not exist
 	// FIXME: this is super weird -- why have to check for a file,
@@ -102,7 +105,7 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	secondarySessionFile := sessionFile + "-2"
 	clientObj, initErr = api.NewClient(nil, sessionFile, secondarySessionFile, def)
 	if initErr != nil {
-		udb.Log.FATAL.Panicf("Could not initialize: %v", initErr)
+		return nil, initErr
 	}
 
 	// API Settings (hard coded)
@@ -131,10 +134,10 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) *id.Us
 	userID, err := clientObj.RegisterWithPermissioning(true, regCode, "",
 		"", "", nil)
 	if err != nil {
-		udb.Log.FATAL.Panicf("Could not register with Permissioning: %v", err)
+		return nil, err
 	}
 
-	return userID
+	return userID, nil
 }
 
 // getLatestMessageID gets the newest message ID on the reception gateway, used
