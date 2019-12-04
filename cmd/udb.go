@@ -76,7 +76,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 	// starting the reception thread
 	receiverCallback := func(err error) {
 		if err != nil {
-			udb.Log.ERROR.Println("Start Message Reciever Callback Error: %v", err)
+			udb.Log.ERROR.Printf("Start Message Reciever Callback Error: %v", err)
 			backoff(clientObj, 0)
 		}
 	}
@@ -229,7 +229,7 @@ func backoff(cl *api.Client, backoffCount int) {
 	// attempt to start the message receiver
 	err := cl.StartMessageReceiver(receiverCallback)
 	if err != nil {
-		udb.Log.ERROR.Println("Start Message receiver failed %v", err)
+		udb.Log.ERROR.Printf("Start Message receiver failed %v", err)
 		return
 	}
 }
