@@ -11,13 +11,16 @@
 package cmd
 
 import (
+	"crypto/rand"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/crypto/csprng"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
+	"math/big"
 	"os"
 	"strings"
 	"time"
@@ -51,7 +54,6 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 
 	// Log into the server with a blank password
 	_, err = clientObj.Login("")
-
 	if err != nil {
 		return err
 	}
@@ -72,11 +74,14 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 	udb.Log.INFO.Printf("Starting UDB")
 
 	// starting the reception thread
-	startMessageRecieverHandler := func(err error) {
-		udb.Log.FATAL.Panicf("Start message reciever encountered an issue:  %+v", err)
+	receiverCallback := func(err error) {
+		if err != nil {
+			udb.Log.ERROR.Println("Start Message Reciever Callback Error: %v", err)
+			backoff(clientObj, 0)
+		}
 	}
 
-	err = clientObj.StartMessageReceiver(startMessageRecieverHandler)
+	err = clientObj.StartMessageReceiver(receiverCallback)
 	if err != nil {
 		return err
 	}
@@ -150,8 +155,6 @@ func getLatestMessageID() (string, error) {
 	//get the newest message id to
 	clientComms := clientObj.GetCommManager().Comms
 
-	udb.Log.INFO.Printf("here is the manager obj %v", clientComms.Manager.String())
-
 	msg := &mixmessages.ClientRequest{
 		UserID:        udb.UDB_USERID.Bytes(),
 		LastMessageID: "",
@@ -169,8 +172,6 @@ func getLatestMessageID() (string, error) {
 			//Needs to be part of a larger discussion for error handling
 			return "", errors.Errorf("Failed to find the host with ID %v", receiveGateway.String())
 		}
-
-		udb.Log.INFO.Printf("Here is our host obj %v", host)
 
 		idList, err = clientComms.SendCheckMessages(host, msg)
 		if err != nil {
@@ -196,4 +197,39 @@ func getLatestMessageID() (string, error) {
 	globals.Log.INFO.Printf("Discarding messages before ID `%s`", lastMessage)
 
 	return lastMessage, nil
+}
+
+//This is a recursive function used to restart startMessageReciever whenever it fails.
+func backoff(cl *api.Client, backoffCount int) {
+	receiverCallback := func(err error) {
+		backoff(cl, backoffCount+1)
+	}
+	// Compute backoff time
+	var delay time.Duration
+	var block = false
+	if backoffCount > 15 {
+		delay = time.Hour
+		block = true
+	}
+	wait := 2 ^ backoffCount
+	if wait > 180 {
+		wait = 180
+	}
+	jitter, _ := rand.Int(csprng.NewSystemRNG(), big.NewInt(1000))
+	delay = time.Second*time.Duration(wait) + time.Millisecond*time.Duration(jitter.Int64())
+
+	timer := time.NewTimer(delay)
+	if block {
+		timer.Stop()
+	}
+	select {
+	case <-timer.C:
+		backoffCount = 0
+	}
+	// attempt to start the message receiver
+	err := cl.StartMessageReceiver(receiverCallback)
+	if err != nil {
+		udb.Log.ERROR.Println("Start Message receiver failed %v", err)
+		return
+	}
 }
