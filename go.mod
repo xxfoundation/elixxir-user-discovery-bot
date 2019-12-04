@@ -19,6 +19,6 @@ require (
 	gitlab.com/elixxir/primitives v0.0.0-20191127003541-24cf2deded6b
 	golang.org/x/crypto v0.0.0-20191202143827-86a70503ff7e // indirect
 	golang.org/x/sys v0.0.0-20191128015809-6d18c012aee9 // indirect
-	google.golang.org/genproto v0.0.0-20191203145615-049a07e0debe // indirect
+	google.golang.org/genproto v0.0.0-20191203220235-3fa9dbf08042 // indirect
 	mellium.im/sasl v0.2.1 // indirect
 )

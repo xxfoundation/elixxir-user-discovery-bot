@@ -18,7 +18,6 @@ import (
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
-	"log"
 	"os"
 	"strings"
 	"time"
@@ -100,10 +99,10 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) (*id.U
 		//Set all tls certificates as empty effectively disabling tls
 		for i := range def.Gateways {
 			def.Gateways[i].TlsCertificate = ""
-			//def.Registration.TlsCertificate = ""
 		}
+		def.Registration.TlsCertificate = ""
 
-		log.Printf("TURNING OFF TLS NOW, THESE ARE THE GATEWAYS %v, and this is Registration", def.Gateways, def.Registration)
+		udb.Log.INFO.Printf("TURNING OFF TLS NOW, THESE ARE THE GATEWAYS %v, and this is Registration %v", def.Gateways, def.Registration)
 	}
 
 	secondarySessionFile := sessionFile + "-2"
@@ -151,6 +150,8 @@ func getLatestMessageID() (string, error) {
 	//get the newest message id to
 	clientComms := clientObj.GetCommManager().Comms
 
+	udb.Log.INFO.Printf("here is the manager obj %v", clientComms.Manager.String())
+
 	msg := &mixmessages.ClientRequest{
 		UserID:        udb.UDB_USERID.Bytes(),
 		LastMessageID: "",
@@ -168,6 +169,8 @@ func getLatestMessageID() (string, error) {
 			//Needs to be part of a larger discussion for error handling
 			return "", errors.Errorf("Failed to find the host with ID %v", receiveGateway.String())
 		}
+
+		udb.Log.INFO.Printf("Here is our host obj %v", host)
 
 		idList, err = clientComms.SendCheckMessages(host, msg)
 		if err != nil {
