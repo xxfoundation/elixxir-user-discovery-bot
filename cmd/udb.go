@@ -91,7 +91,6 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 
 // Initialize a session using the given session file and other info
 func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) (*id.User, error) {
-
 	// We only register when the session file does not exist
 	// FIXME: this is super weird -- why have to check for a file,
 	// then init that file, then register optionally based on that check?
@@ -106,8 +105,6 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) (*id.U
 			def.Gateways[i].TlsCertificate = ""
 		}
 		def.Registration.TlsCertificate = ""
-
-		udb.Log.INFO.Printf("TURNING OFF TLS NOW, THESE ARE THE GATEWAYS %v, and this is Registration %v", def.Gateways, def.Registration)
 	}
 
 	secondarySessionFile := sessionFile + "-2"
