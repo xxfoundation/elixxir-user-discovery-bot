@@ -83,7 +83,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 
 	err = clientObj.StartMessageReceiver(receiverCallback)
 	if err != nil {
-		return err
+		return errors.Errorf("Could not start message recievers:  %+v", err)
 	}
 
 	return nil
