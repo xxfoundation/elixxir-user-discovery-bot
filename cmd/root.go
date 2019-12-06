@@ -58,7 +58,12 @@ var RootCmd = &cobra.Command{
 		}
 		ndfJSON := api.VerifyNDF(string(ndfBytes), "")
 
-		StartBot(sess, ndfJSON)
+		err = StartBot(sess, ndfJSON)
+		if err != nil {
+			globals.Log.FATAL.Panicf("Could not start bot: %v", err)
+		}
+		// Block forever as a keepalive
+		select {}
 	},
 }
 
