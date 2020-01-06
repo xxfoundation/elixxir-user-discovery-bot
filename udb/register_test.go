@@ -40,8 +40,11 @@ const GWsStartPort = 10000
 var GWComms [NumGWs]*gateway.Comms
 
 var def *ndf.NetworkDefinition
+var bannedNames []string
 
 func TestMain(m *testing.M) {
+	bannedNames = []string{"DavidChaum", "Elixxir", "Praxxis", "ElixxirAssistant", "PraxxisAssistant",
+		"JoshManning", "JoshBrooks", "JakeTaylor", "PraxxisAdmin"}
 
 	UdbSender = DummySender{}
 	jww.SetStdoutThreshold(jww.LevelDebug)
@@ -141,6 +144,38 @@ func TestRegisterHappyPath(t *testing.T) {
 	time.Sleep(1 * time.Second)
 }
 
+func TestRegisterBlacklist(t *testing.T) {
+	//DataStore = storage.NewRamStorage()
+	storage.UserDiscoveryDb = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
+
+	pubKeyBits := "S8KXBczy0jins9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNzLU7a" +
+		"+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClpq4H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY7wuD96h4oaA+WV5Nh87cnIZ+fAG0uLve2LSHZ0FBZb3glOpNAOv7PFWkvN2BO37ztOQCXTJe72Y5ReoYn7nWVNxGUh0ilal+BRuJt1GZ7whOGDRE0IXfURIoK2yjyAnyZJWWMhfGsL5S6iL4aXUs03mc8BHKRq3HRjvTE10l3YFA=="
+
+	pubKey := make([]byte, 256)
+	pubKey, _ = base64.StdEncoding.DecodeString(pubKeyBits)
+
+	fingerprint := fingerprint2.Fingerprint(pubKey)
+	msgs := []string{
+		"myKeyId " + pubKeyBits,
+		"EMAIL DavidChaum " + fingerprint,
+		fingerprint,
+	}
+	BannedUsernameList = *InitBlackList("./blacklists/bannedNames.txt")
+
+	sender := id.NewUserFromUint(5, t)
+
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
+	pl.Hear(msg, false)
+	time.Sleep(50 * time.Millisecond)
+	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender)
+	rl.Hear(msg, false)
+	time.Sleep(50 * time.Millisecond)
+	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
+	gl.Hear(msg, false)
+
+	time.Sleep(1 * time.Second)
+
+}
 func TestIncorrectKeyFP(t *testing.T) {
 	storage.UserDiscoveryDb = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
 

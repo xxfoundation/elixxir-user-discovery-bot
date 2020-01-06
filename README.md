@@ -24,12 +24,15 @@ Note: Yaml prohibits the use of tabs. If you put tabs in your config file, the U
 logPath: "udb.log"
 # Path where UDB will store session file
 sessionfile: "udb.session"
+#List of names in file that are blacklisted userNames
+blacklistedNamesFilePath: ""
 
 # Database connection information
 dbUsername: "cmix"
 dbPassword: ""
 dbName: "cmix_server"
 dbAddress: ""
+
 ```
 
 ## Running
