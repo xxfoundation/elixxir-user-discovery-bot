@@ -33,7 +33,7 @@ func RegisterListeners(cl *api.Client) {
 }
 
 // Listen for Search Messages
-func (s SearchListener) Hear(item switchboard.Item, isHeardElsewhere bool) {
+func (s SearchListener) Hear(item switchboard.Item, isHeardElsewhere bool, i ...interface{}) {
 	message := item.(*parse.Message)
 	Log.DEBUG.Printf("SearchListener heard message from %q to %q: %q",
 		*message.GetSender(), *message.GetRecipient(), message.GetPayload())
@@ -48,7 +48,7 @@ func (s SearchListener) Hear(item switchboard.Item, isHeardElsewhere bool) {
 }
 
 // Listen for Register Messages
-func (s RegisterListener) Hear(item switchboard.Item, isHeardElsewhere bool) {
+func (s RegisterListener) Hear(item switchboard.Item, isHeardElsewhere bool, i ...interface{}) {
 	message := item.(*parse.Message)
 	Log.DEBUG.Printf("RegisterListener heard message from %q to %q: %q",
 		*message.GetSender(), *message.GetRecipient(), message.GetPayload())
@@ -63,7 +63,7 @@ func (s RegisterListener) Hear(item switchboard.Item, isHeardElsewhere bool) {
 }
 
 // Listen for PushKey Messages
-func (s PushKeyListener) Hear(item switchboard.Item, isHeardElsewhere bool) {
+func (s PushKeyListener) Hear(item switchboard.Item, isHeardElsewhere bool, i ...interface{}) {
 	message := item.(*parse.Message)
 	Log.DEBUG.Printf("PushKeyListener heard message from %q to %q: %q",
 		*message.GetSender(), *message.GetRecipient(), message.GetPayload())
@@ -78,7 +78,7 @@ func (s PushKeyListener) Hear(item switchboard.Item, isHeardElsewhere bool) {
 }
 
 // Listen for GetKey Messages
-func (s GetKeyListener) Hear(item switchboard.Item, isHeardElsewhere bool) {
+func (s GetKeyListener) Hear(item switchboard.Item, isHeardElsewhere bool, i ...interface{}) {
 	message := item.(*parse.Message)
 	Log.DEBUG.Printf("GetKeyListener heard message from %q to %q: %q",
 		*message.GetSender(), *message.GetRecipient(), message.GetPayload())
