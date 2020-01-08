@@ -99,13 +99,13 @@ func TestRegisterHappyPath(t *testing.T) {
 	sender := id.NewUserFromUint(5, t)
 
 	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
-	pl.Hear(msg, false)
+	pl.Hear(msg, false, nil)
 	time.Sleep(50 * time.Millisecond)
 	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender)
-	rl.Hear(msg, false)
+	rl.Hear(msg, false, nil)
 	time.Sleep(50 * time.Millisecond)
 	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
-	gl.Hear(msg, false)
+	gl.Hear(msg, false, nil)
 
 	// Assert expected state
 	retrievedUser, err := storage.UserDiscoveryDb.GetUserByKeyId(fingerprint)
@@ -192,11 +192,11 @@ func TestIncorrectKeyFP(t *testing.T) {
 	sender := id.NewUserFromUint(9, t)
 
 	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
-	pl.Hear(msg, false)
+	pl.Hear(msg, false, nil)
 	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender)
-	rl.Hear(msg, false)
+	rl.Hear(msg, false, nil)
 	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
-	gl.Hear(msg, false)
+	gl.Hear(msg, false, nil)
 
 	time.Sleep(1 * time.Second)
 
@@ -218,11 +218,11 @@ func TestIncorrectValueType(t *testing.T) {
 	sender := id.NewUserFromUint(22, t)
 
 	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
-	pl.Hear(msg, false)
+	pl.Hear(msg, false, nil)
 	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender)
-	rl.Hear(msg, false)
+	rl.Hear(msg, false, nil)
 	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
-	gl.Hear(msg, false)
+	gl.Hear(msg, false, nil)
 
 	time.Sleep(10 * time.Second)
 
@@ -242,11 +242,11 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 	sender := id.NewUserFromUint(33, t)
 
 	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
-	pl.Hear(msg, false)
+	pl.Hear(msg, false, nil)
 
 	for i := 1; i < len(msgs); i++ {
 		msg = NewMessage(msgs[i], cmixproto.Type_UDB_REGISTER, sender)
-		rl.Hear(msg, false)
+		rl.Hear(msg, false, nil)
 		_, err := storage.UserDiscoveryDb.GetUserByKeyId("8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh")
 		if err == nil {
 			t.Errorf("Data store key 8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh should" +
@@ -285,11 +285,11 @@ func TestRegister_InvalidGetKeyArgument(t *testing.T) {
 	sender := id.NewUserFromUint(44, t)
 
 	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
-	pl.Hear(msg, false)
+	pl.Hear(msg, false, nil)
 	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender)
-	rl.Hear(msg, false)
+	rl.Hear(msg, false, nil)
 	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
-	gl.Hear(msg, false)
+	gl.Hear(msg, false, nil)
 
 	time.Sleep(10 * time.Second)
 }
@@ -308,10 +308,14 @@ func TestRegisterListeners(t *testing.T) {
 		t.Errorf("Conneting to remotes failed: %+v", err)
 	}
 
+	err = client.GenerateKeys(nil, "")
+	if err != nil {
+		t.Errorf("GenerateKeys failed: %s", err.Error())
+	}
+
 	udbID := id.NewUserFromUints(&[4]uint64{0, 0, 0, 3})
 	// Register with UDB registration code
-	_, err = client.RegisterWithPermissioning(true, udbID.RegistrationCode(),
-		"", "", "", nil)
+	_, err = client.RegisterWithPermissioning(true, udbID.RegistrationCode())
 	if err != nil {
 		t.Errorf("Register failed: %s", err.Error())
 	}
@@ -364,7 +368,7 @@ func testMainWrapper(m *testing.M) int {
 
 		def.Gateways = append(def.Gateways, gw)
 
-		GWComms[i] = gateway.StartGateway(gw.Address,
+		GWComms[i] = gateway.StartGateway("tmp", gw.Address,
 			gateway.NewImplementation(), nil, nil)
 	}
 

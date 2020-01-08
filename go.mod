@@ -13,8 +13,8 @@ require (
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.6.1
-	gitlab.com/elixxir/client v0.1.1-0.20200108173511-1d740cda4d4a
-	gitlab.com/elixxir/comms v0.0.0-20200108181411-99f2a24b7810
+	gitlab.com/elixxir/client v0.1.1-0.20200108175441-724d3fc1f8c3
+	gitlab.com/elixxir/comms v0.0.0-20200106224700-3bc86e95b8af
 	gitlab.com/elixxir/crypto v0.0.0-20200108005412-8159c60663f9
 	gitlab.com/elixxir/primitives v0.0.0-20200108174340-0922447aec92
 	mellium.im/sasl v0.2.1 // indirect
