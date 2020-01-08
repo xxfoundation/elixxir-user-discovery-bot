@@ -308,10 +308,14 @@ func TestRegisterListeners(t *testing.T) {
 		t.Errorf("Conneting to remotes failed: %+v", err)
 	}
 
+	err = client.GenerateKeys(nil, "")
+	if err != nil {
+		t.Errorf("GenerateKeys failed: %s", err.Error())
+	}
+
 	udbID := id.NewUserFromUints(&[4]uint64{0, 0, 0, 3})
 	// Register with UDB registration code
-	_, err = client.RegisterWithPermissioning(true, udbID.RegistrationCode(),
-		"", "", "", nil)
+	_, err = client.RegisterWithPermissioning(true, udbID.RegistrationCode())
 	if err != nil {
 		t.Errorf("Register failed: %s", err.Error())
 	}
@@ -364,7 +368,7 @@ func testMainWrapper(m *testing.M) int {
 
 		def.Gateways = append(def.Gateways, gw)
 
-		GWComms[i] = gateway.StartGateway(gw.Address,
+		GWComms[i] = gateway.StartGateway("tmp", gw.Address,
 			gateway.NewImplementation(), nil, nil)
 	}
 
