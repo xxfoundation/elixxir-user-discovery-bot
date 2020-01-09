@@ -329,7 +329,7 @@ func TestRegisterListeners(t *testing.T) {
 	}
 
 	// Register Listeners
-	RegisterListeners(client)
+	RegisterListeners(client, *InitBlackList("./blacklists/bannedNames.txt"))
 
 	startMessageRecieverHandler := func(err error) {
 		t.Errorf("Start message reciever encountered an issue:  %+v", err)
