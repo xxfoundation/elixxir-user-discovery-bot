@@ -21,11 +21,13 @@ type Sender interface {
 }
 
 // ApiSender calls the api send function
-type APISender struct{}
+type APISender struct {
+	ClientObj *api.Client
+}
 
 // Send calls the api send function
 func (a APISender) Send(recipientID *id.User, msg string) error {
-	return clientObj.Send(api.APIMessage{
+	return a.ClientObj.Send(api.APIMessage{
 		Payload:     []byte(msg),
 		SenderID:    UDB_USERID,
 		RecipientID: recipientID,

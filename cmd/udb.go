@@ -38,7 +38,7 @@ var clientObj *api.Client
 //  - Set up global variables
 //  - Log into the server
 //  - Start the main loop
-func StartBot(sess string, def *ndf.NetworkDefinition) error {
+func StartBot(sess string, def *ndf.NetworkDefinition, blacklist udb.BlackList) error {
 	udb.Log.DEBUG.Printf("Starting User Discovery Bot...")
 
 	UDBSessionFileName = sess
@@ -69,7 +69,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 	clientObj.GetSession().SetLastMessageID(lastMessageID)
 
 	// Register the listeners with the user discovery bot
-	udb.RegisterListeners(clientObj)
+	udb.RegisterListeners(clientObj, blacklist)
 
 	udb.Log.INFO.Printf("Starting UDB")
 

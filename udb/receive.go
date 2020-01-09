@@ -17,19 +17,30 @@ import (
 	"gitlab.com/elixxir/primitives/switchboard"
 )
 
-type SearchListener struct{}
-type RegisterListener struct{}
-type PushKeyListener struct{}
-type GetKeyListener struct{}
+type SearchListener struct {
+	APISender
+}
+type RegisterListener struct {
+	APISender
+	blacklist BlackList
+}
+type PushKeyListener struct {
+	APISender
+}
+type GetKeyListener struct {
+	APISender
+}
 
 // Register the UDB listeners
-func RegisterListeners(cl *api.Client) {
+func RegisterListeners(cl *api.Client, blacklist BlackList) {
 	Log.DEBUG.Println("Registering UDB listeners")
-	cl.Listen(id.ZeroID, int32(cmixproto.Type_UDB_SEARCH), SearchListener{})
-	cl.Listen(id.ZeroID, int32(cmixproto.Type_UDB_REGISTER), RegisterListener{})
-	cl.Listen(id.ZeroID, int32(cmixproto.Type_UDB_PUSH_KEY), PushKeyListener{})
-	cl.Listen(id.ZeroID, int32(cmixproto.Type_UDB_GET_KEY), GetKeyListener{})
-	clientObj = cl
+	cl.Listen(id.ZeroID, int32(cmixproto.Type_UDB_SEARCH), SearchListener{APISender{ClientObj: cl}})
+	cl.Listen(id.ZeroID, int32(cmixproto.Type_UDB_REGISTER), RegisterListener{
+		APISender{ClientObj: cl},
+		blacklist,
+	})
+	cl.Listen(id.ZeroID, int32(cmixproto.Type_UDB_PUSH_KEY), PushKeyListener{APISender{ClientObj: cl}})
+	cl.Listen(id.ZeroID, int32(cmixproto.Type_UDB_GET_KEY), GetKeyListener{APISender{ClientObj: cl}})
 }
 
 // Listen for Search Messages
@@ -58,7 +69,7 @@ func (s RegisterListener) Hear(item switchboard.Item, isHeardElsewhere bool, i .
 		if err != nil {
 			Log.ERROR.Printf("Error parsing message: %s", err)
 		}
-		Register(sender, args)
+		Register(sender, args, s.blacklist)
 	}
 }
 

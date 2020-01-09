@@ -43,7 +43,7 @@ var RootCmd = &cobra.Command{
 			sess = "udb-session.blob"
 		}
 
-		udb.BannedUsernameList = *udb.InitBlackList(viper.GetString("blacklistedNamesFilePath"))
+		blacklist := *udb.InitBlackList(viper.GetString("blacklistedNamesFilePath"))
 
 		// Set up database connection
 		storage.UserDiscoveryDb = storage.NewDatabase(
@@ -60,7 +60,7 @@ var RootCmd = &cobra.Command{
 		}
 		ndfJSON := api.VerifyNDF(string(ndfBytes), "")
 
-		err = StartBot(sess, ndfJSON)
+		err = StartBot(sess, ndfJSON, blacklist)
 		if err != nil {
 			globals.Log.FATAL.Panicf("Could not start bot: %v", err)
 		}

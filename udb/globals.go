@@ -8,7 +8,6 @@ package udb
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/primitives/id"
 	"io/ioutil"
@@ -22,9 +21,6 @@ var UDB_USERID *id.User = id.NewUserFromUints(&[4]uint64{0, 0, 0, 3})
 
 var Log = jww.NewNotepad(jww.LevelDebug, jww.LevelDebug, os.Stdout,
 	ioutil.Discard, "CLIENT", log.Ldate|log.Ltime)
-var BannedUsernameList BlackList
-
-var clientObj *api.Client
 
 func init() {
 	globals.Log = Log

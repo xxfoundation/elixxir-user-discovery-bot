@@ -32,7 +32,7 @@ const REGISTER_USAGE = "Usage: 'REGISTER [EMAIL] [email-address] " +
 // The user ID is taken from the sender at this time, this will need to change
 // when a registrar comes online.
 // Registration fails if the KEYID is not already pushed and confirmed.
-func Register(userId *id.User, args []string) {
+func Register(userId *id.User, args []string, blacklist BlackList) {
 	Log.DEBUG.Printf("Register %d: %v", userId, args)
 	RegErr := func(msg string) {
 		Send(userId, msg, cmixproto.Type_UDB_REGISTER_RESPONSE)
@@ -46,7 +46,7 @@ func Register(userId *id.User, args []string) {
 	regType := args[0]
 	regVal := args[1]
 	keyFp := args[2]
-	if BannedUsernameList.Exists(strings.ToLower(regVal)) {
+	if blacklist.Exists(strings.ToLower(regVal)) {
 		RegErr("Blacklisted username! Please try registering with a different username")
 		return
 	}

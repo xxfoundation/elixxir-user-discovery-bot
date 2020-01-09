@@ -28,7 +28,9 @@ import (
 
 type DummySender struct{}
 
-var rl = RegisterListener{}
+var rl = RegisterListener{
+	blacklist: *InitBlackList("./blacklists/bannedNames.txt"),
+}
 var sl = SearchListener{}
 var pl = PushKeyListener{}
 var gl = GetKeyListener{}
@@ -160,7 +162,6 @@ func TestRegisterBlacklist(t *testing.T) {
 		"EMAIL DavidChaum " + fingerprint,
 		fingerprint,
 	}
-	BannedUsernameList = *InitBlackList("./blacklists/bannedNames.txt")
 
 	sender := id.NewUserFromUint(5, t)
 
