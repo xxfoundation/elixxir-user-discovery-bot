@@ -3,26 +3,19 @@ package testutil
 import (
 	"gitlab.com/elixxir/client/cmixproto"
 	"gitlab.com/elixxir/primitives/id"
-	"strings"
 )
 
 type MockSender struct {
-	Val     bool
-	find    string
-	exclude string
+	ch chan string
 }
 
 func (d *MockSender) Send(recipientID *id.User, msg string, msgType cmixproto.Type) {
-	if strings.Contains(msg, d.find) && (d.exclude == "" || !strings.Contains(msg, d.exclude)) {
-		d.Val = true
-	}
+	d.ch <- msg
 }
 
-func NewMockSender(find, exclude string) *MockSender {
+func NewMockSender(ch chan string) *MockSender {
 	d := MockSender{
-		Val:     false,
-		find:    find,
-		exclude: exclude,
+		ch: ch,
 	}
 	return &d
 }

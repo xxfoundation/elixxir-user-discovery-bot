@@ -28,22 +28,22 @@ import (
 )
 
 var db = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
-
+var ch = make(chan string)
 var rl = RegisterListener{
-	Sender:    &testutil.MockSender{},
+	Sender:    testutil.NewMockSender(ch),
 	db:        db,
 	blacklist: *InitBlackList("./blacklists/bannedNames.txt"),
 }
 var sl = SearchListener{
-	Sender: &testutil.MockSender{},
+	Sender: testutil.NewMockSender(ch),
 	db:     db,
 }
 var pl = PushKeyListener{
-	Sender: &testutil.MockSender{},
+	Sender: testutil.NewMockSender(ch),
 	db:     db,
 }
 var gl = GetKeyListener{
-	Sender: &testutil.MockSender{},
+	Sender: testutil.NewMockSender(ch),
 	db:     db,
 }
 
@@ -83,6 +83,15 @@ func NewMessage(msg string, msgType cmixproto.Type, sender *id.User) *parse.Mess
 // NOTE: The send function defaults to a no-op when client is not set up. I am
 //       not sure how I feel about it.
 func TestRegisterHappyPath(t *testing.T) {
+	go func() {
+		for {
+			select {
+			case m := <-ch:
+				t.Logf("received message: %s", m)
+			default:
+			}
+		}
+	}()
 	pubKeyBits := "S8KXBczy0jins9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNzLU7a" +
 		"+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClpq4H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY7wuD96h4oaA+WV5Nh87cnIZ+fAG0uLve2LSHZ0FBZb3glOpNAOv7PFWkvN2BO37ztOQCXTJe72Y5ReoYn7nWVNxGUh0ilal+BRuJt1GZ7whOGDRE0IXfURIoK2yjyAnyZJWWMhfGsL5S6iL4aXUs03mc8BHKRq3HRjvTE10l3YFA=="
 
