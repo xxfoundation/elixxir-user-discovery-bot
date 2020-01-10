@@ -20,35 +20,30 @@ import (
 	"gitlab.com/elixxir/primitives/ndf"
 	fingerprint2 "gitlab.com/elixxir/user-discovery-bot/fingerprint"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"gitlab.com/elixxir/user-discovery-bot/testutil"
 	"math/rand"
 	"os"
 	"testing"
 	"time"
 )
 
-type DummySender struct{}
-
-func (d DummySender) Send(recipientID *id.User, msg string, msgType cmixproto.Type) {
-	return
-}
-
 var db = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
 
 var rl = RegisterListener{
-	Sender:    DummySender{},
+	Sender:    &testutil.MockSender{},
 	db:        db,
 	blacklist: *InitBlackList("./blacklists/bannedNames.txt"),
 }
 var sl = SearchListener{
-	Sender: DummySender{},
+	Sender: &testutil.MockSender{},
 	db:     db,
 }
 var pl = PushKeyListener{
-	Sender: DummySender{},
+	Sender: &testutil.MockSender{},
 	db:     db,
 }
 var gl = GetKeyListener{
-	Sender: DummySender{},
+	Sender: &testutil.MockSender{},
 	db:     db,
 }
 

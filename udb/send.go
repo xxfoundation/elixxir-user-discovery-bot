@@ -26,7 +26,7 @@ type APISender struct {
 }
 
 // Send calls the api send function
-func (a APISender) Send(recipientID *id.User, msg string, msgType cmixproto.Type) {
+func (a *APISender) Send(recipientID *id.User, msg string, msgType cmixproto.Type) {
 	message := string(parse.Pack(&parse.TypedBody{
 		MessageType: int32(msgType),
 		Body:        []byte(msg),

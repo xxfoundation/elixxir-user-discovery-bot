@@ -207,6 +207,7 @@ func GetKey(userId *id.User, args []string, s Sender, db storage.Database) {
 	if err != nil {
 		msg := fmt.Sprintf("GETKEY %s NOTFOUND", keyFp)
 		Log.INFO.Printf("UserId %d: %s", userId, msg)
+
 		s.Send(userId, msg, cmixproto.Type_UDB_GET_KEY_RESPONSE)
 		return
 	}
