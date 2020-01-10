@@ -32,7 +32,7 @@ const REGISTER_USAGE = "Usage: 'REGISTER [EMAIL] [email-address] " +
 // The user ID is taken from the sender at this time, this will need to change
 // when a registrar comes online.
 // Registration fails if the KEYID is not already pushed and confirmed.
-func Register(userId *id.User, args []string, blacklist BlackList, s Sender) {
+func Register(userId *id.User, args []string, blacklist BlackList, s Sender, db storage.Database) {
 	Log.DEBUG.Printf("Register %d: %v", userId, args)
 	RegErr := func(msg string) {
 		s.Send(userId, msg, cmixproto.Type_UDB_REGISTER_RESPONSE)
@@ -59,7 +59,7 @@ func Register(userId *id.User, args []string, blacklist BlackList, s Sender) {
 	//  pass it a string instead
 
 	// Verify the key is accounted for
-	retrievedUser, err := storage.UserDiscoveryDb.GetUserByKeyId(keyFp)
+	retrievedUser, err := db.GetUserByKeyId(keyFp)
 	if err != nil {
 		msg := fmt.Sprintf("Could not find keyFp: %s", keyFp)
 		RegErr(msg)
@@ -71,7 +71,7 @@ func Register(userId *id.User, args []string, blacklist BlackList, s Sender) {
 		return
 	}
 
-	err = storage.UserDiscoveryDb.DeleteUser(retrievedUser.Id)
+	err = db.DeleteUser(retrievedUser.Id)
 
 	if err != nil {
 		RegErr("Could not delete premade user")
@@ -79,7 +79,7 @@ func Register(userId *id.User, args []string, blacklist BlackList, s Sender) {
 	}
 
 	//Check that the email has not been registered before
-	_, err = storage.UserDiscoveryDb.GetUserByValue(regVal)
+	_, err = db.GetUserByValue(regVal)
 
 	if err == nil {
 		msg := fmt.Sprintf("Can not register with existing email: %s",
@@ -102,7 +102,7 @@ func Register(userId *id.User, args []string, blacklist BlackList, s Sender) {
 	//FIXME: Hardcoded to email value, change later
 	retrievedUser.SetValueType(0)
 	retrievedUser.SetID(userId.Bytes())
-	err = storage.UserDiscoveryDb.UpsertUser(retrievedUser)
+	err = db.UpsertUser(retrievedUser)
 
 	if err != nil {
 		RegErr(err.Error())
@@ -125,7 +125,7 @@ const PUSHKEY_USAGE = "Usage: 'PUSHKEY [temp-key-id] " +
 //  - KEYMAT = The part of the key corresponding to that index, in BASE64
 // PushKey returns an ACK that it received the command OR a success/failure
 // once it receives all pieces of the key.
-func PushKey(userId *id.User, args []string, s Sender) {
+func PushKey(userId *id.User, args []string, s Sender, db storage.Database) {
 	Log.DEBUG.Printf("PushKey %d, %v", userId, args)
 	PushErr := func(msg string) {
 		s.Send(userId, msg, cmixproto.Type_UDB_PUSH_KEY_RESPONSE)
@@ -153,7 +153,7 @@ func PushKey(userId *id.User, args []string, s Sender) {
 	//check that the key has not been registered before, refuse to overwrite if
 	//it has
 	keyFP := fingerprint.Fingerprint(newKeyBytes)
-	_, err := storage.UserDiscoveryDb.GetUserByKeyId(keyFP)
+	_, err := db.GetUserByKeyId(keyFP)
 
 	if err == nil {
 		PushErr(fmt.Sprintf("Could not push key %s because key"+
@@ -169,7 +169,7 @@ func PushKey(userId *id.User, args []string, s Sender) {
 	usr.Id = UIDBytes
 	usr.SetKeyID(keyFP)
 
-	err = storage.UserDiscoveryDb.UpsertUser(usr)
+	err = db.UpsertUser(usr)
 	if err != nil {
 		globals.Log.WARN.Printf("unable to upsert user in pushkey: %v",
 			err)
@@ -190,7 +190,7 @@ const GETKEY_USAGE = "GETKEY [KEYFP]"
 //  - KEYFP - The Key Fingerprint
 //  - KEYMAT - Key material in BASE64 encoding
 // It sends these messages until the entire key is transmitted.
-func GetKey(userId *id.User, args []string, s Sender) {
+func GetKey(userId *id.User, args []string, s Sender, db storage.Database) {
 	Log.DEBUG.Printf("GetKey %d:, %v", userId, args)
 	GetErr := func(msg string) {
 		s.Send(userId, msg, cmixproto.Type_UDB_GET_KEY_RESPONSE)
@@ -203,7 +203,7 @@ func GetKey(userId *id.User, args []string, s Sender) {
 	}
 
 	keyFp := args[0]
-	retrievedUser, err := storage.UserDiscoveryDb.GetUserByKeyId(keyFp)
+	retrievedUser, err := db.GetUserByKeyId(keyFp)
 	if err != nil {
 		msg := fmt.Sprintf("GETKEY %s NOTFOUND", keyFp)
 		Log.INFO.Printf("UserId %d: %s", userId, msg)

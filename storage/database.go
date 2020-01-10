@@ -17,8 +17,6 @@ type DatabaseImpl struct {
 	db *pg.DB // Stored database connection
 }
 
-var UserDiscoveryDb Database
-
 type Database interface {
 	// Insert or Update a User into the database
 	UpsertUser(user *User) error

@@ -19,6 +19,7 @@ import (
 	"gitlab.com/elixxir/crypto/csprng"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
+	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
 	"math/big"
 	"os"
@@ -38,7 +39,7 @@ var clientObj *api.Client
 //  - Set up global variables
 //  - Log into the server
 //  - Start the main loop
-func StartBot(sess string, def *ndf.NetworkDefinition, blacklist udb.BlackList) error {
+func StartBot(sess string, def *ndf.NetworkDefinition, blacklist udb.BlackList, db storage.Database) error {
 	udb.Log.DEBUG.Printf("Starting User Discovery Bot...")
 
 	UDBSessionFileName = sess
@@ -69,7 +70,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition, blacklist udb.BlackList) 
 	clientObj.GetSession().SetLastMessageID(lastMessageID)
 
 	// Register the listeners with the user discovery bot
-	udb.RegisterListeners(clientObj, blacklist)
+	udb.RegisterListeners(clientObj, blacklist, db)
 
 	udb.Log.INFO.Printf("Starting UDB")
 

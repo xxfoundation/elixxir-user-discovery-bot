@@ -32,19 +32,24 @@ func (d DummySender) Send(recipientID *id.User, msg string, msgType cmixproto.Ty
 	return
 }
 
-var cl = &api.Client{}
+var db = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
+
 var rl = RegisterListener{
 	Sender:    DummySender{},
+	db:        db,
 	blacklist: *InitBlackList("./blacklists/bannedNames.txt"),
 }
 var sl = SearchListener{
 	Sender: DummySender{},
+	db:     db,
 }
 var pl = PushKeyListener{
 	Sender: DummySender{},
+	db:     db,
 }
 var gl = GetKeyListener{
 	Sender: DummySender{},
+	db:     db,
 }
 
 const NumNodes = 1
@@ -83,9 +88,6 @@ func NewMessage(msg string, msgType cmixproto.Type, sender *id.User) *parse.Mess
 // NOTE: The send function defaults to a no-op when client is not set up. I am
 //       not sure how I feel about it.
 func TestRegisterHappyPath(t *testing.T) {
-	//DataStore = storage.NewRamStorage()
-	storage.UserDiscoveryDb = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
-
 	pubKeyBits := "S8KXBczy0jins9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNzLU7a" +
 		"+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClpq4H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY7wuD96h4oaA+WV5Nh87cnIZ+fAG0uLve2LSHZ0FBZb3glOpNAOv7PFWkvN2BO37ztOQCXTJe72Y5ReoYn7nWVNxGUh0ilal+BRuJt1GZ7whOGDRE0IXfURIoK2yjyAnyZJWWMhfGsL5S6iL4aXUs03mc8BHKRq3HRjvTE10l3YFA=="
 
@@ -111,7 +113,7 @@ func TestRegisterHappyPath(t *testing.T) {
 	gl.Hear(msg, false, nil)
 
 	// Assert expected state
-	retrievedUser, err := storage.UserDiscoveryDb.GetUserByKeyId(fingerprint)
+	retrievedUser, err := db.GetUserByKeyId(fingerprint)
 	if err != nil {
 		t.Errorf("Could not retrieve key %s", fingerprint)
 	}
@@ -132,7 +134,7 @@ func TestRegisterHappyPath(t *testing.T) {
 
 		fmt.Printf("%+v\n", retrievedUser)
 	*/
-	retrievedUser2, err := storage.UserDiscoveryDb.GetUserByValue("rick@elixxir.io")
+	retrievedUser2, err := db.GetUserByValue("rick@elixxir.io")
 	if err != nil {
 		t.Errorf("Could not retrieve by e-mail address!")
 	}
@@ -149,8 +151,6 @@ func TestRegisterHappyPath(t *testing.T) {
 
 func TestRegisterBlacklist(t *testing.T) {
 	//DataStore = storage.NewRamStorage()
-	storage.UserDiscoveryDb = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
-
 	pubKeyBits := "S8KXBczy0jins9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNzLU7a" +
 		"+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClpq4H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY7wuD96h4oaA+WV5Nh87cnIZ+fAG0uLve2LSHZ0FBZb3glOpNAOv7PFWkvN2BO37ztOQCXTJe72Y5ReoYn7nWVNxGUh0ilal+BRuJt1GZ7whOGDRE0IXfURIoK2yjyAnyZJWWMhfGsL5S6iL4aXUs03mc8BHKRq3HRjvTE10l3YFA=="
 
@@ -179,8 +179,6 @@ func TestRegisterBlacklist(t *testing.T) {
 
 }
 func TestIncorrectKeyFP(t *testing.T) {
-	storage.UserDiscoveryDb = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
-
 	pubKeyBits := "S8KXBczy0jins9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNzLU7a" +
 		"+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClpq4H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY7wuD96h4oaA+WV5Nh87cnIZ+fAG0uLve2LSHZ0FBZb3glOpNAOv7PFWkvN2BO37ztOQCXTJe72Y5ReoYn7nWVNxGUh0ilal+BRuJt1GZ7whOGDRE0IXfURIoK2yjyAnyZJWWMhfGsL5S6iL4aXUs03mc8BHKRq3HRjvTE10l3YFA=="
 
@@ -205,8 +203,6 @@ func TestIncorrectKeyFP(t *testing.T) {
 }
 
 func TestIncorrectValueType(t *testing.T) {
-	storage.UserDiscoveryDb = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
-
 	pubKeyBits := "S8KXBczy0jins9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNzLU7a" +
 		"+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClpq4H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY7wuD96h4oaA+WV5Nh87cnIZ+fAG0uLve2LSHZ0FBZb3glOpNAOv7PFWkvN2BO37ztOQCXTJe72Y5ReoYn7nWVNxGUh0ilal+BRuJt1GZ7whOGDRE0IXfURIoK2yjyAnyZJWWMhfGsL5S6iL4aXUs03mc8BHKRq3HRjvTE10l3YFA=="
 
@@ -231,8 +227,8 @@ func TestIncorrectValueType(t *testing.T) {
 }
 
 func TestInvalidRegistrationCommands(t *testing.T) {
+	var emptydb = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
 	//DataStore = storage.NewRamStorage()
-	storage.UserDiscoveryDb = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
 	msgs := []string{
 		"PUSHKEY garbage doiandga daoinaosf adsoifn dsaoifa",
 		"REGISTER NOTEMAIL something something",
@@ -249,17 +245,17 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 	for i := 1; i < len(msgs); i++ {
 		msg = NewMessage(msgs[i], cmixproto.Type_UDB_REGISTER, sender)
 		rl.Hear(msg, false, nil)
-		_, err := storage.UserDiscoveryDb.GetUserByKeyId("8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh")
+		_, err := emptydb.GetUserByKeyId("8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh")
 		if err == nil {
 			t.Errorf("Data store key 8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh should" +
 				" not exist!")
 		}
 
-		_, err = storage.UserDiscoveryDb.GetUser(id.NewUserFromUint(1, t).Bytes())
+		_, err = emptydb.GetUser(id.NewUserFromUint(1, t).Bytes())
 		if err == nil {
 			t.Errorf("Data store user 1 should not exist!")
 		}
-		_, err = storage.UserDiscoveryDb.GetUserByValue("rick@elixxir.io")
+		_, err = emptydb.GetUserByValue("rick@elixxir.io")
 		//DataStore.GetKeys("rick@elixxir.io", storage.Email)
 		if err == nil {
 			t.Errorf("Data store value rick@elixxir.io should not exist!")
@@ -269,9 +265,6 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 }
 
 func TestRegister_InvalidGetKeyArgument(t *testing.T) {
-	//DataStore = storage.NewRamStorage()
-	storage.UserDiscoveryDb = storage.NewDatabase("test", "password", "regCodes", "0.0.0.0:6969")
-
 	pubKeyBits := "S8KXBczy0jins9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNzLU7a" +
 		"+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClpq4H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY7wuD96h4oaA+WV5Nh87cnIZ+fAG0uLve2LSHZ0FBZb3glOpNAOv7PFWkvN2BO37ztOQCXTJe72Y5ReoYn7nWVNxGUh0ilal+BRuJt1GZ7whOGDRE0IXfURIoK2yjyAnyZJWWMhfGsL5S6iL4aXUs03mc8BHKRq3HRjvTE10l3YFA=="
 
@@ -330,7 +323,7 @@ func TestRegisterListeners(t *testing.T) {
 	}
 
 	// Register Listeners
-	RegisterListeners(client, *InitBlackList("./blacklists/bannedNames.txt"))
+	RegisterListeners(client, *InitBlackList("./blacklists/bannedNames.txt"), db)
 
 	startMessageRecieverHandler := func(err error) {
 		t.Errorf("Start message reciever encountered an issue:  %+v", err)

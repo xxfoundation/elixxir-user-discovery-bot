@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"gitlab.com/elixxir/client/cmixproto"
 	"gitlab.com/elixxir/primitives/id"
-	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"testing"
 )
 
@@ -24,7 +23,7 @@ func TestSearchHappyPath(t *testing.T) {
 	msgs := []string{
 		"EMAIL rick@elixxir.io",
 	}
-	fmt.Println(storage.UserDiscoveryDb)
+	fmt.Println(db)
 
 	sender := id.NewUserFromUint(89, t)
 
