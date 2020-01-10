@@ -23,11 +23,11 @@ const SEARCH_USAGE = "Usage: 'SEARCH [EMAIL] [email-address]'"
 // - TYPE = EMAIL
 // - VALUE = "rick@elixxir.io"
 // It returns a list of fingerprints if found (1 per message), or NOTFOUND
-func Search(userId *id.User, args []string) {
+func Search(userId *id.User, args []string, s Sender) {
 	Log.INFO.Printf("Search %d: %v", userId, args)
 	SearchErr := func(msg string) {
-		Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
-		Send(userId, SEARCH_USAGE, cmixproto.Type_UDB_SEARCH_RESPONSE)
+		s.Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
+		s.Send(userId, SEARCH_USAGE, cmixproto.Type_UDB_SEARCH_RESPONSE)
 		Log.INFO.Printf("User %d, error: %s", userId, msg)
 	}
 	if len(args) != 2 {
@@ -52,7 +52,7 @@ func Search(userId *id.User, args []string) {
 	if err != nil {
 		msg := fmt.Sprintf("SEARCH %s NOTFOUND", regVal)
 		Log.INFO.Printf("User %d: %s: %s", userId, msg, err)
-		Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
+		s.Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
 		return
 	}
 
@@ -62,5 +62,5 @@ func Search(userId *id.User, args []string) {
 	msg := fmt.Sprintf("SEARCH %s FOUND %+v %+v", regVal,
 		base64.StdEncoding.EncodeToString(searchedUserID[:]), searchedUserKeyID)
 	Log.INFO.Printf("User %d: %s", userId, msg)
-	Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
+	s.Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
 }

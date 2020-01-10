@@ -28,12 +28,24 @@ import (
 
 type DummySender struct{}
 
+func (d DummySender) Send(recipientID *id.User, msg string, msgType cmixproto.Type) {
+	return
+}
+
+var cl = &api.Client{}
 var rl = RegisterListener{
+	Sender:    DummySender{},
 	blacklist: *InitBlackList("./blacklists/bannedNames.txt"),
 }
-var sl = SearchListener{}
-var pl = PushKeyListener{}
-var gl = GetKeyListener{}
+var sl = SearchListener{
+	Sender: DummySender{},
+}
+var pl = PushKeyListener{
+	Sender: DummySender{},
+}
+var gl = GetKeyListener{
+	Sender: DummySender{},
+}
 
 const NumNodes = 1
 const NumGWs = NumNodes
@@ -48,20 +60,9 @@ func TestMain(m *testing.M) {
 	bannedNames = []string{"DavidChaum", "Elixxir", "Praxxis", "ElixxirAssistant", "PraxxisAssistant",
 		"JoshManning", "JoshBrooks", "JakeTaylor", "PraxxisAdmin"}
 
-	UdbSender = DummySender{}
 	jww.SetStdoutThreshold(jww.LevelDebug)
 
 	os.Exit(testMainWrapper(m))
-}
-
-func (d DummySender) Send(recipientID *id.User, msg string) error {
-	// do nothing
-	jww.INFO.Printf("DummySender!")
-	return nil
-}
-
-func dummyConnectionStatusHandler(status uint32, timeout int) {
-	return
 }
 
 // Hack around the interface for client to do what we need for testing.

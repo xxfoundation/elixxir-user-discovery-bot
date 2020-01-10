@@ -18,17 +18,17 @@ import (
 )
 
 type SearchListener struct {
-	APISender
+	Sender
 }
 type RegisterListener struct {
-	APISender
+	Sender
 	blacklist BlackList
 }
 type PushKeyListener struct {
-	APISender
+	Sender
 }
 type GetKeyListener struct {
-	APISender
+	Sender
 }
 
 // Register the UDB listeners
@@ -48,13 +48,13 @@ func (s SearchListener) Hear(item switchboard.Item, isHeardElsewhere bool, i ...
 	message := item.(*parse.Message)
 	Log.DEBUG.Printf("SearchListener heard message from %q to %q: %q",
 		*message.GetSender(), *message.GetRecipient(), message.GetPayload())
-	sender := message.GetSender()
-	if sender != nil {
+	senderID := message.GetSender()
+	if senderID != nil {
 		args, err := shellwords.Parse(string(message.GetPayload()))
 		if err != nil {
 			Log.ERROR.Printf("Error parsing message: %s", err)
 		}
-		Search(sender, args)
+		Search(senderID, args, s.Sender)
 	}
 }
 
@@ -63,13 +63,13 @@ func (s RegisterListener) Hear(item switchboard.Item, isHeardElsewhere bool, i .
 	message := item.(*parse.Message)
 	Log.DEBUG.Printf("RegisterListener heard message from %q to %q: %q",
 		*message.GetSender(), *message.GetRecipient(), message.GetPayload())
-	sender := message.GetSender()
-	if sender != nil {
+	senderID := message.GetSender()
+	if senderID != nil {
 		args, err := shellwords.Parse(string(message.GetPayload()))
 		if err != nil {
 			Log.ERROR.Printf("Error parsing message: %s", err)
 		}
-		Register(sender, args, s.blacklist)
+		Register(senderID, args, s.blacklist, s.Sender)
 	}
 }
 
@@ -78,13 +78,13 @@ func (s PushKeyListener) Hear(item switchboard.Item, isHeardElsewhere bool, i ..
 	message := item.(*parse.Message)
 	Log.DEBUG.Printf("PushKeyListener heard message from %q to %q: %q",
 		*message.GetSender(), *message.GetRecipient(), message.GetPayload())
-	sender := message.GetSender()
-	if sender != nil {
+	senderID := message.GetSender()
+	if senderID != nil {
 		args, err := shellwords.Parse(string(message.GetPayload()))
 		if err != nil {
 			Log.ERROR.Printf("Error parsing message: %s", err)
 		}
-		PushKey(sender, args)
+		PushKey(senderID, args, s.Sender)
 	}
 }
 
@@ -93,12 +93,12 @@ func (s GetKeyListener) Hear(item switchboard.Item, isHeardElsewhere bool, i ...
 	message := item.(*parse.Message)
 	Log.DEBUG.Printf("GetKeyListener heard message from %q to %q: %q",
 		*message.GetSender(), *message.GetRecipient(), message.GetPayload())
-	sender := message.GetSender()
-	if sender != nil {
+	senderID := message.GetSender()
+	if senderID != nil {
 		args, err := shellwords.Parse(string(message.GetPayload()))
 		if err != nil {
 			Log.ERROR.Printf("Error parsing message: %s", err)
 		}
-		GetKey(sender, args)
+		GetKey(senderID, args, s.Sender)
 	}
 }
