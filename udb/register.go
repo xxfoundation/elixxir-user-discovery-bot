@@ -46,7 +46,10 @@ func Register(userId *id.User, args []string) {
 	regType := args[0]
 	regVal := args[1]
 	keyFp := args[2]
-
+	if BannedUsernameList.Exists(strings.ToLower(regVal)) {
+		RegErr("Blacklisted username! Please try registering with a different username")
+		return
+	}
 	// Verify that regType == EMAIL
 	if regType != "EMAIL" {
 		RegErr("EMAIL is the only acceptable registration type")
