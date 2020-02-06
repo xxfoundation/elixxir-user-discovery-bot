@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/go-pg/pg v8.0.6+incompatible
+	github.com/golang/protobuf v1.3.3 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/mattn/go-shellwords v1.0.10
 	github.com/mitchellh/go-homedir v1.1.0
