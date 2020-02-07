@@ -17,8 +17,6 @@ import (
 func TestMainSmoke(t *testing.T) {
 	cmd.RootCmd.SetArgs([]string{"version"})
 	main()
-	cmd.RootCmd.SetArgs([]string{"version", "--config", "sampleconfig.yaml"})
-	main()
 	command := exec.Command("go", "run", "main.go", "version")
 	err := command.Run()
 	if e, ok := err.(*exec.ExitError); ok && !e.Success() {
