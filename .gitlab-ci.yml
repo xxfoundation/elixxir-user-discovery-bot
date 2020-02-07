@@ -80,13 +80,11 @@ build:
     - tags
   script:
     - mkdir -p release
-    - go generate cmd/version.go
     - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags '-w -s' ./...
     - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags '-w -s' -o release/udb.linux64 main.go
     - GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags '-w -s' -o release/udb.win64 main.go
     - GOOS=windows GOARCH=386 CGO_ENABLED=0 go build -ldflags '-w -s' -o release/udb.win32 main.go
     - GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -ldflags '-w -s' -o release/udb.darwin64 main.go
-    - ./release/udb.linux64 --version
   artifacts:
     paths:
      - release/
@@ -99,5 +97,5 @@ tag:
     script:
         - git remote add origin_tags git@gitlab.com:elixxir/user-discovery-bot.git || true
         - git remote set-url origin_tags git@gitlab.com:elixxir/user-discovery-bot.git || true
-        - git tag $(./release/udb.linux64 --version | grep "Elixxir User Discovery Bot v"| cut -d ' ' -f5) -f
+        - git tag $(./release/udb.linux64 version | grep "Elixxir User Discovery Bot v"| cut -d ' ' -f5) -f
         - git push origin_tags -f --tags
