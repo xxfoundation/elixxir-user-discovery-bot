@@ -23,7 +23,6 @@ import (
 
 var cfgFile string
 var verbose bool
-var showVer bool
 var noTLS bool
 
 // RootCmd represents the base command when called without any subcommands
@@ -33,11 +32,6 @@ var RootCmd = &cobra.Command{
 	Long:  `This bot provides user lookup and search functions on cMix`,
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		if showVer {
-			printVersion()
-			return
-		}
-
 		sess := viper.GetString("sessionfile")
 		if sess == "" {
 			sess = "udb-session.blob"
@@ -96,8 +90,6 @@ func init() {
 		"config file (default is $PWD/udb.yaml)")
 	RootCmd.Flags().BoolVarP(&verbose, "verbose", "v", false,
 		"Verbose mode for debugging")
-	RootCmd.Flags().BoolVarP(&showVer, "version", "V", false,
-		"Show the server version information.")
 	RootCmd.Flags().BoolVarP(&noTLS, "noTLS", "", false,
 		"Set to ignore TLS")
 }

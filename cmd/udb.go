@@ -137,7 +137,7 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) (*id.U
 	// registration.
 	//  RegisterWithPermissioning(preCan bool, registrationCode, nick, email,
 	//	password string, privateKeyRSA *rsa.PrivateKey) (*id.User, error)
-	err = clientObj.GenerateKeys(nil, "123")
+	err = clientObj.GenerateKeys(nil, "")
 	if err != nil {
 		return nil, err
 	}
