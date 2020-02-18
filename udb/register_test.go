@@ -23,6 +23,7 @@ import (
 	"gitlab.com/elixxir/user-discovery-bot/testutil"
 	"math/rand"
 	"os"
+	"strings"
 	"testing"
 	"time"
 )
@@ -93,7 +94,11 @@ func TestRegisterHappyPath(t *testing.T) {
 		}
 	}()
 	pubKeyBits := "S8KXBczy0jins9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNzLU7a" +
-		"+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClpq4H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY7wuD96h4oaA+WV5Nh87cnIZ+fAG0uLve2LSHZ0FBZb3glOpNAOv7PFWkvN2BO37ztOQCXTJe72Y5ReoYn7nWVNxGUh0ilal+BRuJt1GZ7whOGDRE0IXfURIoK2yjyAnyZJWWMhfGsL5S6iL4aXUs03mc8BHKRq3HRjvTE10l3YFA=="
+		"+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClpq4" +
+		"H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY7wuD96h4oaA+WV5Nh87cnIZ+" +
+		"fAG0uLve2LSHZ0FBZb3glOpNAOv7PFWkvN2BO37ztOQCXTJe72Y5ReoYn7nWVNxGUh0i" +
+		"lal+BRuJt1GZ7whOGDRE0IXfURIoK2yjyAnyZJWWMhfGsL5S6iL4aXUs03mc8BHKRq3H" +
+		"RjvTE10l3YFA=="
 
 	pubKey := make([]byte, 256)
 	pubKey, _ = base64.StdEncoding.DecodeString(pubKeyBits)
@@ -151,6 +156,82 @@ func TestRegisterHappyPath(t *testing.T) {
 	fmt.Println()
 
 	time.Sleep(1 * time.Second)
+}
+
+// Test if Register() will issue "RE-REGISTRATION COMPLETE" if a user attempts
+// to register a second time.
+func TestRegisterReRegister(t *testing.T) {
+	next := make(chan bool)
+	sendValues := []string{
+		"PUSHKEY COMPLETE",
+		"REGISTRATION COMPLETE",
+		"RE-REGISTRATION COMPLETE",
+	}
+
+	// Start routine to check for respond from PushKey
+	go func() {
+		ticker := time.NewTicker(time.Second)
+		exit := false
+		for i := 0; i < 3 && !exit; i++ {
+			select {
+			case m := <-ch:
+				if !strings.Contains(m, sendValues[i]) {
+					t.Errorf("Did not receive correct message"+
+						"\n\texpected: %v\n\trecieved: %v",
+						sendValues[i], m)
+				}
+				next <- true
+			case <-ticker.C:
+				t.Error("Registration test timed out")
+				exit = true
+			}
+		}
+	}()
+	pubKeyBits := "S8KXBczy0jins9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNzLU7a" +
+		"+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClpq4" +
+		"H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY7wuD96h4oaA+WV5Nh87cnIZ+" +
+		"fAG0uLve2LSHZ0FBZb3glOpNAOv7PFWkvN2BO37ztOQCXTJe72Y5ReoYn7nWVNxGUh0i" +
+		"lal+BRuJt1GZ7whOGDRE0IXfURIoK2yjyAnyZJWWMhfGsL5S6iL4aXUs03mc8BHKRq3H" +
+		"RjvTE10l3YFA=="
+
+	pubKey := make([]byte, 256)
+	pubKey, _ = base64.StdEncoding.DecodeString(pubKeyBits)
+
+	fingerprint := fingerprint2.Fingerprint(pubKey)
+	msgs := []string{
+		"myKeyId " + pubKeyBits,
+		"EMAIL rick@elixxir.io " + fingerprint,
+		fingerprint,
+	}
+
+	sender := id.NewUserFromUint(5, t)
+
+	// Start listening for PushKey messages
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
+	pl.Hear(msg, false, nil)
+	timer := time.NewTimer(time.Second)
+	select {
+	case <-next:
+	case <-timer.C:
+		t.Log("Did not hear from PushKey(). Timed out")
+	}
+
+	// Attempt registration the first time
+	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender)
+	rl.Hear(msg, false, nil)
+	select {
+	case <-next:
+	case <-timer.C:
+		t.Log("Did not hear from PushKey(). Timed out")
+	}
+
+	// Attempt registration the second time
+	rl.Hear(msg, false, nil)
+	select {
+	case <-next:
+	case <-timer.C:
+		t.Log("Did not hear from PushKey(). Timed out")
+	}
 }
 
 func TestRegisterBlacklist(t *testing.T) {

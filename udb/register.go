@@ -10,6 +10,7 @@ package udb
 import (
 	"encoding/base64"
 	"fmt"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/client/cmixproto"
 	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/crypto/csprng"
@@ -67,7 +68,15 @@ func Register(userId *id.User, args []string, blacklist BlackList, s Sender, db 
 	}
 
 	if retrievedUser.Value != "" {
-		RegErr("Cannot write to a user that already exists")
+		// TODO: need to check registration type too
+		if retrievedUser.Value == regVal {
+			jww.INFO.Printf("User attemted to re-register.")
+			s.Send(userId, "RE-REGISTRATION COMPLETE",
+				cmixproto.Type_UDB_REGISTER_RESPONSE)
+		} else {
+			RegErr("Cannot write to a user that already exists")
+		}
+
 		return
 	}
 
