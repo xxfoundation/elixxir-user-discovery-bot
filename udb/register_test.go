@@ -165,7 +165,7 @@ func TestRegisterReRegister(t *testing.T) {
 	sendValues := []string{
 		"PUSHKEY COMPLETE",
 		"REGISTRATION COMPLETE",
-		"RE-REGISTRATION COMPLETE",
+		"WARNING: RE-REGISTRATION",
 	}
 
 	// Start routine to check for respond from PushKey
@@ -187,7 +187,7 @@ func TestRegisterReRegister(t *testing.T) {
 			}
 		}
 	}()
-	pubKeyBits := "S8KXBczy0jins9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNzLU7a" +
+	pubKeyBits := "fgasdgawserfa9uS4LgBPt0bkFl8t00MnZmExQ6GcOcu8O7DKgAsNzLU7a" +
 		"+gMTbIsS995IL/kuFF8wcBaQJBY23095PMSQ/nMuetzhk9HdXxrGIiKBo3C/n4SClpq4" +
 		"H+PoF9XziEVKua8JxGM2o83KiCK3tNUpaZbAAElkjueY7wuD96h4oaA+WV5Nh87cnIZ+" +
 		"fAG0uLve2LSHZ0FBZb3glOpNAOv7PFWkvN2BO37ztOQCXTJe72Y5ReoYn7nWVNxGUh0i" +
@@ -200,7 +200,7 @@ func TestRegisterReRegister(t *testing.T) {
 	fingerprint := fingerprint2.Fingerprint(pubKey)
 	msgs := []string{
 		"myKeyId " + pubKeyBits,
-		"EMAIL rick@elixxir.io " + fingerprint,
+		"EMAIL jono@elixxir.io " + fingerprint,
 		fingerprint,
 	}
 

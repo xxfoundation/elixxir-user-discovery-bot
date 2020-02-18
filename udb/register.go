@@ -71,7 +71,7 @@ func Register(userId *id.User, args []string, blacklist BlackList, s Sender, db 
 		// TODO: need to check registration type too
 		if retrievedUser.Value == regVal {
 			jww.INFO.Printf("User attemted to re-register.")
-			s.Send(userId, "RE-REGISTRATION COMPLETE",
+			s.Send(userId, "WARNING: RE-REGISTRATION",
 				cmixproto.Type_UDB_REGISTER_RESPONSE)
 		} else {
 			RegErr("Cannot write to a user that already exists")
