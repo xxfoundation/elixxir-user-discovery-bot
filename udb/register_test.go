@@ -340,7 +340,7 @@ func TestRegisterListeners(t *testing.T) {
 		t.Errorf("Could not start message reciever: %v", err)
 	}
 
-	err = client.Logout()
+	err = client.Logout(time.Second)
 
 	if err != nil {
 		t.Errorf("Logout failed: %v", err)
