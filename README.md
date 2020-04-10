@@ -11,7 +11,7 @@ The user discovery bot helps users make first contact with other users. Users ca
 |---|---|---|---|
 |--config| |Specify a different configuration file|--config udb2.yaml|
 |--help|-h|Shows a help message|-h|
-|--verbose|-v|Prints more log messages|-v|
+|--logLevel|-l|Sets the log message level to print. (0 = info, 1 = debug, >1 = trace)|-v 2|
 |--version|-V|Prints generated version information for the UDB and its dependencies. To regenerate log messages, run `$ go generate cmd/version.go`.|-V|
 |--ndf|-n|Path to the network definition file|-V|
 
