@@ -25,9 +25,9 @@ require (
 	github.com/spf13/viper v1.6.2
 	github.com/stretchr/objx v0.2.0 // indirect
 	gitlab.com/elixxir/client v1.1.1-0.20200312165144-b804f79b45e7
-	gitlab.com/elixxir/comms v0.0.0-20200410232129-e3f516f98266
-	gitlab.com/elixxir/crypto v0.0.0-20200229000841-b1ee7117a1d0
-	gitlab.com/elixxir/primitives v0.0.0-20200401200647-87f186de48f6
+	gitlab.com/elixxir/comms v0.0.0-20200415192517-da36d7e39894
+	gitlab.com/elixxir/crypto v0.0.0-20200410231849-90e859940f5d
+	gitlab.com/elixxir/primitives v0.0.0-20200410231944-a57d71d577c9
 	golang.org/x/crypto v0.0.0-20200406173513-056763e48d71 // indirect
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20200119044424-58c23975cae1 // indirect

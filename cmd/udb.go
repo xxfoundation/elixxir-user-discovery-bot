@@ -54,6 +54,11 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 
 	// Log into the server with a blank password
 	_, err = clientObj.Login("")
+	// API Settings (hard coded)
+	clientObj.DisableBlockingTransmission() // Deprecated
+	// Up to 10 messages per second
+	clientObj.SetRateLimiting(uint32(RateLimit))
+
 	if err != nil {
 		return err
 	}
@@ -112,11 +117,6 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) (*id.U
 	if initErr != nil {
 		return nil, initErr
 	}
-
-	// API Settings (hard coded)
-	clientObj.DisableBlockingTransmission() // Deprecated
-	// Up to 10 messages per second
-	clientObj.SetRateLimiting(uint32(RateLimit))
 
 	// connect udb to gateways
 	for {
