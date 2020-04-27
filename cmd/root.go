@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/viper"
 	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/globals"
+	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/utils"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
@@ -22,7 +23,7 @@ import (
 )
 
 var cfgFile string
-var verbose bool
+var logLevel uint // 0 = info, 1 = debug, >1 = trace
 var noTLS bool
 
 // RootCmd represents the base command when called without any subcommands
@@ -88,8 +89,8 @@ func init() {
 	// will be global for your application.
 	RootCmd.Flags().StringVarP(&cfgFile, "config", "", "",
 		"config file (default is $PWD/udb.yaml)")
-	RootCmd.Flags().BoolVarP(&verbose, "verbose", "v", false,
-		"Verbose mode for debugging")
+	RootCmd.Flags().UintVarP(&logLevel, "logLevel", "l", 1,
+		"Level of debugging to display. 0 = info, 1 = debug, >1 = trace")
 	RootCmd.Flags().BoolVarP(&noTLS, "noTLS", "", false,
 		"Set to ignore TLS")
 }
@@ -127,6 +128,38 @@ func initConfig() {
 
 // initLog initializes logging thresholds and the log path.
 func initLog() {
+	vipLogLevel := viper.GetUint("logLevel")
+
+	// Check the level of logs to display
+	if vipLogLevel > 1 {
+		// Set the GRPC log level
+		if vipLogLevel > 1 {
+			err := os.Setenv("GRPC_GO_LOG_SEVERITY_LEVEL", "info")
+			if err != nil {
+				jww.ERROR.Printf("Could not set GRPC_GO_LOG_SEVERITY_LEVEL: %+v", err)
+			}
+
+			err = os.Setenv("GRPC_GO_LOG_VERBOSITY_LEVEL", "99")
+			if err != nil {
+				jww.ERROR.Printf("Could not set GRPC_GO_LOG_VERBOSITY_LEVEL: %+v", err)
+			}
+		}
+
+		// Turn on trace logs
+		jww.SetLogThreshold(jww.LevelTrace)
+		jww.SetStdoutThreshold(jww.LevelTrace)
+		mixmessages.TraceMode()
+	} else if vipLogLevel == 1 {
+		// Turn on debugging logs
+		jww.SetLogThreshold(jww.LevelDebug)
+		jww.SetStdoutThreshold(jww.LevelDebug)
+		mixmessages.DebugMode()
+	} else {
+		// Turn on info logs
+		jww.SetLogThreshold(jww.LevelInfo)
+		jww.SetStdoutThreshold(jww.LevelInfo)
+	}
+
 	if viper.Get("logPath") != nil {
 		// Create log file, overwrites if existing
 		logPath := viper.GetString("logPath")
@@ -136,14 +169,5 @@ func initLog() {
 		} else {
 			udb.Log.SetLogOutput(logFile)
 		}
-	}
-	// If verbose flag set then log more info for debugging
-	if verbose || viper.GetBool("verbose") {
-		udb.Log.SetLogThreshold(jww.LevelDebug)
-		udb.Log.SetStdoutThreshold(jww.LevelDebug)
-		udb.Log.INFO.Print("Logging Verbosely")
-	} else {
-		udb.Log.SetLogThreshold(jww.LevelInfo)
-		udb.Log.SetStdoutThreshold(jww.LevelInfo)
 	}
 }
