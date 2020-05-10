@@ -23,13 +23,13 @@ type Database interface {
 	// Insert or Update a User into the database
 	UpsertUser(user *User) error
 	// Fetch a User from the database by ID
-	GetUser(id []byte) (*User, error)
+	GetUser(id *id.ID) (*User, error)
 	// Fetch a User from the database by Value
 	GetUserByValue(value string) (*User, error)
 	// Fetch a User from the database by KeyId
 	GetUserByKeyId(keyId string) (*User, error)
 	//Delete a user
-	DeleteUser(id []byte) error
+	DeleteUser(id *id.ID) error
 }
 
 // Struct representing the udb_users table in the database
@@ -52,7 +52,7 @@ type User struct {
 // Initialize a new User object
 func NewUser() *User {
 	return &User{
-		Id:        make([]byte, 0),
+		Id:        make([]byte, id.ArrIDLen),
 		Value:     "",
 		ValueType: -1,
 		KeyId:     "",
@@ -60,8 +60,8 @@ func NewUser() *User {
 	}
 }
 
-func (u *User) SetID(id []byte) {
-	u.Id = id
+func (u *User) SetID(id *id.ID) {
+	u.Id = id.Marshal()
 }
 
 func (u *User) SetValue(val string) {
@@ -99,7 +99,7 @@ func NewDatabase(username, password, database, address string) Database {
 		globals.Log.ERROR.Printf("Unable to initalize database backend: %+v", err)
 		globals.Log.INFO.Println("Using map backend for User Discovery!")
 		return &MapImpl{
-			Users: make(map[*id.User]*User),
+			Users: make(map[*id.ID]*User),
 		}
 	}
 

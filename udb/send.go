@@ -17,17 +17,17 @@ import (
 // Sender interface -- the api is broken here (does not return the error), so
 // we reimplement a new interface...
 type Sender interface {
-	Send(recipientID *id.User, msg string) error
+	Send(recipientID *id.ID, msg string) error
 }
 
 // ApiSender calls the api send function
 type APISender struct{}
 
 // Send calls the api send function
-func (a APISender) Send(recipientID *id.User, msg string) error {
+func (a APISender) Send(recipientID *id.ID, msg string) error {
 	return clientObj.Send(api.APIMessage{
 		Payload:     []byte(msg),
-		SenderID:    UDB_USERID,
+		SenderID:    &id.UDB,
 		RecipientID: recipientID,
 	})
 }
@@ -36,7 +36,7 @@ func (a APISender) Send(recipientID *id.User, msg string) error {
 var UdbSender Sender = APISender{}
 
 // Wrap the API Send function (useful for mock tests)
-func Send(recipientID *id.User, msg string, msgType cmixproto.Type) {
+func Send(recipientID *id.ID, msg string, msgType cmixproto.Type) {
 	// Create the message body and assign its type
 	message := string(parse.Pack(&parse.TypedBody{
 		MessageType: int32(msgType),
