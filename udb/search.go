@@ -23,7 +23,7 @@ const SEARCH_USAGE = "Usage: 'SEARCH [EMAIL] [email-address]'"
 // - TYPE = EMAIL
 // - VALUE = "rick@elixxir.io"
 // It returns a list of fingerprints if found (1 per message), or NOTFOUND
-func Search(userId *id.User, args []string) {
+func Search(userId *id.ID, args []string) {
 	Log.INFO.Printf("Search %d: %v", userId, args)
 	SearchErr := func(msg string) {
 		Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
