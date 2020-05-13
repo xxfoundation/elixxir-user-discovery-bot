@@ -3,9 +3,7 @@ module gitlab.com/elixxir/user-discovery-bot
 go 1.13
 
 require (
-	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/go-pg/pg v8.0.6+incompatible
-	github.com/golang/protobuf v1.4.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/mattn/go-shellwords v1.0.10
 	github.com/mitchellh/go-homedir v1.1.0
@@ -18,14 +16,9 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.6.3
 	gitlab.com/elixxir/client v1.1.1-0.20200415211833-9216edbb5996
-	gitlab.com/elixxir/comms v0.0.0-20200415204952-6d63dd94a0ea
-	gitlab.com/elixxir/crypto v0.0.0-20200410231849-90e859940f5d
-	gitlab.com/elixxir/primitives v0.0.0-20200410231944-a57d71d577c9
-	golang.org/x/crypto v0.0.0-20200414173820-0848c9571904 // indirect
-	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e // indirect
-	golang.org/x/sys v0.0.0-20200413165638-669c56c373c4 // indirect
-	google.golang.org/genproto v0.0.0-20200413115906-b5235f65be36 // indirect
-	google.golang.org/grpc v1.28.1 // indirect
+	gitlab.com/elixxir/comms v0.0.0-20200513163847-4975a4118ac6
+	gitlab.com/elixxir/crypto v0.0.0-20200513163659-38b6079db0b2
+	gitlab.com/elixxir/primitives v0.0.0-20200513162412-ef77445c0ab7
 	gopkg.in/ini.v1 v1.55.0 // indirect
 	mellium.im/sasl v0.2.1 // indirect
 )
