@@ -18,7 +18,7 @@ require (
 	github.com/spf13/viper v1.7.0
 	gitlab.com/elixxir/client v1.2.1-0.20200514185355-c3d83e20b350
 	gitlab.com/elixxir/comms v0.0.0-20200514191231-70cadf8a289a
-	gitlab.com/elixxir/crypto v0.0.0-20200514191115-c240ec1d5bc4
+	gitlab.com/elixxir/crypto v0.0.0-20200514211323-de119c132b78
 	gitlab.com/elixxir/primitives v0.0.0-20200514181428-14736275e533
 	golang.org/x/net v0.0.0-20200513185701-a91f0712d120 // indirect
 	golang.org/x/sys v0.0.0-20200513112337-417ce2331b5c // indirect
