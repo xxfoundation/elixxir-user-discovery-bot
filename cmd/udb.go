@@ -162,7 +162,7 @@ func getLatestMessageID() (string, error) {
 		LastMessageID: "",
 	}
 
-	nodeIdBytes := clientObj.GetNDF().Nodes[len(clientObj.GetNDF().Gateways)-1].ID
+	nodeIdBytes := clientObj.GetNDF().Gateways[len(clientObj.GetNDF().Gateways)-1].ID
 	nodeID, err := id.Unmarshal(nodeIdBytes)
 	if err != nil {
 		return "", errors.Errorf("Failed to unmarshal node ID: %+v", err)
