@@ -26,9 +26,9 @@ func TestSearchHappyPath(t *testing.T) {
 	}
 	fmt.Println(storage.UserDiscoveryDb)
 
-	sender := id.NewUserFromUint(89, t)
+	sender := id.NewIdFromUInt(89, id.User, t)
 
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH, sender)
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH, sender, t)
 	sl.Hear(msg, false)
 }
 
@@ -42,8 +42,8 @@ func TestSearch_InvalidArgs(t *testing.T) {
 	msgs := []string{
 		"EMAIL rick@elixxir.io",
 	}
-	sender := id.NewUserFromUint(122, t)
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH, sender)
+	sender := id.NewIdFromUInt(122, id.User, t)
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH, sender, t)
 	sl.Hear(msg, false)
 
 }
@@ -59,9 +59,9 @@ func TestSearch_InvalidArgs_Email(t *testing.T) {
 		"NotEMAIL rick@elixxir.io",
 	}
 
-	sender := id.NewUserFromUint(43, t)
+	sender := id.NewIdFromUInt(43, id.User, t)
 
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH, sender)
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH, sender, t)
 	sl.Hear(msg, false)
 
 }
@@ -74,8 +74,8 @@ func TestSearch_Invalid_Type(t *testing.T) {
 		"SEARCH INVALID test",
 		"GETKEY " + fingerprint,
 	}
-	sender := id.NewUserFromUint(222, t)
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH, sender)
+	sender := id.NewIdFromUInt(222, id.User, t)
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH, sender, t)
 	sl.Hear(msg, false)
 }
 
@@ -85,7 +85,7 @@ func TestSearch_Invalid_User(t *testing.T) {
 	msgs := []string{
 		"SEARCH EMAIL cat@elixxir.io",
 	}
-	sender := id.NewUserFromUint(9000, t)
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH, sender)
+	sender := id.NewIdFromUInt(9000, id.User, t)
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_SEARCH, sender, t)
 	sl.Hear(msg, false)
 }

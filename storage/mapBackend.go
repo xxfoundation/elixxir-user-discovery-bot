@@ -12,79 +12,83 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/pkg/errors"
-	idimport "gitlab.com/elixxir/primitives/id"
+	"gitlab.com/elixxir/primitives/id"
 	"strings"
 	"sync"
 )
 
 // Struct implementing the Database Interface with an underlying Map
 type MapImpl struct {
-	Users map[*idimport.User]*User
+	Users map[*id.ID]*User
 	lock  sync.Mutex
 }
 
 // Insert or Update a User into the map backend
 func (m *MapImpl) UpsertUser(user *User) error {
 	m.lock.Lock()
+	defer m.lock.Unlock()
 
 	//Insert or update the user in the map
-	tempIndex := idimport.NewUserFromBytes(user.Id)
+	tempIndex, err := id.Unmarshal(user.Id)
+	if err != nil {
+		return err
+	}
 	m.Users[tempIndex] = user
 
-	m.lock.Unlock()
 	return nil
 }
 
 // Fetch a User from the database by ID
-func (m *MapImpl) GetUser(id []byte) (*User, error) {
+func (m *MapImpl) GetUser(userID *id.ID) (*User, error) {
 	m.lock.Lock()
+	defer m.lock.Unlock()
 
 	//Iterate through the list of users and find matching values
 	for _, u := range m.Users {
 
-		if bytes.Compare(u.Id, id) == 0 && bytes.Compare(u.Id, make([]byte, 0)) != 0 {
-			m.lock.Unlock()
+		if bytes.Compare(u.Id, userID.Bytes()) == 0 && bytes.Compare(u.Id, make([]byte, 0)) != 0 {
 			return u, nil
 		}
 
 	}
-	m.lock.Unlock()
+
 	return NewUser(), errors.New("Unable to find any user with that ID")
 }
 
 // Fetch a User from the database by Value
 func (m *MapImpl) GetUserByValue(value string) (*User, error) {
 	m.lock.Lock()
+	defer m.lock.Unlock()
+
 	for _, u := range m.Users {
 		if strings.Compare(u.Value, value) == 0 && u.Value != "" {
-			m.lock.Unlock()
 			fmt.Println(m)
 			return u, nil
 		}
 	}
 
-	m.lock.Unlock()
 	return NewUser(), errors.New("Unable to find any user with that value")
 }
 
 // Fetch a User from the database by KeyId
 func (m *MapImpl) GetUserByKeyId(keyId string) (*User, error) {
 	m.lock.Lock()
+	defer m.lock.Unlock()
 
 	for _, u := range m.Users {
 		if strings.Compare(u.KeyId, keyId) == 0 && u.KeyId != "" {
-			m.lock.Unlock()
 			return u, nil
 		}
 	}
-	m.lock.Unlock()
+
 	return NewUser(), errors.New("Unable to find any user with that keyID")
 }
 
 //Delete user by user id
-func (m *MapImpl) DeleteUser(id []byte) error {
+func (m *MapImpl) DeleteUser(userID *id.ID) error {
 	m.lock.Lock()
-	delete(m.Users, idimport.NewUserFromBytes(id))
+
+	delete(m.Users, userID)
 	m.lock.Unlock()
 	return nil
 

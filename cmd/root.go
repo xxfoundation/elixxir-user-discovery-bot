@@ -57,7 +57,7 @@ var RootCmd = &cobra.Command{
 
 		err = StartBot(sess, ndfJSON)
 		if err != nil {
-			globals.Log.FATAL.Panicf("Could not start bot: %v", err)
+			globals.Log.FATAL.Panicf("Could not start bot: %+v", err)
 		}
 		// Block forever as a keepalive
 		select {}

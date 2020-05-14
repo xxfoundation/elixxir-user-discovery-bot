@@ -15,6 +15,7 @@ import (
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/globals"
+	"gitlab.com/elixxir/client/user"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/csprng"
 	"gitlab.com/elixxir/primitives/id"
@@ -44,7 +45,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 	UDBSessionFileName = sess
 
 	// Initialize the client
-	regCode := udb.UDB_USERID.RegistrationCode()
+	regCode := user.RegistrationCode(&id.UDB)
 	_, err := Init(UDBSessionFileName, regCode, def)
 	if err != nil {
 		return err
@@ -95,7 +96,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 }
 
 // Initialize a session using the given session file and other info
-func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) (*id.User, error) {
+func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) (*id.ID, error) {
 	// We only register when the session file does not exist
 	// FIXME: this is super weird -- why have to check for a file,
 	// then init that file, then register optionally based on that check?
@@ -135,7 +136,7 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) (*id.U
 	// Register, or to remove the things that aren't actually used for
 	// registration.
 	//  RegisterWithPermissioning(preCan bool, registrationCode, nick, email,
-	//	password string, privateKeyRSA *rsa.PrivateKey) (*id.User, error)
+	//	password string, privateKeyRSA *rsa.PrivateKey) (*id.ID, error)
 	err = clientObj.GenerateKeys(nil, "")
 	if err != nil {
 		return nil, err
@@ -157,17 +158,23 @@ func getLatestMessageID() (string, error) {
 	clientComms := clientObj.GetCommManager().Comms
 
 	msg := &mixmessages.ClientRequest{
-		UserID:        udb.UDB_USERID.Bytes(),
+		UserID:        id.UDB.Marshal(),
 		LastMessageID: "",
 	}
 
-	receiveGateway := id.NewNodeFromBytes(clientObj.GetNDF().Nodes[len(clientObj.GetNDF().Gateways)-1].ID).NewGateway()
+	nodeIdBytes := clientObj.GetNDF().Gateways[len(clientObj.GetNDF().Gateways)-1].ID
+	nodeID, err := id.Unmarshal(nodeIdBytes)
+	if err != nil {
+		return "", errors.Errorf("Failed to unmarshal node ID: %+v", err)
+	}
+
+	receiveGateway := nodeID
 
 	var idList *mixmessages.IDList
 
 	for {
 		var err error
-		host, ok := clientComms.GetHost(receiveGateway.String())
+		host, ok := clientComms.GetHost(receiveGateway)
 		if !ok {
 			//ERROR getting host log it here
 			//Needs to be part of a larger discussion for error handling
