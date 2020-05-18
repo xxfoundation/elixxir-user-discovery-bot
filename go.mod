@@ -10,15 +10,15 @@ require (
 	github.com/mitchellh/mapstructure v1.3.0 // indirect
 	github.com/onsi/ginkgo v1.12.0 // indirect
 	github.com/onsi/gomega v1.10.0 // indirect
-	github.com/pelletier/go-toml v1.7.0 // indirect
+	github.com/pelletier/go-toml v1.8.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/smartystreets/assertions v1.1.0 // indirect
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.7.0
-	gitlab.com/elixxir/client v1.2.1-0.20200514211834-0e6d5ed4db49
-	gitlab.com/elixxir/comms v0.0.0-20200515170447-d88e95684f9c
-	gitlab.com/elixxir/crypto v0.0.0-20200515201932-119227ae286c
+	gitlab.com/elixxir/client v1.2.1-0.20200518174438-3af99e138424
+	gitlab.com/elixxir/comms v0.0.0-20200518174425-0ed52593c136
+	gitlab.com/elixxir/crypto v0.0.0-20200518174417-c70257faa82f
 	gitlab.com/elixxir/primitives v0.0.0-20200515202141-16fa8236f167
 	golang.org/x/sys v0.0.0-20200515095857-1151b9dac4a9 // indirect
 	google.golang.org/genproto v0.0.0-20200515170657-fc4c6c6a6587 // indirect
