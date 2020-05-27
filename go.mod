@@ -7,7 +7,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/mattn/go-shellwords v1.0.10
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/mitchellh/mapstructure v1.3.0 // indirect
+	github.com/mitchellh/mapstructure v1.3.1 // indirect
 	github.com/onsi/ginkgo v1.12.0 // indirect
 	github.com/onsi/gomega v1.10.0 // indirect
 	github.com/pelletier/go-toml v1.8.0 // indirect
@@ -16,12 +16,14 @@ require (
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.7.0
-	gitlab.com/elixxir/client v1.2.1-0.20200520215750-876b97d8a54a
-	gitlab.com/elixxir/comms v0.0.0-20200520215736-db39aae8eb3e
+	gitlab.com/elixxir/client v1.2.1-0.20200522232435-ecc284af6c83
+	gitlab.com/elixxir/comms v0.0.0-20200527144605-ba9f3167c522
 	gitlab.com/elixxir/crypto v0.0.0-20200520215729-26e50fb2df79
-	gitlab.com/elixxir/primitives v0.0.0-20200519221140-05816cf1a567
+	gitlab.com/elixxir/primitives v0.0.0-20200526195628-be83e386e3a5
 	golang.org/x/net v0.0.0-20200520182314-0ba52f642ac2 // indirect
-	google.golang.org/genproto v0.0.0-20200519141106-08726f379972 // indirect
+	golang.org/x/sys v0.0.0-20200523222454-059865788121 // indirect
+	google.golang.org/genproto v0.0.0-20200527135933-430c10626276 // indirect
+	google.golang.org/protobuf v1.24.0 // indirect
 	gopkg.in/ini.v1 v1.56.0 // indirect
 	mellium.im/sasl v0.2.1 // indirect
 )
