@@ -17,14 +17,15 @@ require (
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.7.0
-	gitlab.com/elixxir/client v1.2.1-0.20200707005425-f74eb9af6521
-	gitlab.com/elixxir/comms v0.0.0-20200707005357-086c7bd56eae
+	gitlab.com/elixxir/client v1.2.1-0.20200708171058-14124a01ded3
+	gitlab.com/elixxir/comms v0.0.0-20200708163924-9117e02f0d19
 	gitlab.com/elixxir/crypto v0.0.0-20200707005343-97f868cbd930
 	gitlab.com/elixxir/primitives v0.0.0-20200706165052-9fe7a4fb99a3
-	golang.org/x/net v0.0.0-20200625001655-4c5254603344 // indirect
+	golang.org/x/crypto v0.0.0-20200707235045-ab33eee955e0 // indirect
+	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
 	golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae // indirect
 	golang.org/x/text v0.3.3 // indirect
-	google.golang.org/genproto v0.0.0-20200707001353-8e8330bf89df // indirect
+	google.golang.org/genproto v0.0.0-20200708133552-18036109789b // indirect
 	google.golang.org/grpc v1.30.0 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/ini.v1 v1.57.0 // indirect
