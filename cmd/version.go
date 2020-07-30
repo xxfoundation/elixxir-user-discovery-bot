@@ -15,7 +15,7 @@ import (
 )
 
 // Change this value to set the version for this build
-const currentVersion = "1.0.0"
+const currentVersion = "1.1.0"
 
 func printVersion() {
 	fmt.Printf("Elixxir User Discovery Bot v%s -- %s\n\n", SEMVER, GITVERSION)
