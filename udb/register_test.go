@@ -15,6 +15,7 @@ import (
 	"gitlab.com/elixxir/client/cmixproto"
 	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/client/parse"
+	"gitlab.com/elixxir/client/user"
 	"gitlab.com/elixxir/comms/gateway"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
@@ -52,7 +53,7 @@ func TestMain(m *testing.M) {
 	os.Exit(testMainWrapper(m))
 }
 
-func (d DummySender) Send(recipientID *id.User, msg string) error {
+func (d DummySender) Send(recipientID *id.ID, msg string) error {
 	// do nothing
 	jww.INFO.Printf("DummySender!")
 	return nil
@@ -63,7 +64,7 @@ func dummyConnectionStatusHandler(status uint32, timeout int) {
 }
 
 // Hack around the interface for client to do what we need for testing.
-func NewMessage(msg string, msgType cmixproto.Type, sender *id.User) *parse.Message {
+func NewMessage(msg string, msgType cmixproto.Type, sender *id.ID, t *testing.T) *parse.Message {
 	// Create the message body and assign its type
 	tmp := parse.TypedBody{
 		MessageType: int32(msgType),
@@ -71,8 +72,8 @@ func NewMessage(msg string, msgType cmixproto.Type, sender *id.User) *parse.Mess
 	}
 	return &parse.Message{
 		TypedBody: tmp,
-		Sender:    id.NewUserFromUints(&[4]uint64{0, 0, 0, 4}),
-		Receiver:  id.NewUserFromUints(&[4]uint64{0, 0, 0, 3}),
+		Sender:    id.NewIdFromUInts([4]uint64{0, 0, 0, 4}, id.Node, t),
+		Receiver:  id.NewIdFromUInts([4]uint64{0, 0, 0, 3}, id.Node, t),
 	}
 }
 
@@ -96,15 +97,15 @@ func TestRegisterHappyPath(t *testing.T) {
 		fingerprint,
 	}
 
-	sender := id.NewUserFromUint(5, t)
+	sender := id.NewIdFromUInt(5, id.User, t)
 
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender, t)
 	pl.Hear(msg, false, nil)
 	time.Sleep(50 * time.Millisecond)
-	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender)
+	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender, t)
 	rl.Hear(msg, false, nil)
 	time.Sleep(50 * time.Millisecond)
-	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
+	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender, t)
 	gl.Hear(msg, false, nil)
 
 	// Assert expected state
@@ -162,15 +163,15 @@ func TestRegisterBlacklist(t *testing.T) {
 	}
 	BannedUsernameList = *InitBlackList("./blacklists/bannedNames.txt")
 
-	sender := id.NewUserFromUint(5, t)
+	sender := id.NewIdFromUInt(5, id.User, t)
 
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender, t)
 	pl.Hear(msg, false)
 	time.Sleep(50 * time.Millisecond)
-	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender)
+	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender, t)
 	rl.Hear(msg, false)
 	time.Sleep(50 * time.Millisecond)
-	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
+	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender, t)
 	gl.Hear(msg, false)
 
 	time.Sleep(1 * time.Second)
@@ -189,13 +190,13 @@ func TestIncorrectKeyFP(t *testing.T) {
 		fingerprint,
 	}
 
-	sender := id.NewUserFromUint(9, t)
+	sender := id.NewIdFromUInt(9, id.User, t)
 
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender, t)
 	pl.Hear(msg, false, nil)
-	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender)
+	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender, t)
 	rl.Hear(msg, false, nil)
-	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
+	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender, t)
 	gl.Hear(msg, false, nil)
 
 	time.Sleep(1 * time.Second)
@@ -215,13 +216,13 @@ func TestIncorrectValueType(t *testing.T) {
 		fingerprint,
 	}
 
-	sender := id.NewUserFromUint(22, t)
+	sender := id.NewIdFromUInt(22, id.User, t)
 
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender, t)
 	pl.Hear(msg, false, nil)
-	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender)
+	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender, t)
 	rl.Hear(msg, false, nil)
-	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
+	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender, t)
 	gl.Hear(msg, false, nil)
 
 	time.Sleep(10 * time.Second)
@@ -239,13 +240,13 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 			"vcD8M=",
 	}
 
-	sender := id.NewUserFromUint(33, t)
+	sender := id.NewIdFromUInt(33, id.User, t)
 
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender, t)
 	pl.Hear(msg, false, nil)
 
 	for i := 1; i < len(msgs); i++ {
-		msg = NewMessage(msgs[i], cmixproto.Type_UDB_REGISTER, sender)
+		msg = NewMessage(msgs[i], cmixproto.Type_UDB_REGISTER, sender, t)
 		rl.Hear(msg, false, nil)
 		_, err := storage.UserDiscoveryDb.GetUserByKeyId("8oKh7TYG4KxQcBAymoXPBHSD/uga9pX3Mn/jKh")
 		if err == nil {
@@ -253,7 +254,7 @@ func TestInvalidRegistrationCommands(t *testing.T) {
 				" not exist!")
 		}
 
-		_, err = storage.UserDiscoveryDb.GetUser(id.NewUserFromUint(1, t).Bytes())
+		_, err = storage.UserDiscoveryDb.GetUser(id.NewIdFromUInt(1, id.User, t))
 		if err == nil {
 			t.Errorf("Data store user 1 should not exist!")
 		}
@@ -282,20 +283,20 @@ func TestRegister_InvalidGetKeyArgument(t *testing.T) {
 
 	//Preregister fingerpritn
 
-	sender := id.NewUserFromUint(44, t)
+	sender := id.NewIdFromUInt(44, id.User, t)
 
-	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender)
+	msg := NewMessage(msgs[0], cmixproto.Type_UDB_PUSH_KEY, sender, t)
 	pl.Hear(msg, false, nil)
-	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender)
+	msg = NewMessage(msgs[1], cmixproto.Type_UDB_REGISTER, sender, t)
 	rl.Hear(msg, false, nil)
-	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender)
+	msg = NewMessage(msgs[2], cmixproto.Type_UDB_GET_KEY, sender, t)
 	gl.Hear(msg, false, nil)
 
 	time.Sleep(10 * time.Second)
 }
 
 func TestRegisterListeners(t *testing.T) {
-
+	fmt.Printf("def: %+v\n", def)
 	// Initialize client with ram storage
 	client, err := api.NewClient(&globals.RamStorage{}, "", "", def)
 	if err != nil {
@@ -313,9 +314,8 @@ func TestRegisterListeners(t *testing.T) {
 		t.Errorf("GenerateKeys failed: %s", err.Error())
 	}
 
-	udbID := id.NewUserFromUints(&[4]uint64{0, 0, 0, 3})
 	// Register with UDB registration code
-	_, err = client.RegisterWithPermissioning(true, udbID.RegistrationCode())
+	_, err = client.RegisterWithPermissioning(true, user.RegistrationCode(&id.UDB))
 	if err != nil {
 		t.Errorf("Register failed: %s", err.Error())
 	}
@@ -334,10 +334,12 @@ func TestRegisterListeners(t *testing.T) {
 		t.Errorf("Start message reciever encountered an issue:  %+v", err)
 	}
 
+	fmt.Printf("GW: %+v\n", client.GetNDF().Gateways)
+
 	err = client.StartMessageReceiver(startMessageRecieverHandler)
 
 	if err != nil {
-		t.Errorf("Could not start message reciever: %v", err)
+		t.Errorf("Could not start message reciever: %+v", err)
 	}
 
 	err = client.Logout(time.Second)
@@ -363,17 +365,20 @@ func testMainWrapper(m *testing.M) int {
 	for i := 0; i < NumGWs; i++ {
 
 		gw := ndf.Gateway{
+			ID:      id.TempGateway.Bytes(),
 			Address: fmtAddress(GWsStartPort + i + rndPort),
 		}
 
 		def.Gateways = append(def.Gateways, gw)
 
-		GWComms[i] = gateway.StartGateway("tmp", gw.Address,
+		gwID := id.NewIdFromString("tmp", id.Gateway, m)
+
+		GWComms[i] = gateway.StartGateway(gwID, gw.Address,
 			gateway.NewImplementation(), nil, nil)
 	}
 
 	for i := 0; i < NumNodes; i++ {
-		nIdBytes := make([]byte, id.NodeIdLen)
+		nIdBytes := make([]byte, id.ArrIDLen)
 		nIdBytes[0] = byte(i)
 		n := ndf.Node{
 			ID: nIdBytes,

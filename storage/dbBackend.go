@@ -11,6 +11,7 @@ package storage
 import (
 	"fmt"
 	"github.com/pkg/errors"
+	"gitlab.com/elixxir/primitives/id"
 )
 
 // Insert or Update a User into the database
@@ -34,13 +35,13 @@ func (m *DatabaseImpl) UpsertUser(user *User) error {
 }
 
 // Fetch a User from the database
-func (m *DatabaseImpl) GetUser(id []byte) (*User, error) {
-	user := &User{Id: id}
+func (m *DatabaseImpl) GetUser(userID *id.ID) (*User, error) {
+	user := &User{Id: userID.Marshal()}
 	err := m.db.Select(&user)
 	if err != nil {
 		// If there was an error, no user for the given ID was found
 		return nil, errors.New(fmt.Sprintf("unable to get user with id %v: %+v",
-			string(id),
+			userID,
 			errors.New(err.Error())))
 	}
 	// If we found a user for the given ID, return it
@@ -76,8 +77,8 @@ func (m *DatabaseImpl) GetUserByKeyId(keyId string) (*User, error) {
 }
 
 //Delete a User from the database by the userID
-func (m *DatabaseImpl) DeleteUser(id []byte) error {
-	user := &User{Id: id}
+func (m *DatabaseImpl) DeleteUser(id *id.ID) error {
+	user := &User{Id: id.Marshal()}
 	err := m.db.Delete(user)
 	if err != nil {
 		// If there was an error, no user for the given id was found
