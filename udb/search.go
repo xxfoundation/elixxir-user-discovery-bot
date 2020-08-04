@@ -11,8 +11,8 @@ import (
 	"encoding/base64"
 	"fmt"
 	"gitlab.com/elixxir/client/cmixproto"
-	" gitlab.com/xx_network/primitives/id"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"gitlab.com/xx_network/primitives/id"
 )
 
 const SEARCH_USAGE = "Usage: 'SEARCH [EMAIL] [email-address]'"

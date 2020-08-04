@@ -9,7 +9,7 @@ import (
 	"github.com/go-pg/pg"
 	"github.com/go-pg/pg/orm"
 	"gitlab.com/elixxir/client/globals"
-	" gitlab.com/xx_network/primitives/id"
+	"gitlab.com/xx_network/primitives/id"
 )
 
 // Struct implementing the Database Interface with an underlying DB

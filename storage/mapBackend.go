@@ -12,7 +12,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/pkg/errors"
-	" gitlab.com/xx_network/primitives/id"
+	"gitlab.com/xx_network/primitives/id"
 	"strings"
 	"sync"
 )

@@ -9,8 +9,8 @@ package udb
 import (
 	"fmt"
 	"gitlab.com/elixxir/client/cmixproto"
-	" gitlab.com/xx_network/primitives/id"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"gitlab.com/xx_network/primitives/id"
 	"testing"
 )
 

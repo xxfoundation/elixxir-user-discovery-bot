@@ -7,7 +7,7 @@
 package storage
 
 import (
-	" gitlab.com/xx_network/primitives/id"
+	"gitlab.com/xx_network/primitives/id"
 	"reflect"
 	"testing"
 )
