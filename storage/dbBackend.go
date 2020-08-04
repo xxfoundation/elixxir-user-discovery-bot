@@ -11,7 +11,7 @@ package storage
 import (
 	"fmt"
 	"github.com/pkg/errors"
-	"gitlab.com/elixxir/primitives/id"
+	" gitlab.com/xx_network/primitives/id"
 )
 
 // Insert or Update a User into the database

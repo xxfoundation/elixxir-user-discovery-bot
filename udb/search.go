@@ -11,7 +11,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"gitlab.com/elixxir/client/cmixproto"
-	"gitlab.com/elixxir/primitives/id"
+	" gitlab.com/xx_network/primitives/id"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 )
 

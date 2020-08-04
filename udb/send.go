@@ -11,7 +11,7 @@ import (
 	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/cmixproto"
 	"gitlab.com/elixxir/client/parse"
-	"gitlab.com/elixxir/primitives/id"
+	" gitlab.com/xx_network/primitives/id"
 )
 
 // Sender interface -- the api is broken here (does not return the error), so
