@@ -262,12 +262,15 @@ github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 github.com/zeebo/assert v0.0.0-20181109011804-10f827ce2ed6/go.mod h1:yssERNPivllc1yU3BvpjYI5BUW+zglcz6QWqeVRL5t0=
 github.com/zeebo/assert v1.1.0/go.mod h1:Pq9JiuJQpG8JLJdtkwrJESF0Foym2/D9XMU5ciN/wJ0=
+github.com/zeebo/blake3 v0.0.4 h1:vtZ4X8B2lKXZFg2Xyg6Wo36mvmnJvc2VQYTtA4RDCkI=
 github.com/zeebo/blake3 v0.0.4/go.mod h1:YOZo8A49yNqM0X/Y+JmDUZshJWLt1laHsNSn5ny2i34=
 github.com/zeebo/pcg v0.0.0-20181207190024-3cdc6b625a05/go.mod h1:Gr+78ptB0MwXxm//LBaEvBiaXY7hXJ6KGe2V32X2F6E=
 gitlab.com/elixxir/client v1.2.1-0.20200804230047-3333f302722f h1:ELeFDl7vaNXWUAvKjiZQtalhmYDaMx9zjd2ujhimCWA=
 gitlab.com/elixxir/client v1.2.1-0.20200804230047-3333f302722f/go.mod h1:aJid1hef/UGy1xoMSPBE8ragxXgBUQK0cFw8+Lr0kc8=
 gitlab.com/elixxir/client v1.2.1-0.20200811195404-cbc603a08fec h1:C+n8NGjxHy7ywsoUqO70D1jJyU7BaoCPlCsUq/JAAtk=
 gitlab.com/elixxir/client v1.2.1-0.20200811195404-cbc603a08fec/go.mod h1:j/5hQGurwlDXK9Ej7wvi3Kbc/tI5u/kajdNGT2MaGQA=
+gitlab.com/elixxir/client v1.2.1-0.20200928223835-2eb77fc5bd79 h1:qAWzbwfRqN/3Q8JhJ8qe/047s+rlqJmMvIUGCOdawOY=
+gitlab.com/elixxir/client v1.2.1-0.20200928223835-2eb77fc5bd79/go.mod h1:knNmhuAQ6SaqFatU1W40HMLZHI6SYHUb9cD77jwQbyk=
 gitlab.com/elixxir/comms v0.0.0-20200804225939-84dbe3cccc62 h1:Xpz8ToqH2fMfZRhWZ+qLRpE2LQD3ct14ciF1S4Ma5Uk=
 gitlab.com/elixxir/comms v0.0.0-20200804225939-84dbe3cccc62/go.mod h1:Wc6fZyP/M4sBjnzb9pRScLeqwMOCv6DRXoTOd07bO3g=
 gitlab.com/elixxir/comms v0.0.0-20200810165153-3039323b5656/go.mod h1:EeS1z5wXKrnWOvR0dJlVNVv8OzuiGJz7fa6LyUeN6Q0=
@@ -406,6 +409,8 @@ golang.org/x/sys v0.0.0-20200803210538-64077c9b5642 h1:B6caxRw+hozq68X2MY7jEpZh/
 golang.org/x/sys v0.0.0-20200803210538-64077c9b5642/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20200926100807-9d91bd62050c h1:38q6VNPWR010vN82/SB121GujZNIfAUb4YttE2rhGuc=
 golang.org/x/sys v0.0.0-20200926100807-9d91bd62050c/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20200928205150-006507a75852 h1:sXxgOAXy8JwHhZnPuItAlUtwIlxrlEqi28mKhUR+zZY=
+golang.org/x/sys v0.0.0-20200928205150-006507a75852/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 golang.org/x/text v0.3.2 h1:tW2bmiBqwgJj/UpqtC8EpXEZVYOwU0yG4iWbprSVAcs=

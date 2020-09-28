@@ -19,6 +19,7 @@ import (
 	"gitlab.com/elixxir/comms/gateway"
 	fingerprint2 "gitlab.com/elixxir/user-discovery-bot/fingerprint"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"gitlab.com/xx_network/comms/gossip"
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/ndf"
 	"math/rand"
@@ -374,7 +375,7 @@ func testMainWrapper(m *testing.M) int {
 		gwID := id.NewIdFromString("tmp", id.Gateway, m)
 
 		GWComms[i] = gateway.StartGateway(gwID, gw.Address,
-			gateway.NewImplementation(), nil, nil)
+			gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	}
 
 	for i := 0; i < NumNodes; i++ {
