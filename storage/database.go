@@ -5,6 +5,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/xx_network/primitives/id"
 	"sync"
 	"time"
 )
@@ -13,6 +14,14 @@ var UserDiscoveryDB Storage
 
 // Interface declaration for storage methods
 type Storage interface {
+	InsertUser(user *User) error
+	GetUser(id []byte) (*User, error)
+	DeleteUser(id []byte) error
+
+	InsertFact(fact *Fact) error
+	GetFact(confirmationId []byte) (*Fact, error)
+	DeleteFact(confirmationId []byte) error
+	ConfirmFact(confirmationId []byte) error
 }
 
 // Struct implementing the Database Interface with an underlying DB
@@ -20,28 +29,34 @@ type DatabaseImpl struct {
 	db *gorm.DB // Stored database connection
 }
 
+// ID type for facts map
+type ConfirmationId [32]byte
+
 // Struct implementing the Database Interface with an underlying Map
 type MapImpl struct {
+	users map[id.ID]*User
+	facts map[ConfirmationId]*Fact
 	sync.RWMutex
 }
 
+// Struct defining the users table for the database
 type User struct {
 	Id        []byte `gorm:"primary_key"`
-	RsaPub    []byte
-	DhPub     []byte
-	Salt      []byte
-	Signature []byte
+	RsaPub    []byte `gorm:"NOT NULL"`
+	DhPub     []byte `gorm:"NOT NULL"`
+	Salt      []byte `gorm:"NOT NULL"`
+	Signature []byte `gorm:"NOT NULL"`
 	Facts     []Fact `gorm:"foreignKey:UserId"`
 }
 
+// Struct defining the facts table in the database
 type Fact struct {
-	Id                 uint64 `gorm:"primary_key;AUTO_INCREMENT:true"`
+	ConfirmationId     []byte `gorm:"primary_key"`
 	UserId             []byte `gorm:"NOT NULL"`
 	Fact               string `gorm:"NOT NULL"`
 	FactType           uint64 `gorm:"NOT NULL"`
 	FactHash           []byte `gorm:"NOT NULL"`
-	Signature          []byte `gorm:"NOT NULL"`
-	ConfirmationId     []byte `gorm:"UNIQUE;NOT NULL"`
+	Signature          []byte `gorm:"NOT  NULL"`
 	VerificationStatus uint64 `gorm:"NOT NULL"`
 	Manual             bool   `gorm:"NOT NULL"`
 	Code               uint64
@@ -79,7 +94,10 @@ func NewDatabase(username, password, database, address,
 
 		defer jww.INFO.Println("Map backend initialized successfully!")
 
-		mapImpl := &MapImpl{}
+		mapImpl := &MapImpl{
+			users: map[id.ID]*User{},
+			facts: map[ConfirmationId]*Fact{},
+		}
 
 		return Storage(mapImpl), func() error { return nil }, nil
 	}
