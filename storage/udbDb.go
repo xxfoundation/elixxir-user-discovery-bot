@@ -40,13 +40,13 @@ func (db *DatabaseImpl) GetFact(confirmationId []byte) (*Fact, error) {
 }
 
 // Delete a fact by confirmation ID
-func (db *DatabaseImpl) DeleteFact(confirmationId []byte) error {
+func (db *DatabaseImpl) DeleteFact(confirmationId string) error {
 	return db.db.Delete(&Fact{
 		ConfirmationId: confirmationId,
 	}).Error
 }
 
 // Confirm a fact by confirmation ID
-func (db *DatabaseImpl) ConfirmFact(confirmationId []byte) error {
+func (db *DatabaseImpl) ConfirmFact(confirmationId string) error {
 	return db.db.Model(&Fact{}).Where("confirmation_id = ?", confirmationId).UpdateColumn("verification_status", 1).Error
 }

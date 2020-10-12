@@ -75,7 +75,7 @@ func (m *MapImpl) DeleteFact(confirmationId []byte) error {
 }
 
 // Confirm a fact in the map
-func (m *MapImpl) ConfirmFact(confirmationId []byte) error {
+func (m *MapImpl) ConfirmFact(confirmationId string) error {
 	factid := ConfirmationId{}
 	copy(factid[:], confirmationId)
 	if _, ok := m.facts[factid]; !ok {

@@ -27,9 +27,9 @@ type Storage interface {
 	DeleteUser(id []byte) error
 
 	InsertFact(fact *Fact) error
-	GetFact(confirmationId []byte) (*Fact, error)
-	DeleteFact(confirmationId []byte) error
-	ConfirmFact(confirmationId []byte) error
+	GetFact(confirmationId string) (*Fact, error)
+	DeleteFact(confirmationId string) error
+	ConfirmFact(confirmationId string) error
 }
 
 // Struct implementing the Database Interface with an underlying DB
@@ -59,10 +59,10 @@ type User struct {
 
 // Struct defining the facts table in the database
 type Fact struct {
-	ConfirmationId     []byte `gorm:"primary_key"`
+	ConfirmationId     string `gorm:"primary_key"`
 	UserId             []byte `gorm:"NOT NULL"`
 	Fact               string `gorm:"NOT NULL"`
-	FactType           uint64 `gorm:"NOT NULL"`
+	FactType           uint8  `gorm:"NOT NULL"`
 	FactHash           []byte `gorm:"NOT NULL"`
 	Signature          []byte `gorm:"NOT  NULL"`
 	VerificationStatus uint64 `gorm:"NOT NULL"`
