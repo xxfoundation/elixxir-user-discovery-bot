@@ -1,4 +1,4 @@
-package verify
+package twilio
 
 import (
 	"github.com/pkg/errors"
@@ -17,7 +17,7 @@ func RegisterFact(uid *id.ID, fact string, factType uint8, verifier Verification
 	err = storage.UserDiscoveryDB.InsertFact(&storage.Fact{
 		ConfirmationId:     verifyId,
 		UserId:             uid.Marshal(),
-		Fact:               "",
+		Fact:               fact,
 		FactType:           factType,
 		FactHash:           []byte("temphash"),
 		Signature:          []byte("tempsig"),
@@ -42,6 +42,5 @@ func ConfirmFact(confirmationID string, code int, verifier VerificationService) 
 	}
 
 	storage.UserDiscoveryDB.ConfirmFact()
-
 	return valid, nil
 }

@@ -1,4 +1,4 @@
-package verify
+package twilio
 
 import (
 	"encoding/json"
