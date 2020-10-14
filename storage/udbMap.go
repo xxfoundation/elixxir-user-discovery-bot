@@ -13,6 +13,10 @@ import (
 	"gitlab.com/xx_network/primitives/id"
 )
 
+func (m *MapImpl) CheckUser(username string, id *id.ID, rsaPem string) error {
+	return nil
+}
+
 // Insert a new user
 func (m *MapImpl) InsertUser(user *User) error {
 	uid, err := id.Unmarshal(user.Id)
@@ -52,35 +56,31 @@ func (m *MapImpl) InsertFact(fact *Fact) error {
 	if _, ok := m.users[*uid]; !ok {
 		return errors.New("error: associated user not found")
 	}
-	factid := ConfirmationId{}
-	copy(factid[:], fact.ConfirmationId)
+	factid := factId{}
+	copy(factid[:], fact.FactHash)
 	m.facts[factid] = fact
 	return nil
 }
 
-// Get a fact from the map
-func (m *MapImpl) GetFact(confirmationId []byte) (*Fact, error) {
-	factid := ConfirmationId{}
-	copy(factid[:], confirmationId)
-	f, _ := m.facts[factid]
-	return f, nil
+func (m *MapImpl) VerifyFact(factHash []byte) error {
+	return nil
 }
 
 // Delete a fact from the map
 func (m *MapImpl) DeleteFact(confirmationId []byte) error {
-	factid := ConfirmationId{}
+	factid := factId{}
 	copy(factid[:], confirmationId)
 	delete(m.facts, factid)
 	return nil
 }
 
-// Confirm a fact in the map
-func (m *MapImpl) ConfirmFact(confirmationId []byte) error {
-	factid := ConfirmationId{}
-	copy(factid[:], confirmationId)
-	if _, ok := m.facts[factid]; !ok {
-		return errors.New("specified fact not found")
-	}
-	m.facts[factid].VerificationStatus = 1
+func (m *MapImpl) InsertFactTwilio(userID, factHash, signature []byte, fact string, factType uint, confirmationID string) error {
+	return nil
+}
+func (m *MapImpl) VerifyFactTwilio(confirmationId string) error {
+	return nil
+}
+
+func (m *MapImpl) Search(factHashs [][]byte) []*User {
 	return nil
 }
