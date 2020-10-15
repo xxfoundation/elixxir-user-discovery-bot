@@ -115,7 +115,7 @@ func (m *MapImpl) Search(factHashs [][]byte) []*User {
 		if f, ok := m.facts[fid]; ok {
 			uid, err := id.Unmarshal(f.UserId)
 			if err != nil {
-				jww.ERROR.Print("Failed to decode uid %+v: %+v", f.UserId, err)
+				jww.ERROR.Printf("Failed to decode uid %+v: %+v", f.UserId, err)
 			}
 			users[*uid] = User{
 				Id: uid.Marshal(),

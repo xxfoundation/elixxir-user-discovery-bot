@@ -14,6 +14,7 @@ import (
 	"gitlab.com/xx_network/primitives/id"
 )
 
+// Check if a username is available
 func (db *DatabaseImpl) CheckUser(username string, id *id.ID, rsaPem string) error {
 	var err error
 	var facts []*Fact
@@ -73,6 +74,7 @@ func (db *DatabaseImpl) DeleteFact(factHash []byte) error {
 	}).Error
 }
 
+// Insert a twilio-verified fact
 func (db *DatabaseImpl) InsertFactTwilio(userID, factHash, signature []byte, fact string, factType uint, confirmationID string) error {
 	f := &Fact{
 		FactHash:  factHash,
@@ -101,6 +103,8 @@ func (db *DatabaseImpl) InsertFactTwilio(userID, factHash, signature []byte, fac
 
 	return db.db.Transaction(tf)
 }
+
+// Verify a fact through twilio
 func (db *DatabaseImpl) VerifyFactTwilio(confirmationId string) error {
 	tf := func(tx *gorm.DB) error {
 		var err error
@@ -119,9 +123,10 @@ func (db *DatabaseImpl) VerifyFactTwilio(confirmationId string) error {
 	return db.db.Transaction(tf)
 }
 
+// Search for users by facts
 func (db *DatabaseImpl) Search(factHashs [][]byte) []*User {
 	var facts []*Fact
-	db.db.Select(&Fact{}, "fact_hash in ?", factHashs).Find(facts)
+	db.db.Select(&Fact{}, "fact_hash in ?", factHashs).Find(&facts)
 
 	var users []*User
 	for _, f := range facts {
