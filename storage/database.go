@@ -22,14 +22,20 @@ var UserDiscoveryDB Storage
 
 // Interface declaration for storage methods
 type Storage interface {
+	CheckUser(username string, id *id.ID, rsaPem string) error
+
 	InsertUser(user *User) error
 	GetUser(id []byte) (*User, error)
 	DeleteUser(id []byte) error
 
 	InsertFact(fact *Fact) error
-	GetFact(confirmationId string) (*Fact, error)
-	DeleteFact(confirmationId string) error
-	ConfirmFact(confirmationId string) error
+	VerifyFact(factHash []byte) error
+	DeleteFact(factHash []byte) error
+
+	InsertFactTwilio(userID, factHash, signature []byte, fact string, factType uint, confirmationID string) error
+	VerifyFactTwilio(confirmationId string) error
+
+	Search(factHashs [][]byte) []*User
 }
 
 // Struct implementing the Database Interface with an underlying DB
@@ -38,37 +44,53 @@ type DatabaseImpl struct {
 }
 
 // ID type for facts map
-type ConfirmationId [32]byte
+type factId [32]byte
 
 // Struct implementing the Database Interface with an underlying Map
 type MapImpl struct {
-	users map[id.ID]*User
-	facts map[ConfirmationId]*Fact
+	users               map[id.ID]*User
+	facts               map[factId]*Fact
+	twilioVerifications map[string]*TwilioVerification
 	sync.RWMutex
 }
 
 // Struct defining the users table for the database
 type User struct {
 	Id        []byte `gorm:"primary_key"`
-	RsaPub    []byte `gorm:"NOT NULL"`
+	RsaPub    string `gorm:"NOT NULL"`
 	DhPub     []byte `gorm:"NOT NULL"`
 	Salt      []byte `gorm:"NOT NULL"`
 	Signature []byte `gorm:"NOT NULL"`
-	Facts     []Fact `gorm:"foreignKey:UserId"`
+	Facts     []Fact `gorm:"foreignkey:UserId;association_foreignkey:Id"`
+}
+
+type FactType uint8
+
+const (
+	Username FactType = iota
+	SMS
+	Email
+)
+
+func (f FactType) String() string {
+	return [...]string{"Username", "SMS", "Email"}[f]
 }
 
 // Struct defining the facts table in the database
 type Fact struct {
-	ConfirmationId     string `gorm:"primary_key"`
-	UserId             []byte `gorm:"NOT NULL"`
-	Fact               string `gorm:"NOT NULL"`
-	FactType           uint8  `gorm:"NOT NULL"`
-	FactHash           []byte `gorm:"NOT NULL"`
-	Signature          []byte `gorm:"NOT  NULL"`
-	VerificationStatus uint64 `gorm:"NOT NULL"`
-	Manual             bool   `gorm:"NOT NULL"`
-	Code               uint64
-	Timestamp          time.Time `gorm:"NOT NULL"`
+	FactHash  []byte    `gorm:"primary_key"`
+	UserId    []byte    `gorm:"NOT NULL"`
+	Fact      string    `gorm:"NOT NULL"`
+	FactType  uint8     `gorm:"NOT NULL"`
+	Signature []byte    `gorm:"NOT NULL"`
+	Verified  bool      `gorm:"NOT NULL"`
+	Timestamp time.Time `gorm:"NOT NULL"`
+}
+
+type TwilioVerification struct {
+	ConfirmationId string `gorm:"primary_key"`
+	Fact           Fact   `gorm:"foreignkey:FactHash"`
+	FactHash       []byte
 }
 
 // Initialize the Database interface with database backend
@@ -103,8 +125,9 @@ func NewDatabase(username, password, database, address,
 		defer jww.INFO.Println("Map backend initialized successfully!")
 
 		mapImpl := &MapImpl{
-			users: map[id.ID]*User{},
-			facts: map[ConfirmationId]*Fact{},
+			users:               map[id.ID]*User{},
+			facts:               map[factId]*Fact{},
+			twilioVerifications: map[string]*TwilioVerification{},
 		}
 
 		return Storage(mapImpl), func() error { return nil }, nil
@@ -123,13 +146,15 @@ func NewDatabase(username, password, database, address,
 
 	// Initialize the database schema
 	// WARNING: Order is important. Do not change without database testing
-	models := []interface{}{User{}, Fact{}}
+	models := []interface{}{User{}, Fact{}, TwilioVerification{}}
 	for _, model := range models {
 		err = db.AutoMigrate(model).Error
 		if err != nil {
 			return Storage(&DatabaseImpl{}), func() error { return nil }, err
 		}
 	}
+	db.Model(&Fact{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT")
+	db.Model(&TwilioVerification{}).AddForeignKey("fact_hash", "facts(fact_hash)", "RESTRICT", "RESTRICT")
 
 	// Build the interface
 	di := &DatabaseImpl{
