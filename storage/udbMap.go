@@ -59,7 +59,7 @@ func (m *MapImpl) InsertFact(fact *Fact) error {
 		return errors.New("error: associated user not found")
 	}
 	factid := factId{}
-	copy(factid[:], fact.FactHash)
+	copy(factid[:], fact.Hash)
 	m.facts[factid] = fact
 	return nil
 }
@@ -81,10 +81,10 @@ func (m *MapImpl) DeleteFact(confirmationId []byte) error {
 
 func (m *MapImpl) InsertFactTwilio(userID, factHash, signature []byte, fact string, factType uint, confirmationID string) error {
 	f := Fact{
-		FactHash:  factHash,
+		Hash:      factHash,
 		UserId:    userID,
 		Fact:      fact,
-		FactType:  uint8(factType),
+		Type:      uint8(factType),
 		Signature: signature,
 		Verified:  false,
 		Timestamp: time.Now(),
