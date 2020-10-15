@@ -78,19 +78,19 @@ func (f FactType) String() string {
 
 // Struct defining the facts table in the database
 type Fact struct {
-	FactHash  []byte    `gorm:"primary_key"`
-	UserId    []byte    `gorm:"NOT NULL"`
-	Fact      string    `gorm:"NOT NULL"`
-	FactType  uint8     `gorm:"NOT NULL"`
-	Signature []byte    `gorm:"NOT NULL"`
-	Verified  bool      `gorm:"NOT NULL"`
-	Timestamp time.Time `gorm:"NOT NULL"`
+	Hash         []byte             `gorm:"primary_key"`
+	UserId       []byte             `gorm:"NOT NULL;type:bytea REFERENCES users(Id)"`
+	Fact         string             `gorm:"NOT NULL"`
+	Type         uint8              `gorm:"NOT NULL"`
+	Signature    []byte             `gorm:"NOT NULL"`
+	Verified     bool               `gorm:"NOT NULL"`
+	Timestamp    time.Time          `gorm:"NOT NULL"`
+	Verification TwilioVerification `gorm:"foreignkey:FactHash;association_foreignkey:Hash"`
 }
 
 type TwilioVerification struct {
 	ConfirmationId string `gorm:"primary_key"`
-	Fact           Fact   `gorm:"foreignkey:FactHash"`
-	FactHash       []byte
+	FactHash       []byte `gorm:"NOT NULL;type:bytea REFERENCES facts(Hash)"`
 }
 
 // Initialize the Database interface with database backend
@@ -153,8 +153,6 @@ func NewDatabase(username, password, database, address,
 			return Storage(&DatabaseImpl{}), func() error { return nil }, err
 		}
 	}
-	db.Model(&Fact{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT")
-	db.Model(&TwilioVerification{}).AddForeignKey("fact_hash", "facts(fact_hash)", "RESTRICT", "RESTRICT")
 
 	// Build the interface
 	di := &DatabaseImpl{

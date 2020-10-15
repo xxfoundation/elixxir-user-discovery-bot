@@ -19,7 +19,7 @@ func (db *DatabaseImpl) CheckUser(username string, id *id.ID, rsaPem string) err
 	var err error
 	var facts []*Fact
 	var count int
-	err = db.db.Where("fact_type = ? AND fact = ?", Username, username).Find(&facts).Count(&count).Error
+	err = db.db.Where("type = ? AND fact = ?", Username, username).Find(&facts).Count(&count).Error
 	if err != nil {
 		return errors.WithMessage(err, "Failed to check facts for desired username")
 	}
@@ -27,7 +27,7 @@ func (db *DatabaseImpl) CheckUser(username string, id *id.ID, rsaPem string) err
 		return errors.New("error: username in use")
 	}
 
-	err = db.db.Where("fact_type = ? AND user_id = ?", Username, id.Marshal()).Find(&facts).Count(&count).Error
+	err = db.db.Where("type = ? AND user_id = ?", Username, id.Marshal()).Find(&facts).Count(&count).Error
 	if err != nil {
 		return errors.WithMessage(err, "Failed to check facts for usernames registerd to user")
 	}
@@ -64,23 +64,23 @@ func (db *DatabaseImpl) InsertFact(fact *Fact) error {
 
 // Retreive a fact by confirmation ID
 func (db *DatabaseImpl) VerifyFact(factHash []byte) error {
-	return db.db.Model(&Fact{}).Where("fact_hash = ?", factHash).UpdateColumn("verified", "true").Error
+	return db.db.Model(&Fact{}).Where("hash = ?", factHash).UpdateColumn("verified", "true").Error
 }
 
 // Delete a fact by confirmation ID
 func (db *DatabaseImpl) DeleteFact(factHash []byte) error {
 	return db.db.Delete(&Fact{
-		FactHash: factHash,
+		Hash: factHash,
 	}).Error
 }
 
 // Insert a twilio-verified fact
 func (db *DatabaseImpl) InsertFactTwilio(userID, factHash, signature []byte, fact string, factType uint, confirmationID string) error {
 	f := &Fact{
-		FactHash:  factHash,
+		Hash:      factHash,
 		UserId:    userID,
 		Fact:      "fact",
-		FactType:  uint8(factType),
+		Type:      uint8(factType),
 		Signature: signature,
 		Verified:  false,
 	}
@@ -113,7 +113,7 @@ func (db *DatabaseImpl) VerifyFactTwilio(confirmationId string) error {
 		if err != nil {
 			return err
 		}
-		err = tx.Model(&Fact{}).Where("fact_hash = ?", tv.FactHash).UpdateColumn("verified", true).Error
+		err = tx.Model(&Fact{}).Where("hash = ?", tv.FactHash).UpdateColumn("verified", true).Error
 		if err != nil {
 			return err
 		}
@@ -126,7 +126,7 @@ func (db *DatabaseImpl) VerifyFactTwilio(confirmationId string) error {
 // Search for users by facts
 func (db *DatabaseImpl) Search(factHashs [][]byte) []*User {
 	var facts []*Fact
-	db.db.Select(&Fact{}, "fact_hash in ?", factHashs).Find(&facts)
+	db.db.Select(&Fact{}, "hash in ?", factHashs).Find(&facts)
 
 	var users []*User
 	for _, f := range facts {

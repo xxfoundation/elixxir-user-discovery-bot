@@ -43,10 +43,10 @@ func TestDatabaseImpl(t *testing.T) {
 
 	factid := []byte("facthash")
 	err = db.InsertFact(&Fact{
-		FactHash:  factid,
+		Hash:      factid,
 		UserId:    uid.Marshal(),
 		Fact:      "zezima",
-		FactType:  uint8(Username),
+		Type:      uint8(Username),
 		Signature: []byte("factsig"),
 		Verified:  false,
 	})
@@ -121,8 +121,8 @@ func TestMapImpl_InsertFact(t *testing.T) {
 	fact := &Fact{
 		UserId:    uid.Marshal(),
 		Fact:      "water is wet",
-		FactType:  0,
-		FactHash:  factHash,
+		Type:      0,
+		Hash:      factHash,
 		Signature: []byte("John Hancock"),
 		Verified:  true,
 	}
@@ -208,10 +208,10 @@ func TestMapImpl_ConfirmFact(t *testing.T) {
 
 	factHash := []byte("testconfid")
 	fact := &Fact{
-		FactHash:  factHash,
+		Hash:      factHash,
 		UserId:    uid.Marshal(),
 		Fact:      "water is wet",
-		FactType:  0,
+		Type:      0,
 		Signature: []byte("John Hancock"),
 		Verified:  true,
 	}
@@ -246,8 +246,8 @@ func TestMapImpl_DeleteFact(t *testing.T) {
 	fact := &Fact{
 		UserId:    uid.Marshal(),
 		Fact:      "water is wet",
-		FactType:  0,
-		FactHash:  factHash,
+		Type:      0,
+		Hash:      factHash,
 		Signature: []byte("John Hancock"),
 		Verified:  true,
 	}
