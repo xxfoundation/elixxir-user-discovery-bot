@@ -19,16 +19,13 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.7.1
 	gitlab.com/elixxir/client v1.2.1-0.20200811195404-cbc603a08fec
-	gitlab.com/elixxir/comms v0.0.0-20200929173041-4747fed30236
-	gitlab.com/elixxir/crypto v0.0.0-20200915165059-c7f41bbc86b4
-	gitlab.com/elixxir/primitives v0.0.0-20200916172343-37503735c7a1
+	gitlab.com/elixxir/comms v0.0.0-20201016175525-bba38fe029e2
+	gitlab.com/elixxir/crypto v0.0.0-20201002151041-c4ab8f8033dc
+	gitlab.com/elixxir/primitives v0.0.0-20200930214918-50b3c2030f26
+	gitlab.com/xx_network/comms v0.0.0-20200925191822-08c0799a24a6
 	gitlab.com/xx_network/crypto v0.0.0-20200812183430-c77a5281c686
 	gitlab.com/xx_network/primitives v0.0.0-20200812183720-516a65a4a9b2
 	golang.org/x/crypto v0.0.0-20200930160638-afb6bcd081ae // indirect
-	golang.org/x/net v0.0.0-20200930145003-4acb6c075d10 // indirect
-	golang.org/x/sys v0.0.0-20200930185726-fdedc70b468f // indirect
-	google.golang.org/genproto v0.0.0-20200930140634-01fc692af84b // indirect
-	google.golang.org/grpc v1.32.0 // indirect
 	gopkg.in/ini.v1 v1.61.0 // indirect
 	mellium.im/sasl v0.2.1 // indirect
 )
