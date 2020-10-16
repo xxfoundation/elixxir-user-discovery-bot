@@ -5,6 +5,7 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/hash"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"gitlab.com/elixxir/user-discovery-bot/twilio"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
@@ -48,8 +49,22 @@ func RegisterFact(request *pb.FactRegisterRequest, store storage.Storage,
 		return &pb.FactRegisterResponse{}, errors.New("Failed to verify fact signature.")
 	}
 
+	// Marshal user ID
+	userID, err := id.Unmarshal(request.UID)
+	if err != nil {
+		return &pb.FactRegisterResponse{}, errors.New("Failed to parse user ID.")
+	}
+
 	_ = store.InsertFactTwilio(request.UID, hashedFact, request.FactSig, request.Fact.Fact, uint(request.Fact.FactType), "")
 
-	RegisterFact(uid *id.ID, fact string, factType uint8, signature []byte, verifier VerificationService) (string, error)
+	confirmationID, err := twilio.RegisterFact(userID, request.Fact.Fact, uint8(request.Fact.FactType), request.FactSig, nil)
+	if err != nil {
+		return &pb.FactRegisterResponse{}, errors.New("Failed to register fact with twilio.")
+	}
 
+	response := &pb.FactRegisterResponse{
+		ConfirmationID: confirmationID,
+	}
+
+	return response, nil
 }
