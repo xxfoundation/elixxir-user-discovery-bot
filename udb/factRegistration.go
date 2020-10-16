@@ -55,13 +55,13 @@ func RegisterFact(request *pb.FactRegisterRequest, store storage.Storage,
 		return &pb.FactRegisterResponse{}, errors.New("Failed to parse user ID.")
 	}
 
-	_ = store.InsertFactTwilio(request.UID, hashedFact, request.FactSig, request.Fact.Fact, uint(request.Fact.FactType), "")
-
+	// Register fact with twilio to get confirmation ID
 	confirmationID, err := twilio.RegisterFact(userID, request.Fact.Fact, uint8(request.Fact.FactType), request.FactSig, nil)
 	if err != nil {
 		return &pb.FactRegisterResponse{}, errors.New("Failed to register fact with twilio.")
 	}
 
+	// Create response
 	response := &pb.FactRegisterResponse{
 		ConfirmationID: confirmationID,
 	}
