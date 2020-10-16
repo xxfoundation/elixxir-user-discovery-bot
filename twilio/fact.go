@@ -3,31 +3,24 @@ package twilio
 import (
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"gitlab.com/xx_network/crypto/hasher"
 	"gitlab.com/xx_network/primitives/id"
 )
 
 // RegisterFact submits a fact for verification
-func RegisterFact(uid *id.ID, fact string, factType uint8, verifier VerificationService) (string, error) {
+func RegisterFact(uid *id.ID, fact string, factType uint8, signature []byte, verifier VerificationService) (string, error) {
 	verifyId, err := verifier.Verification(fact, Channel(factType).String())
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
+	h := hasher.SHA3_256.New()
+	h.Write([]byte(fact))
 
 	// Adds entry to facts and verifications tables
-	err = storage.UserDiscoveryDB.InsertFact(&storage.Fact{
-		ConfirmationId:     verifyId,
-		UserId:             uid.Marshal(),
-		Fact:               fact,
-		FactType:           factType,
-		FactHash:           []byte("temphash"),
-		Signature:          []byte("tempsig"),
-		VerificationStatus: 0,
-		Manual:             false,
-		Code:               0,
-	})
+	err = storage.UserDiscoveryDB.InsertFactTwilio(uid.Marshal(), h.Sum(nil), signature, fact, uint(factType), verifyId)
 	// Makes call to Verification endpoint in twilio
 	// Return the confirmation ID from db entry
-	return verifyId, nil
+	return verifyId, err
 }
 
 // ConfirmFact confirms a code and completes fact verification
@@ -40,7 +33,10 @@ func ConfirmFact(confirmationID string, code int, verifier VerificationService) 
 	if err != nil {
 		return false, err
 	}
-
-	storage.UserDiscoveryDB.ConfirmFact()
-	return valid, nil
+	if valid {
+		err = storage.UserDiscoveryDB.VerifyFactTwilio(confirmationID)
+		return valid, err
+	} else {
+		return valid, nil
+	}
 }

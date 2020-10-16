@@ -13,9 +13,10 @@ type MockVerifier struct {
 }
 
 func (v *MockVerifier) Verification(to, channel string) (string, error) {
-	v.codes[to] = rand.Int()
+	cid := strconv.Itoa(v.index)
 	v.index++
-	return strconv.Itoa(v.index), nil
+	v.codes[cid] = rand.Int()
+	return cid, nil
 }
 
 func (v *MockVerifier) VerificationCheck(code int, to string) (bool, error) {
