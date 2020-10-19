@@ -6,6 +6,7 @@ import (
 	"testing"
 )
 
+// Unit test for registerfact using mock twilio and db interfaces
 func TestRegisterFact(t *testing.T) {
 	mockDb, _, err := storage.NewDatabase("", "", "", "", "11")
 	if err != nil {
@@ -18,6 +19,7 @@ func TestRegisterFact(t *testing.T) {
 	}
 }
 
+// unit test for confirmfact using mock twilio and db interfaces
 func TestConfirmFact(t *testing.T) {
 	mockDb, _, err := storage.NewDatabase("", "", "", "", "11")
 	if err != nil {

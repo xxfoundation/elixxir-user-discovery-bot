@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 Privategrity Corporation                                   /
+//                                                                             /
+// All rights reserved.                                                        /
+////////////////////////////////////////////////////////////////////////////////
+
+// Mock implementation of a verification service for testing fact verification
+
 package twilio
 
 import (
@@ -5,7 +13,8 @@ import (
 	"strconv"
 )
 
-var MV *MockVerifier = &MockVerifier{codes: map[string]int{}, index: 0}
+// Mocked verifier implementation
+var MV = &MockVerifier{codes: map[string]int{}, index: 0}
 
 type MockVerifier struct {
 	codes map[string]int

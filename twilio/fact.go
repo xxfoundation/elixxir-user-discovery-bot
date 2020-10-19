@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 Privategrity Corporation                                   /
+//                                                                             /
+// All rights reserved.                                                        /
+////////////////////////////////////////////////////////////////////////////////
+
+// Main methods for registering & confirming facts with twilio
+
 package twilio
 
 import (
@@ -26,14 +34,12 @@ func RegisterFact(uid *id.ID, fact string, factType uint8, signature []byte,
 
 // ConfirmFact confirms a code and completes fact verification
 func ConfirmFact(confirmationID string, code int, verifier VerificationService, db storage.Storage) (bool, error) {
-	// Get verifications entry by confirmation id
 	// Make call to verification check endpoint with code
-	// If good, update verification to status 2 (complete)
-	// If not, update verification to status 1, return error
 	valid, err := verifier.VerificationCheck(code, confirmationID)
 	if err != nil {
 		return false, err
 	}
+	// If good, verify associated fact
 	if valid {
 		err = db.VerifyFactTwilio(confirmationID)
 		return valid, err

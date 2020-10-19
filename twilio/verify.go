@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 Privategrity Corporation                                   /
+//                                                                             /
+// All rights reserved.                                                        /
+////////////////////////////////////////////////////////////////////////////////
+
+// Twilio verification service code, using POST requests
+
 package twilio
 
 import (
@@ -11,17 +19,20 @@ import (
 	"strings"
 )
 
+// Interface for verification service
 type VerificationService interface {
 	Verification(to, channel string) (string, error)
 	VerificationCheck(code int, to string) (bool, error)
 }
 
+// Twilio implementation of verificationservice interface
 type TwilioVerifier struct {
 	accountSid      string
 	authToken       string
 	verificationSid string
 }
 
+// Channels that can be passed into twilio
 type Channel int
 
 const (
@@ -34,6 +45,7 @@ func (c Channel) String() string {
 	return [...]string{"sms", "email", "call"}[c]
 }
 
+// Posts to the verification endpoint of twilio, returns confirmation id
 func (v *TwilioVerifier) Verification(to, channel string) (string, error) {
 	verificationURL := fmt.Sprintf("https://verify.twilio.com/v2/Services/%s/Verifications", v.verificationSid)
 	payload := url.Values{}
@@ -49,6 +61,7 @@ func (v *TwilioVerifier) Verification(to, channel string) (string, error) {
 	return sid, err
 }
 
+// Posts to the verificationcheck endpoint of twilio, returns verification status (bool)
 func (v *TwilioVerifier) VerificationCheck(code int, to string) (bool, error) {
 	checkUrl := fmt.Sprintf("https://verify.twilio.com/v2/Services/%s/VerificationCheck", v.verificationSid)
 	payload := url.Values{}
@@ -67,6 +80,7 @@ func (v *TwilioVerifier) VerificationCheck(code int, to string) (bool, error) {
 	return valid, nil
 }
 
+// Helper function for sending post requests to twilio
 func (v *TwilioVerifier) twilioRequest(payload url.Values, url string) (map[string]interface{}, error) {
 	client := &http.Client{} // TODO: this may need special configurations.  See Transport object
 
