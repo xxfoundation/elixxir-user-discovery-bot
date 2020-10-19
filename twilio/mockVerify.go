@@ -5,7 +5,8 @@ import (
 	"strconv"
 )
 
-var MV *MockVerifier = &MockVerifier{codes: map[string]int{}, index: 0}
+// Mocked verifier implementation
+var MV = &MockVerifier{codes: map[string]int{}, index: 0}
 
 type MockVerifier struct {
 	codes map[string]int
