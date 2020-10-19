@@ -11,6 +11,7 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/hash"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/crypto/tls"
@@ -20,7 +21,7 @@ import (
 
 // Endpoint which handles a users attempt to register
 func RegisterUser(msg *pb.UDBUserRegistration, client *api.Client,
-	store storage.Storage) (*messages.Ack, error) {
+	store storage.Storage, auth *connect.Auth) (*messages.Ack, error) {
 
 	// Nil checks
 	if msg == nil || msg.Frs == nil || msg.Frs.Fact == nil ||
@@ -29,6 +30,10 @@ func RegisterUser(msg *pb.UDBUserRegistration, client *api.Client,
 			"fields in registration message")
 	}
 
+	// Ensure client is properly authenticated
+	if !auth.IsAuthenticated || auth.Sender.IsDynamicHost() {
+		return &messages.Ack{}, connect.AuthError(auth.Sender.GetId())
+	}
 
 	// Parse the username and UserID
 	username := msg.IdentityRegistration.Username
@@ -41,7 +46,7 @@ func RegisterUser(msg *pb.UDBUserRegistration, client *api.Client,
 	// Check if username is taken
 	err = store.CheckUser(username, uid, msg.RSAPublicPem)
 	if err != nil {
-		return &messages.Ack{}, errors.Errorf("Username %s is already taken. " +
+		return &messages.Ack{}, errors.Errorf("Username %s is already taken. "+
 			"Please try again", username)
 	}
 
@@ -53,19 +58,19 @@ func RegisterUser(msg *pb.UDBUserRegistration, client *api.Client,
 			"to internal error. Please try again later")
 	}
 
-	// Hash the permissioning signature
+	// Hash the rsa public key, what permissioning signature was signed off of
 	h, err := hash.NewCMixHash()
 	if err != nil {
 		return &messages.Ack{}, errors.New("Could not verify signature due " +
 			"to internal error. Please try again later")
 	}
-	h.Write(msg.PermissioningSignature)
-	hashedPermSig := h.Sum(nil)
+	h.Write([]byte(msg.RSAPublicPem))
+	hashedRsaKey := h.Sum(nil)
 
 	// Verify the Permissioning signature provided
-	err = rsa.Verify(permPubKey, hash.CMixHash, hashedPermSig, msg.PermissioningSignature, nil)
+	err = rsa.Verify(permPubKey, hash.CMixHash, hashedRsaKey, msg.PermissioningSignature, nil)
 	if err != nil {
-		return &messages.Ack{}, errors.New("Could not verify permissioning signature")
+		return &messages.Ack{}, errors.Errorf("Could not verify permissioning signature")
 	}
 
 	// Parse the client's public key
@@ -84,13 +89,16 @@ func RegisterUser(msg *pb.UDBUserRegistration, client *api.Client,
 	// Verify the signed fact
 	hashedFact := msg.Frs.Fact.Digest()
 	err = rsa.Verify(clientPubKey, hash.CMixHash, hashedFact, msg.Frs.FactSig, nil)
+	if err != nil {
+		return &messages.Ack{}, errors.New("Could not verify fact signature")
+	}
 
 	// Create fact off of username
 	f := storage.Fact{
-		FactHash:  hashedFact,
+		Hash:      hashedFact,
 		UserId:    msg.UID,
 		Fact:      msg.Frs.Fact.Fact,
-		FactType:  uint8(msg.Frs.Fact.FactType),
+		Type:      uint8(msg.Frs.Fact.FactType),
 		Signature: msg.Frs.FactSig,
 		Verified:  true,
 		Timestamp: time.Now(),
@@ -107,7 +115,7 @@ func RegisterUser(msg *pb.UDBUserRegistration, client *api.Client,
 	}
 
 	// Insert the user into the database
-	err = storage.UserDiscoveryDB.InsertUser(u)
+	err = store.InsertUser(u)
 	if err != nil {
 		return &messages.Ack{}, errors.New("Could not register username due " +
 			"to internal error. Please try again later")
@@ -124,7 +132,6 @@ func LoadPermissioningPubKey(cert string) (*rsa.PublicKey, error) {
 		return nil, errors.Errorf("Could not decode permissioning tls cert file "+
 			"into a tls cert: %v", err)
 	}
-
 
 	return tls.ExtractPublicKey(permCert)
 }
