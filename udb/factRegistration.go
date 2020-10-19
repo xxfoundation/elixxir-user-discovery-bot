@@ -23,7 +23,7 @@ var (
 )
 
 // RegisterFact is an endpoint that attempts to register a user's fact.
-func RegisterFact(request *pb.FactRegisterRequest, store storage.Storage,
+func RegisterFact(request *pb.FactRegisterRequest, db storage.Storage,
 	auth *connect.Auth) (*pb.FactRegisterResponse, error) {
 
 	// Ensure client is properly authenticated
@@ -45,7 +45,7 @@ func RegisterFact(request *pb.FactRegisterRequest, store storage.Storage,
 	fmt.Println(test)
 
 	// Return an error if the fact's user is not registered
-	user, err := store.GetUser(request.UID)
+	user, err := db.GetUser(request.UID)
 	if err != nil {
 		return &pb.FactRegisterResponse{}, noUserError
 	}
@@ -70,7 +70,7 @@ func RegisterFact(request *pb.FactRegisterRequest, store storage.Storage,
 
 	// Register fact with Twilio to get confirmation ID
 	confirmationID, err := twilio.RegisterFact(userID, request.Fact.Fact,
-		uint8(request.Fact.FactType), request.FactSig, nil)
+		uint8(request.Fact.FactType), request.FactSig, nil, db)
 	if err != nil {
 		return &pb.FactRegisterResponse{}, twilioRegFailureError
 	}

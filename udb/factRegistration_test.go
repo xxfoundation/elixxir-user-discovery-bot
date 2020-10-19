@@ -1,34 +1,33 @@
 package udb
 
 import (
+	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/primitives/id"
-	"math/rand"
 	"testing"
 )
 
 func TestRegisterFact(t *testing.T) {
-	store, _, err := storage.NewDatabase("", "", "", "", "")
+	db, _, err := storage.NewDatabase("", "", "", "", "11")
 	if err != nil {
-		t.Fatalf("Failed to initialize new database with map backend: %+v", err)
+		t.Fatalf("Failed to initialize mock database: %+v", err)
 	}
 
-	auth := connect.Auth{
-		IsAuthenticated: true,
-		Sender:          nil,
-		Reason:          "",
+	uid := id.NewIdFromString("zezima", id.User, t)
+
+	request := &pb.FactRegisterRequest{
+		UID: uid.Bytes(),
+		Fact: &pb.Fact{
+			Fact:     "Hair is blue",
+			FactType: 5,
+		},
+		FactSig: []byte("test"),
 	}
 
-	user := &storage.User{
-		Id:        id.NewIdFromUInt(rand.Uint64(), id.User, t).Bytes(),
-		RsaPub:    "",
-		DhPub:     nil,
-		Salt:      nil,
-		Signature: nil,
-		Facts:     nil,
+	response, err := RegisterFact(request, db, nil)
+	if err != nil {
+		t.Errorf("RegisterFact() produced an error: %+v", err)
 	}
 
-	store.InsertUser(user)
-
+	t.Logf("response: %+v", response)
 }
