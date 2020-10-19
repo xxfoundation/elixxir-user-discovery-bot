@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 Privategrity Corporation                                   /
+//                                                                             /
+// All rights reserved.                                                        /
+////////////////////////////////////////////////////////////////////////////////
+
+// Twilio verification service code, using POST requests
+
 package twilio
 
 import (

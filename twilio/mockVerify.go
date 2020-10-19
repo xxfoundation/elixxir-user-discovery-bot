@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 Privategrity Corporation                                   /
+//                                                                             /
+// All rights reserved.                                                        /
+////////////////////////////////////////////////////////////////////////////////
+
+// Mock implementation of a verification service for testing fact verification
+
 package twilio
 
 import (

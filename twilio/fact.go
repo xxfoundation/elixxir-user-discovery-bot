@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 Privategrity Corporation                                   /
+//                                                                             /
+// All rights reserved.                                                        /
+////////////////////////////////////////////////////////////////////////////////
+
+// Main methods for registering & confirming facts with twilio
+
 package twilio
 
 import (
