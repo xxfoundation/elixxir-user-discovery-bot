@@ -75,7 +75,7 @@ func (db *DatabaseImpl) DeleteFact(factHash []byte) error {
 }
 
 // Insert a twilio-verified fact
-func (db *DatabaseImpl) InsertFactTwilio(userID, factHash, signature []byte, fact string, factType uint, confirmationID string) error {
+func (db *DatabaseImpl) InsertFactTwilio(userID, factHash, signature []byte, factType uint, fact, confirmationID string) error {
 	f := &Fact{
 		Hash:      factHash,
 		UserId:    userID,

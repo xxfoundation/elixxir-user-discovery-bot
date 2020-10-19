@@ -32,7 +32,7 @@ type Storage interface {
 	VerifyFact(factHash []byte) error
 	DeleteFact(factHash []byte) error
 
-	InsertFactTwilio(userID, factHash, signature []byte, fact string, factType uint, confirmationID string) error
+	InsertFactTwilio(userID, factHash, signature []byte, factType uint, fact, confirmationID string) error
 	VerifyFactTwilio(confirmationId string) error
 
 	Search(factHashs [][]byte) []*User
@@ -64,6 +64,7 @@ type User struct {
 	Facts     []Fact `gorm:"foreignkey:UserId;association_foreignkey:Id"`
 }
 
+// Fact type enum
 type FactType uint8
 
 const (
@@ -88,6 +89,7 @@ type Fact struct {
 	Verification TwilioVerification `gorm:"foreignkey:FactHash;association_foreignkey:Hash"`
 }
 
+// Struct defining twilio_verifications table
 type TwilioVerification struct {
 	ConfirmationId string `gorm:"primary_key"`
 	FactHash       []byte `gorm:"NOT NULL;type:bytea REFERENCES facts(Hash)"`

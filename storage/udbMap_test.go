@@ -70,7 +70,7 @@ func TestDatabaseImpl(t *testing.T) {
 	}
 
 	factid2 := []byte("facthashtwo")
-	err = db.InsertFactTwilio(uid.Marshal(), factid2, []byte("factsig2"), "twilio", 1, "conf")
+	err = db.InsertFactTwilio(uid.Marshal(), factid2, []byte("factsig2"), 1, "twilio", "conf")
 	if err != nil {
 		t.Errorf("Failed to insert twilio-verified fact: %+v", err)
 	}
@@ -185,42 +185,6 @@ func TestMapImpl_GetUser(t *testing.T) {
 	}
 }
 
-// Unit test for mapimpl confirm fact
-func TestMapImpl_ConfirmFact(t *testing.T) {
-	mapImpl, _, err := NewDatabase("", "", "", "", "")
-	if err != nil {
-		t.Errorf("Failed to create map impl")
-		t.FailNow()
-	}
-	uid := id.NewIdFromString("testuserid", id.User, t)
-	user := &User{
-		Id:        uid.Marshal(),
-		RsaPub:    "testrsa",
-		DhPub:     []byte("testdh"),
-		Salt:      []byte("testsalt"),
-		Signature: []byte("testsig"),
-	}
-
-	err = mapImpl.InsertUser(user)
-	if err != nil {
-		t.Errorf("Failed to insert dummy user: %+v", err)
-	}
-
-	factHash := []byte("testconfid")
-	fact := &Fact{
-		Hash:      factHash,
-		UserId:    uid.Marshal(),
-		Fact:      "water is wet",
-		Type:      0,
-		Signature: []byte("John Hancock"),
-		Verified:  true,
-	}
-	err = mapImpl.InsertFact(fact)
-	if err != nil {
-		t.Errorf("Failed to insert fact: %+v", err)
-	}
-}
-
 // Unit test for mapimpl delete fact
 func TestMapImpl_DeleteFact(t *testing.T) {
 	mapImpl, _, err := NewDatabase("", "", "", "", "")
@@ -303,5 +267,161 @@ func TestMapImpl_DeleteUser(t *testing.T) {
 	}
 	if u != nil {
 		t.Errorf("User was not properly deleted")
+	}
+}
+
+// Unit test for mapimpl verify fact
+func TestMapImpl_VerifyFact(t *testing.T) {
+	mapImpl, _, err := NewDatabase("", "", "", "", "")
+	if err != nil {
+		t.Errorf("Failed to create map impl")
+		t.FailNow()
+	}
+	uid := id.NewIdFromString("testuserid", id.User, t)
+	user := &User{
+		Id:        uid.Marshal(),
+		RsaPub:    "testrsa",
+		DhPub:     []byte("testdh"),
+		Salt:      []byte("testsalt"),
+		Signature: []byte("testsig"),
+	}
+
+	err = mapImpl.InsertUser(user)
+	if err != nil {
+		t.Errorf("Failed to insert dummy user: %+v", err)
+	}
+
+	factHash := []byte("testconfid")
+	fact := &Fact{
+		UserId:    uid.Marshal(),
+		Fact:      "water is wet",
+		Type:      0,
+		Hash:      factHash,
+		Signature: []byte("John Hancock"),
+		Verified:  false,
+	}
+	err = mapImpl.InsertFact(fact)
+	if err != nil {
+		t.Errorf("Failed to insert fact: %+v", err)
+	}
+
+	err = mapImpl.VerifyFact(factHash)
+	if err != nil {
+		t.Errorf("Failed to verify fact: %+v", err)
+	}
+}
+
+// unit test for mapimpl check user
+func TestMapImpl_CheckUser(t *testing.T) {
+	mapImpl, _, err := NewDatabase("", "", "", "", "")
+	if err != nil {
+		t.Errorf("Failed to create map impl")
+		t.FailNow()
+	}
+	err = mapImpl.CheckUser("", id.NewIdFromString("test", id.User, t), "")
+	if err != nil {
+		t.Errorf("This should always return nil from map impl: %+v", err)
+	}
+}
+
+// unit test for insert twilio fact on map backend
+func TestMapImpl_InsertFactTwilio(t *testing.T) {
+	mapImpl, _, err := NewDatabase("", "", "", "", "")
+	if err != nil {
+		t.Errorf("Failed to create map impl")
+		t.FailNow()
+	}
+	uid := id.NewIdFromString("testuserid", id.User, t)
+	user := &User{
+		Id:        uid.Marshal(),
+		RsaPub:    "testrsa",
+		DhPub:     []byte("testdh"),
+		Salt:      []byte("testsalt"),
+		Signature: []byte("testsig"),
+	}
+
+	err = mapImpl.InsertUser(user)
+	if err != nil {
+		t.Errorf("Failed to insert dummy user: %+v", err)
+	}
+
+	factHash := []byte("testconfid")
+	conf := "twilio"
+	err = mapImpl.InsertFactTwilio(uid.Marshal(), factHash, []byte("John Hancock"), 0, "water is wet", conf)
+	if err != nil {
+		t.Errorf("Failed to insert fact: %+v", err)
+	}
+}
+
+// unit test for verifying a twilio fact in the map backend
+func TestMapImpl_VerifyFactTwilio(t *testing.T) {
+	mapImpl, _, err := NewDatabase("", "", "", "", "")
+	if err != nil {
+		t.Errorf("Failed to create map impl")
+		t.FailNow()
+	}
+	uid := id.NewIdFromString("testuserid", id.User, t)
+	user := &User{
+		Id:        uid.Marshal(),
+		RsaPub:    "testrsa",
+		DhPub:     []byte("testdh"),
+		Salt:      []byte("testsalt"),
+		Signature: []byte("testsig"),
+	}
+
+	err = mapImpl.InsertUser(user)
+	if err != nil {
+		t.Errorf("Failed to insert dummy user: %+v", err)
+	}
+
+	factHash := []byte("testconfid")
+	conf := "twilio"
+	err = mapImpl.InsertFactTwilio(uid.Marshal(), factHash, []byte("John Hancock"), 0, "water is wet", conf)
+	if err != nil {
+		t.Errorf("Failed to insert fact: %+v", err)
+	}
+
+	err = mapImpl.VerifyFactTwilio(conf)
+	if err != nil {
+		t.Errorf("Failed to verify twilio fact: %+v", err)
+	}
+}
+
+// Search unit test for map backend
+func TestMapImpl_Search(t *testing.T) {
+	mapImpl, _, err := NewDatabase("", "", "", "", "")
+	if err != nil {
+		t.Errorf("Failed to create map impl")
+		t.FailNow()
+	}
+	uid := id.NewIdFromString("testuserid", id.User, t)
+	user := &User{
+		Id:        uid.Marshal(),
+		RsaPub:    "testrsa",
+		DhPub:     []byte("testdh"),
+		Salt:      []byte("testsalt"),
+		Signature: []byte("testsig"),
+	}
+
+	err = mapImpl.InsertUser(user)
+	if err != nil {
+		t.Errorf("Failed to insert dummy user: %+v", err)
+	}
+
+	factHash := []byte("testconfid")
+	conf := "twilio"
+	err = mapImpl.InsertFactTwilio(uid.Marshal(), factHash, []byte("John Hancock"), 0, "water is wet", conf)
+	if err != nil {
+		t.Errorf("Failed to insert fact: %+v", err)
+	}
+
+	err = mapImpl.VerifyFactTwilio(conf)
+	if err != nil {
+		t.Errorf("Failed to verify twilio fact: %+v", err)
+	}
+
+	ulist := mapImpl.Search([][]byte{factHash})
+	if len(ulist) != 1 {
+		t.Errorf("Did not receive expected num users.  Received: %d, expected: %d", len(ulist), 1)
 	}
 }

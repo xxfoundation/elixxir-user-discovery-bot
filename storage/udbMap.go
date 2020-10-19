@@ -79,7 +79,7 @@ func (m *MapImpl) DeleteFact(confirmationId []byte) error {
 	return nil
 }
 
-func (m *MapImpl) InsertFactTwilio(userID, factHash, signature []byte, fact string, factType uint, confirmationID string) error {
+func (m *MapImpl) InsertFactTwilio(userID, factHash, signature []byte, factType uint, fact, confirmationID string) error {
 	f := Fact{
 		Hash:      factHash,
 		UserId:    userID,
@@ -99,6 +99,7 @@ func (m *MapImpl) InsertFactTwilio(userID, factHash, signature []byte, fact stri
 	m.twilioVerifications[confirmationID] = &tv
 	return nil
 }
+
 func (m *MapImpl) VerifyFactTwilio(confirmationId string) error {
 	fid := factId{}
 	copy(fid[:], m.twilioVerifications[confirmationId].FactHash)
