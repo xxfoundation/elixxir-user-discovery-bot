@@ -36,6 +36,8 @@ type Storage interface {
 	VerifyFactTwilio(confirmationId string) error
 
 	Search(factHashs [][]byte) []*User
+
+	StartFactManager() chan chan bool
 }
 
 // Struct implementing the Database Interface with an underlying DB

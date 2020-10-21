@@ -11,7 +11,9 @@ package storage
 import (
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/primitives/id"
+	"time"
 )
 
 // Check if a username is available
@@ -136,4 +138,29 @@ func (db *DatabaseImpl) Search(factHashs [][]byte) []*User {
 	}
 
 	return users
+}
+
+func (db *DatabaseImpl) StartFactManager() chan chan bool {
+	stopChan := make(chan chan bool)
+	go func() {
+		interval := time.NewTicker(150 * time.Second)
+		select {
+		case <-interval.C:
+			var facts []*Fact
+			err := db.db.Where(&facts, "verified = false AND timestamp <= (NOW() - INTERVAL '5 minutes')").Error
+			if err != nil {
+				jww.ERROR.Printf("error retrieving out of date unverified facts: %+v", err)
+			}
+			for _, f := range facts {
+				err = db.db.Delete(f, "hash = ?", f.Hash).Error
+				if err != nil {
+					jww.ERROR.Printf("error deleting out of date fact %+v: %+v", f.Hash, err)
+				}
+			}
+		case kc := <-stopChan:
+			kc <- true
+			return
+		}
+	}()
+	return stopChan
 }

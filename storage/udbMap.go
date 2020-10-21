@@ -61,6 +61,9 @@ func (m *MapImpl) InsertFact(fact *Fact) error {
 	factid := factId{}
 	copy(factid[:], fact.Hash)
 	m.facts[factid] = fact
+
+	fact.Timestamp = time.Now()
+
 	return nil
 }
 
@@ -128,4 +131,23 @@ func (m *MapImpl) Search(factHashs [][]byte) []*User {
 		result = append(result, &u)
 	}
 	return result
+}
+
+func (m *MapImpl) StartFactManager() chan chan bool {
+	stopChan := make(chan chan bool)
+	go func() {
+		interval := time.NewTicker(150 * time.Second)
+		select {
+		case <-interval.C:
+			for factId, f := range m.facts {
+				if !f.Verified && f.Timestamp.Before(time.Now().Add(-5*time.Minute)) {
+					delete(m.facts, factId)
+				}
+			}
+		case kc := <-stopChan:
+			kc <- true
+			return
+		}
+	}()
+	return stopChan
 }
