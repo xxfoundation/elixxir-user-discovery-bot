@@ -27,6 +27,71 @@ func TestDeleteFact_NilCheck(t *testing.T) {
 	}
 }
 
+// Check that our auth check works
+func TestDeleteFact_AuthCheck(t *testing.T) {
+	// Make a FactRemovalRequest to put into the Delete function
+	badmsg := pb.FactRemovalRequest{
+		UID: id.DummyUser.Marshal(),
+		RemovalData: &pb.Fact{
+			Fact:     "Testing",
+			FactType: 0,
+		},
+	}
+
+	// Make a new host for auth
+	h, err := connect.NewHost(&id.DummyUser, "0.0.0.0:0", nil,
+		connect.HostParams{MaxRetries: 0, AuthEnabled: false})
+	if err != nil {
+		t.Error(err)
+	}
+	input_auth := connect.Auth{
+		IsAuthenticated: false,
+		Sender:          h,
+		Reason:          "",
+	}
+
+	_, err = DeleteFact(&badmsg, nil, nil, &input_auth)
+	if err == nil {
+		t.Error("DeleteFact receiving a nil msg didn't error")
+	}
+}
+
+// Check that our users != 1 check works
+func TestDeleteFact_UsersCheck(t *testing.T) {
+	// Make a FactRemovalRequest to put into the Delete function
+	badmsg := pb.FactRemovalRequest{
+		UID: id.DummyUser.Marshal(),
+		RemovalData: &pb.Fact{
+			Fact:     "Testing",
+			FactType: 0,
+		},
+	}
+
+	// Make a new host for auth
+	h, err := connect.NewHost(&id.DummyUser, "0.0.0.0:0", nil,
+		connect.HostParams{MaxRetries: 0, AuthEnabled: true})
+	if err != nil {
+		t.Error(err)
+	}
+	input_auth := connect.Auth{
+		IsAuthenticated: true,
+		Sender:          h,
+		Reason:          "",
+	}
+
+	// Setup a Storage object
+	store, _, err := storage.NewDatabase("", "", "", "", "")
+	if err != nil {
+		t.Fatal("connect.NewHost returned an error: ", err)
+	}
+
+	_, err = DeleteFact(&badmsg, nil, store, &input_auth)
+	if err == nil {
+		t.Error("DeleteFact receiving a nil msg didn't error")
+	}
+}
+
+// Test that the function does work given the right inputs and DB entries
 func TestDeleteFact_Happy(t *testing.T) {
 	// Create an input message
 	input_msg := pb.FactRemovalRequest{
