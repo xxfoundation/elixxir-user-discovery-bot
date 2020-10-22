@@ -2,6 +2,7 @@ package udb
 
 import (
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/client/api"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/hash"
@@ -32,6 +33,7 @@ func DeleteFact(msg *pb.FactRemovalRequest, client *api.Client, store storage.St
 	// Generate the hash function and hash the fact
 	h, err := hash.NewCMixHash()
 	if err != nil {
+		jww.ERROR.Print("DeleteFact internal error NewCMixHash", err)
 		return &messages.Ack{}, e
 	}
 	h.Write(msg.RemovalData.Digest())
@@ -40,15 +42,18 @@ func DeleteFact(msg *pb.FactRemovalRequest, client *api.Client, store storage.St
 	// Get the user who owns the fact
 	users := store.Search([][]byte{hashFact})
 	if len(users) != 1 {
+		jww.ERROR.Print("DeleteFact internal error users != 1")
 		return &messages.Ack{}, e
 	}
 	// Unmarshal the owner ID
 	uid, err := id.Unmarshal(users[0].Id)
 	if err != nil {
+		jww.ERROR.Print("DeleteFact internal error Unmarshal", err)
 		return &messages.Ack{}, e
 	}
 	// Check the owner ID matches the sender ID
-	if uid != auth.Sender.GetId() {
+	if !auth.Sender.GetId().Cmp(uid) {
+		jww.ERROR.Print("DeleteFact internal error Auth Sender mismatch")
 		return &messages.Ack{}, errors.New("Removal could not be " +
 			"completed because you do not own this fact.")
 	}
@@ -56,6 +61,7 @@ func DeleteFact(msg *pb.FactRemovalRequest, client *api.Client, store storage.St
 	// Delete the fact
 	err = store.DeleteFact(hashFact)
 	if err != nil {
+		jww.ERROR.Print("DeleteFact internal error store.DeleteHash", err)
 		return &messages.Ack{}, e
 	}
 
