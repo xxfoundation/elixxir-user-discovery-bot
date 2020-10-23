@@ -29,11 +29,11 @@ type Storage interface {
 	DeleteUser(id []byte) error
 
 	InsertFact(fact *Fact) error
-	VerifyFact(factHash []byte) error
+	MarkFactVerified(factHash []byte) error
 	DeleteFact(factHash []byte) error
 
 	InsertFactTwilio(userID, factHash, signature []byte, factType uint, fact, confirmationID string) error
-	VerifyFactTwilio(confirmationId string) error
+	MarkTwilioFactVerified(confirmationId string) error
 
 	Search(factHashs [][]byte) []*User
 }

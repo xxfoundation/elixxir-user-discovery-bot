@@ -63,7 +63,7 @@ func (db *DatabaseImpl) InsertFact(fact *Fact) error {
 }
 
 // Retreive a fact by confirmation ID
-func (db *DatabaseImpl) VerifyFact(factHash []byte) error {
+func (db *DatabaseImpl) MarkFactVerified(factHash []byte) error {
 	return db.db.Model(&Fact{}).Where("hash = ?", factHash).UpdateColumn("verified", "true").Error
 }
 
@@ -105,7 +105,7 @@ func (db *DatabaseImpl) InsertFactTwilio(userID, factHash, signature []byte, fac
 }
 
 // Verify a fact through twilio
-func (db *DatabaseImpl) VerifyFactTwilio(confirmationId string) error {
+func (db *DatabaseImpl) MarkTwilioFactVerified(confirmationId string) error {
 	tf := func(tx *gorm.DB) error {
 		var err error
 		tv := &TwilioVerification{}

@@ -65,7 +65,7 @@ func (m *MapImpl) InsertFact(fact *Fact) error {
 }
 
 // Verify fact in mapimpl
-func (m *MapImpl) VerifyFact(factHash []byte) error {
+func (m *MapImpl) MarkFactVerified(factHash []byte) error {
 	fid := &factId{}
 	copy(fid[:], factHash)
 	m.facts[*fid].Verified = true
@@ -103,7 +103,7 @@ func (m *MapImpl) InsertFactTwilio(userID, factHash, signature []byte, factType 
 }
 
 // Verify a twilio fact
-func (m *MapImpl) VerifyFactTwilio(confirmationId string) error {
+func (m *MapImpl) MarkTwilioFactVerified(confirmationId string) error {
 	fid := factId{}
 	copy(fid[:], m.twilioVerifications[confirmationId].FactHash)
 	m.facts[fid].Verified = true
