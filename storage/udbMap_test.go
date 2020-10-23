@@ -64,7 +64,7 @@ func TestDatabaseImpl(t *testing.T) {
 		t.Errorf("Failed to check user: %+v", err)
 	}
 
-	err = db.VerifyFact(factid)
+	err = db.MarkFactVerified(factid)
 	if err != nil {
 		t.Errorf("Failed to verify fact: %+v", err)
 	}
@@ -75,7 +75,7 @@ func TestDatabaseImpl(t *testing.T) {
 		t.Errorf("Failed to insert twilio-verified fact: %+v", err)
 	}
 
-	err = db.VerifyFactTwilio("conf")
+	err = db.MarkTwilioFactVerified("conf")
 	if err != nil {
 		t.Errorf("Failed to verify twilio fact: %+v", err)
 	}
@@ -305,7 +305,7 @@ func TestMapImpl_VerifyFact(t *testing.T) {
 		t.Errorf("Failed to insert fact: %+v", err)
 	}
 
-	err = mapImpl.VerifyFact(factHash)
+	err = mapImpl.MarkFactVerified(factHash)
 	if err != nil {
 		t.Errorf("Failed to verify fact: %+v", err)
 	}
@@ -381,7 +381,7 @@ func TestMapImpl_VerifyFactTwilio(t *testing.T) {
 		t.Errorf("Failed to insert fact: %+v", err)
 	}
 
-	err = mapImpl.VerifyFactTwilio(conf)
+	err = mapImpl.MarkTwilioFactVerified(conf)
 	if err != nil {
 		t.Errorf("Failed to verify twilio fact: %+v", err)
 	}
@@ -415,7 +415,7 @@ func TestMapImpl_Search(t *testing.T) {
 		t.Errorf("Failed to insert fact: %+v", err)
 	}
 
-	err = mapImpl.VerifyFactTwilio(conf)
+	err = mapImpl.MarkTwilioFactVerified(conf)
 	if err != nil {
 		t.Errorf("Failed to verify twilio fact: %+v", err)
 	}
