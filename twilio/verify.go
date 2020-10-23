@@ -19,6 +19,12 @@ import (
 	"strings"
 )
 
+const VERIFICATION_URL = "https://verify.twilio.com/v2/Services/%s/Verifications"
+const VERIFICATION_CHECK_URL = "https://verify.twilio.com/v2/Services/%s/VerificationCheck"
+const PAYLOAD_TO = "To"
+const PAYLOAD_CODE = "Code"
+const PAYLOAD_CHAN = "Channel"
+
 // Interface for verification service
 type VerificationService interface {
 	Verification(to, channel string) (string, error)
@@ -47,10 +53,10 @@ func (c Channel) String() string {
 
 // Posts to the verification endpoint of twilio, returns confirmation id
 func (v *TwilioVerifier) Verification(to, channel string) (string, error) {
-	verificationURL := fmt.Sprintf("https://verify.twilio.com/v2/Services/%s/Verifications", v.verificationSid)
+	verificationURL := fmt.Sprintf(VERIFICATION_URL, v.verificationSid)
 	payload := url.Values{}
-	payload.Set("To", to)
-	payload.Set("Channel", channel)
+	payload.Set(PAYLOAD_TO, to)
+	payload.Set(PAYLOAD_CHAN, channel)
 
 	data, err := v.twilioRequest(payload, verificationURL)
 	if err != nil {
@@ -63,10 +69,10 @@ func (v *TwilioVerifier) Verification(to, channel string) (string, error) {
 
 // Posts to the verificationcheck endpoint of twilio, returns verification status (bool)
 func (v *TwilioVerifier) VerificationCheck(code int, to string) (bool, error) {
-	checkUrl := fmt.Sprintf("https://verify.twilio.com/v2/Services/%s/VerificationCheck", v.verificationSid)
+	checkUrl := fmt.Sprintf(VERIFICATION_CHECK_URL, v.verificationSid)
 	payload := url.Values{}
-	payload.Set("To", to)
-	payload.Set("Code", strconv.Itoa(code))
+	payload.Set(PAYLOAD_TO, to)
+	payload.Set(PAYLOAD_CHAN, strconv.Itoa(code))
 
 	data, err := v.twilioRequest(payload, checkUrl)
 	if err != nil {
