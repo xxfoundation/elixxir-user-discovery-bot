@@ -36,6 +36,8 @@ type Storage interface {
 	MarkTwilioFactVerified(confirmationId string) error
 
 	Search(factHashs [][]byte) []*User
+
+	StartFactManager(i time.Duration) chan chan bool
 }
 
 // Struct implementing the Database Interface with an underlying DB
