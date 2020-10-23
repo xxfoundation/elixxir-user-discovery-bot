@@ -140,22 +140,30 @@ func (db *DatabaseImpl) Search(factHashs [][]byte) []*User {
 	return users
 }
 
-func (db *DatabaseImpl) StartFactManager() chan chan bool {
+func (db *DatabaseImpl) StartFactManager(i time.Duration) chan chan bool {
 	stopChan := make(chan chan bool)
 	go func() {
-		interval := time.NewTicker(150 * time.Second)
+		interval := time.NewTicker(i)
 		select {
 		case <-interval.C:
-			var facts []*Fact
-			err := db.db.Where(&facts, "verified = false AND timestamp <= (NOW() - INTERVAL '5 minutes')").Error
-			if err != nil {
-				jww.ERROR.Printf("error retrieving out of date unverified facts: %+v", err)
-			}
-			for _, f := range facts {
-				err = db.db.Delete(f, "hash = ?", f.Hash).Error
+			tf := func(tx *gorm.DB) error {
+				var err error
+				var facts []*Fact
+				err = db.db.Where(&facts, "verified = false AND timestamp <= (NOW() - INTERVAL '5 minutes')").Error
 				if err != nil {
-					jww.ERROR.Printf("error deleting out of date fact %+v: %+v", f.Hash, err)
+					return errors.Errorf("error retrieving out of date unverified facts: %+v", err)
 				}
+				for _, f := range facts {
+					err = db.db.Delete(f, "hash = ?", f.Hash).Error
+					if err != nil {
+						return errors.Errorf("error deleting out of date fact %+v: %+v", f.Hash, err)
+					}
+				}
+				return err
+			}
+			err := db.db.Transaction(tf)
+			if err != nil {
+				jww.ERROR.Print(err)
 			}
 		case kc := <-stopChan:
 			kc <- true

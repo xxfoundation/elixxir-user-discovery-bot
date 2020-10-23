@@ -137,10 +137,10 @@ func (m *MapImpl) Search(factHashs [][]byte) []*User {
 	return result
 }
 
-func (m *MapImpl) StartFactManager() chan chan bool {
+func (m *MapImpl) StartFactManager(i time.Duration) chan chan bool {
 	stopChan := make(chan chan bool)
 	go func() {
-		interval := time.NewTicker(150 * time.Second)
+		interval := time.NewTicker(i)
 		select {
 		case <-interval.C:
 			for factId, f := range m.facts {

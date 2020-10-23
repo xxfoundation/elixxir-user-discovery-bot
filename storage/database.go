@@ -37,7 +37,7 @@ type Storage interface {
 
 	Search(factHashs [][]byte) []*User
 
-	StartFactManager() chan chan bool
+	StartFactManager(i time.Duration) chan chan bool
 }
 
 // Struct implementing the Database Interface with an underlying DB
