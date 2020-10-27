@@ -1,4 +1,4 @@
-package udb
+package io
 
 import (
 	"github.com/pkg/errors"
@@ -12,7 +12,7 @@ import (
 )
 
 // Takes in a FactRemovalRequest from a client and deletes the Fact if the client owns it
-func DeleteFact(msg *pb.FactRemovalRequest, store storage.Storage, auth *connect.Auth) (*messages.Ack, error) {
+func removeFact(msg *pb.FactRemovalRequest, store *storage.Storage, auth *connect.Auth) (*messages.Ack, error) {
 	// Generic copy of the internal error message
 	e := errors.New("Removal could not be " +
 		"completed do to internal error, please try again later")
@@ -32,7 +32,7 @@ func DeleteFact(msg *pb.FactRemovalRequest, store storage.Storage, auth *connect
 	// Generate the hash function and hash the fact
 	h, err := hash.NewCMixHash()
 	if err != nil {
-		jww.ERROR.Print("DeleteFact internal error NewCMixHash", err)
+		jww.ERROR.Print("removeFact internal error NewCMixHash", err)
 		return &messages.Ack{}, e
 	}
 	h.Write(msg.RemovalData.Digest())
@@ -41,18 +41,18 @@ func DeleteFact(msg *pb.FactRemovalRequest, store storage.Storage, auth *connect
 	// Get the user who owns the fact
 	users := store.Search([][]byte{hashFact})
 	if len(users) != 1 {
-		jww.ERROR.Print("DeleteFact internal error users != 1")
+		jww.ERROR.Print("removeFact internal error users != 1")
 		return &messages.Ack{}, e
 	}
 	// Unmarshal the owner ID
 	uid, err := id.Unmarshal(users[0].Id)
 	if err != nil {
-		jww.ERROR.Print("DeleteFact internal error Unmarshal", err)
+		jww.ERROR.Print("removeFact internal error Unmarshal", err)
 		return &messages.Ack{}, e
 	}
 	// Check the owner ID matches the sender ID
 	if !auth.Sender.GetId().Cmp(uid) {
-		jww.ERROR.Print("DeleteFact internal error Auth Sender mismatch")
+		jww.ERROR.Print("removeFact internal error Auth Sender mismatch")
 		return &messages.Ack{}, errors.New("Removal could not be " +
 			"completed because you do not own this fact.")
 	}
@@ -60,7 +60,7 @@ func DeleteFact(msg *pb.FactRemovalRequest, store storage.Storage, auth *connect
 	// Delete the fact
 	err = store.DeleteFact(hashFact)
 	if err != nil {
-		jww.ERROR.Print("DeleteFact internal error store.DeleteHash", err)
+		jww.ERROR.Print("removeFact internal error store.DeleteHash", err)
 		return &messages.Ack{}, e
 	}
 

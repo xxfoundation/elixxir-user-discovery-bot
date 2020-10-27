@@ -1,4 +1,4 @@
-package udb
+package io
 
 import (
 	"github.com/pkg/errors"
@@ -29,8 +29,8 @@ var (
 	twilioVerificationFailureError = "Twilio verification failed."
 )
 
-// RegisterFact is an endpoint that attempts to register a user's fact.
-func RegisterFact(request *pb.FactRegisterRequest, verifier twilio.VerificationService, store storage.Storage,
+// registerFact is an endpoint that attempts to register a user's fact.
+func registerFact(request *pb.FactRegisterRequest, verifier *twilio.Manager, store *storage.Storage,
 	auth *connect.Auth) (*pb.FactRegisterResponse, error) {
 
 	// Ensure client is properly authenticated
@@ -76,8 +76,8 @@ func RegisterFact(request *pb.FactRegisterRequest, verifier twilio.VerificationS
 	}
 
 	// Register fact with Twilio to get confirmation ID
-	confirmationID, err := twilio.RegisterFact(userID, request.Fact.Fact,
-		uint8(request.Fact.FactType), request.FactSig, verifier, store)
+	confirmationID, err := verifier.RegisterFact(userID, request.Fact.Fact,
+		uint8(request.Fact.FactType), request.FactSig)
 	if err != nil {
 		return &pb.FactRegisterResponse{}, errors.New(twilioRegFailureError)
 	}
@@ -90,9 +90,9 @@ func RegisterFact(request *pb.FactRegisterRequest, verifier twilio.VerificationS
 	return response, nil
 }
 
-// ConfirmFact verifies the fact via Twilio and sets the fact in the database as
+// confirmFact verifies the fact via Twilio and sets the fact in the database as
 // confirmed.
-func ConfirmFact(request *pb.FactConfirmRequest, verifier twilio.VerificationService, store storage.Storage,
+func confirmFact(request *pb.FactConfirmRequest, verifier *twilio.Manager, store *storage.Storage,
 	auth *connect.Auth) (*messages.Ack, error) {
 
 	// Ensure client is properly authenticated
@@ -111,7 +111,7 @@ func ConfirmFact(request *pb.FactConfirmRequest, verifier twilio.VerificationSer
 		return &messages.Ack{}, errors.New(invalidFactCodeError)
 	}
 
-	valid, err := twilio.ConfirmFact(request.ConfirmationID, code, verifier, store)
+	valid, err := verifier.ConfirmFact(request.ConfirmationID, code)
 	if err != nil {
 		return &messages.Ack{}, errors.Errorf(twilioConfirmFailureError+": %+v", err)
 	} else if !valid {

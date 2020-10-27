@@ -17,8 +17,7 @@ import (
 	"gitlab.com/elixxir/client/globals"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/utils"
-	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"gitlab.com/elixxir/user-discovery-bot/udb"
+	"gitlab.com/elixxir/user-discovery-bot/cmix"
 	"net"
 	"os"
 )
@@ -39,7 +38,7 @@ var RootCmd = &cobra.Command{
 			sess = "udb-session.blob"
 		}
 
-		udb.BannedUsernameList = *udb.InitBlackList(viper.GetString("blacklistedNamesFilePath"))
+		cmix.BannedUsernameList = *cmix.InitBlackList(viper.GetString("blacklistedNamesFilePath"))
 
 		// Set up database connection
 		rawAddr := viper.GetString("dbAddress")
@@ -53,20 +52,21 @@ var RootCmd = &cobra.Command{
 			}
 		}
 
-		// Set up database connection
-		var closeFunc func() error
-		storage.UserDiscoveryDB, closeFunc, err = storage.NewDatabase(
-			viper.GetString("dbUsername"),
-			viper.GetString("dbPassword"),
-			viper.GetString("dbName"),
-			addr, port)
-		if err != nil {
-			jww.FATAL.Panicf("Unable to initialize Storage: %+v", err)
-		}
-		defer closeFunc()
+		//params := Params{
+		//	viper.GetString("dbUsername"),
+		//	viper.GetString("dbPassword"),
+		//	viper.GetString("dbName"),
+		//	addr,
+		//	port,
+		//	viper.GetString("sessionfile"),
+		//	viper.GetString("ndfPath"),
+		//}
+		//if params.sessionPath == "" {
+		//	params.sessionPath = "udb-session.blob"
+		//}
 
 		// Import the network definition file
-		ndfBytes, err := utils.ReadFile(viper.GetString("ndfPath"))
+		ndfBytes, err := utils.ReadFile()
 		if err != nil {
 			globals.Log.FATAL.Panicf("Could not read network definition file: %v", err)
 		}
@@ -86,7 +86,7 @@ var RootCmd = &cobra.Command{
 // happen once to the RootCmd.
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
-		udb.Log.ERROR.Println(err)
+		cmix.Log.ERROR.Println(err)
 		os.Exit(1)
 	}
 }
@@ -94,7 +94,7 @@ func Execute() {
 // init is the initialization function for Cobra which defines commands
 // and flags.
 func init() {
-	udb.Log.DEBUG.Print("Printing log from init")
+	cmix.Log.DEBUG.Print("Printing log from init")
 	// NOTE: The point of init() is to be declarative.
 	// There is one init in each sub command. Do not put variable declarations
 	// here, and ensure all the Flags are of the *P variety, unless there's a
@@ -182,9 +182,9 @@ func initLog() {
 		logPath := viper.GetString("logPath")
 		logFile, err := os.Create(logPath)
 		if err != nil {
-			udb.Log.WARN.Println("Invalid or missing log path, default path used.")
+			cmix.Log.WARN.Println("Invalid or missing log path, default path used.")
 		} else {
-			udb.Log.SetLogOutput(logFile)
+			cmix.Log.SetLogOutput(logFile)
 		}
 	}
 }

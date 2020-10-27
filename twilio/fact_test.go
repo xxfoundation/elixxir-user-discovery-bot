@@ -8,7 +8,7 @@ import (
 
 // Unit test for registerfact using mock twilio and db interfaces
 func TestRegisterFact(t *testing.T) {
-	mockDb, _, err := storage.NewDatabase("", "", "", "", "11")
+	mockDb, _, err := storage.newDatabase("", "", "", "", "11")
 	if err != nil {
 		t.Errorf("Failed to init mock db: %+v", err)
 	}
@@ -21,7 +21,7 @@ func TestRegisterFact(t *testing.T) {
 
 // unit test for confirmfact using mock twilio and db interfaces
 func TestConfirmFact(t *testing.T) {
-	mockDb, _, err := storage.NewDatabase("", "", "", "", "11")
+	mockDb, _, err := storage.newDatabase("", "", "", "", "11")
 	if err != nil {
 		t.Errorf("Failed to init mock db: %+v", err)
 	}

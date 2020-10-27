@@ -18,7 +18,7 @@ import (
 	"gitlab.com/elixxir/client/user"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/csprng"
-	"gitlab.com/elixxir/user-discovery-bot/udb"
+	"gitlab.com/elixxir/user-discovery-bot/cmix"
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/ndf"
 	"math/big"
@@ -33,14 +33,12 @@ const RateLimit = 100
 // UDBSessionFileName used by UDB
 var UDBSessionFileName string
 
-var clientObj *api.Client
-
 // StartBot starts the user discovery bot:
 //  - Set up global variables
 //  - Log into the server
 //  - Start the main loop
 func StartBot(sess string, def *ndf.NetworkDefinition) error {
-	udb.Log.DEBUG.Printf("Starting User Discovery Bot...")
+	cmix.Log.DEBUG.Printf("Starting User Discovery Bot...")
 
 	UDBSessionFileName = sess
 
@@ -51,7 +49,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 		return err
 	}
 
-	udb.Log.INFO.Printf("Logging in")
+	cmix.Log.INFO.Printf("Logging in")
 
 	// Log into the server with a blank password
 	_, err = clientObj.Login("")
@@ -75,14 +73,14 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 	clientObj.GetSession().SetLastMessageID(lastMessageID)
 
 	// Register the listeners with the user discovery bot
-	udb.RegisterListeners(clientObj)
+	cmix.RegisterListeners(clientObj)
 
-	udb.Log.INFO.Printf("Starting UDB")
+	cmix.Log.INFO.Printf("Starting UDB")
 
 	// starting the reception thread
 	receiverCallback := func(err error) {
 		if err != nil {
-			udb.Log.ERROR.Printf("Start Message Reciever Callback Error: %v", err)
+			cmix.Log.ERROR.Printf("Start Message Reciever Callback Error: %v", err)
 			backoff(clientObj, 0)
 		}
 	}
@@ -96,7 +94,7 @@ func StartBot(sess string, def *ndf.NetworkDefinition) error {
 }
 
 // Initialize a session using the given session file and other info
-func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) (*id.ID, error) {
+func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) (*api.Client, *id.ID, error) {
 	// We only register when the session file does not exist
 	// FIXME: this is super weird -- why have to check for a file,
 	// then init that file, then register optionally based on that check?
@@ -114,9 +112,9 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) (*id.I
 	}
 
 	secondarySessionFile := sessionFile + "-2"
-	clientObj, initErr = api.NewClient(nil, sessionFile, secondarySessionFile, def)
+	clientObj, initErr := api.NewClient(nil, sessionFile, secondarySessionFile, def)
 	if initErr != nil {
-		return nil, initErr
+		return nil, nil, initErr
 	}
 
 	// connect udb to gateways
@@ -126,7 +124,7 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) (*id.I
 			break
 		}
 		time.Sleep(10 * time.Second)
-		udb.Log.ERROR.Printf("UDB could not connect to gateways, "+
+		cmix.Log.ERROR.Printf("UDB could not connect to gateways, "+
 			"reconnecting: %+v", err)
 	}
 
@@ -139,15 +137,15 @@ func Init(sessionFile string, regCode string, def *ndf.NetworkDefinition) (*id.I
 	//	password string, privateKeyRSA *rsa.PrivateKey) (*id.ID, error)
 	err = clientObj.GenerateKeys(nil, "")
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	userID, err := clientObj.RegisterWithPermissioning(true, regCode)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return userID, nil
+	return clientObj, userID, nil
 }
 
 // getLatestMessageID gets the newest message ID on the reception gateway, used
@@ -237,7 +235,7 @@ func backoff(cl *api.Client, backoffCount int) {
 	// attempt to start the message receiver
 	err := cl.StartMessageReceiver(receiverCallback)
 	if err != nil {
-		udb.Log.ERROR.Printf("Start Message receiver failed %v", err)
+		cmix.Log.ERROR.Printf("Start Message receiver failed %v", err)
 		return
 	}
 }

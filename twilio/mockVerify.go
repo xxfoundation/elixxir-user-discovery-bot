@@ -13,25 +13,29 @@ import (
 	"strconv"
 )
 
-// Mocked verifier implementation
-var MV = &MockVerifier{Codes: map[string]int{}, index: 0}
-
-type MockVerifier struct {
+type mockVerifier struct {
 	Codes map[string]int
 	index int
 }
 
-func (v *MockVerifier) Verification(to, channel string) (string, error) {
+func (v *mockVerifier) Verification(to, channel string) (string, error) {
 	cid := strconv.Itoa(v.index)
 	v.index++
 	v.Codes[cid] = rand.Int()
 	return cid, nil
 }
 
-func (v *MockVerifier) VerificationCheck(code int, to string) (bool, error) {
-	c, ok := v.Codes[to]
-	if !ok || c != code {
+func (v *mockVerifier) VerificationCheck(code int, to string) (bool, error) {
+	_, ok := v.Codes[to]
+	if !ok {
 		return false, nil
 	}
 	return ok, nil
+}
+
+func newMockVerifier() *mockVerifier {
+	return &mockVerifier{
+		Codes: make(map[string]int),
+		index: 0,
+	}
 }

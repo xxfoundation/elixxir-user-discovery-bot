@@ -6,7 +6,7 @@
 
 // Receive and parse user discovery bot messages, and run the appropriate
 // command
-package udb
+package cmix
 
 import (
 	"github.com/mattn/go-shellwords"

@@ -1,8 +1,9 @@
-package udb
+package io
 
 import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/hash"
+	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/primitives/id"
@@ -12,18 +13,18 @@ import (
 
 // Check that our nil check works
 func TestDeleteFact_NilCheck(t *testing.T) {
-	_, err := DeleteFact(nil, nil, nil, nil)
+	_, err := removeFact(nil, nil, nil)
 	if err == nil {
-		t.Error("DeleteFact receiving a nil msg didn't error")
+		t.Error("removeFact receiving a nil msg didn't error")
 	}
 
 	badmsg := pb.FactRemovalRequest{
 		UID:         nil,
 		RemovalData: nil,
 	}
-	_, err = DeleteFact(&badmsg, nil, nil, nil)
+	_, err = removeFact(&badmsg, nil, nil)
 	if err == nil {
-		t.Error("DeleteFact receiving a nil msg didn't error")
+		t.Error("removeFact receiving a nil msg didn't error")
 	}
 }
 
@@ -32,7 +33,7 @@ func TestDeleteFact_AuthCheck(t *testing.T) {
 	// Make a FactRemovalRequest to put into the Delete function
 	badmsg := pb.FactRemovalRequest{
 		UID: id.DummyUser.Marshal(),
-		RemovalData: &pb.Fact{
+		RemovalData: &pb.FactRemoval{
 			Fact:     "Testing",
 			FactType: 0,
 		},
@@ -50,9 +51,9 @@ func TestDeleteFact_AuthCheck(t *testing.T) {
 		Reason:          "",
 	}
 
-	_, err = DeleteFact(&badmsg, nil, nil, &input_auth)
+	_, err = removeFact(&badmsg, nil, &input_auth)
 	if err == nil {
-		t.Error("DeleteFact receiving a nil msg didn't error")
+		t.Error("removeFact receiving a nil msg didn't error")
 	}
 }
 
@@ -61,7 +62,7 @@ func TestDeleteFact_UsersCheck(t *testing.T) {
 	// Make a FactRemovalRequest to put into the Delete function
 	badmsg := pb.FactRemovalRequest{
 		UID: id.DummyUser.Marshal(),
-		RemovalData: &pb.Fact{
+		RemovalData: &pb.FactRemoval{
 			Fact:     "Testing",
 			FactType: 0,
 		},
@@ -80,14 +81,14 @@ func TestDeleteFact_UsersCheck(t *testing.T) {
 	}
 
 	// Setup a Storage object
-	store, _, err := storage.NewDatabase("", "", "", "", "")
+	store, _, err := storage.NewStorage(params.Database{})
 	if err != nil {
 		t.Fatal("connect.NewHost returned an error: ", err)
 	}
 
-	_, err = DeleteFact(&badmsg, nil, store, &input_auth)
+	_, err = removeFact(&badmsg, store, &input_auth)
 	if err == nil {
-		t.Error("DeleteFact receiving a nil msg didn't error")
+		t.Error("removeFact receiving a nil msg didn't error")
 	}
 }
 
@@ -96,7 +97,7 @@ func TestDeleteFact_WrongOwner(t *testing.T) {
 	// Create an input message
 	input_msg := pb.FactRemovalRequest{
 		UID: []byte{0, 1, 2, 3},
-		RemovalData: &pb.Fact{
+		RemovalData: &pb.FactRemoval{
 			Fact:     "Testing",
 			FactType: 0,
 		},
@@ -115,7 +116,7 @@ func TestDeleteFact_WrongOwner(t *testing.T) {
 	}
 
 	// Setup a Storage object
-	store, _, err := storage.NewDatabase("", "", "", "", "")
+	store, _, err := storage.NewStorage(params.Database{})
 	if err != nil {
 		t.Fatal("connect.NewHost returned an error: ", err)
 	}
@@ -159,9 +160,9 @@ func TestDeleteFact_WrongOwner(t *testing.T) {
 	}
 
 	// Attempt to delete our Fact
-	_, err = DeleteFact(&input_msg, nil, store, &input_auth)
+	_, err = removeFact(&input_msg, store, &input_auth)
 	if err == nil {
-		t.Error("DeleteFact did not return an error deleting a fact the input user doesn't own")
+		t.Error("removeFact did not return an error deleting a fact the input user doesn't own")
 	}
 }
 
@@ -170,7 +171,7 @@ func TestDeleteFact_Happy(t *testing.T) {
 	// Create an input message
 	input_msg := pb.FactRemovalRequest{
 		UID: []byte{0, 1, 2, 3},
-		RemovalData: &pb.Fact{
+		RemovalData: &pb.FactRemoval{
 			Fact:     "Testing",
 			FactType: 0,
 		},
@@ -189,7 +190,7 @@ func TestDeleteFact_Happy(t *testing.T) {
 	}
 
 	// Setup a Storage object
-	store, _, err := storage.NewDatabase("", "", "", "", "")
+	store, _, err := storage.NewStorage(params.Database{})
 	if err != nil {
 		t.Fatal("connect.NewHost returned an error: ", err)
 	}
@@ -233,8 +234,8 @@ func TestDeleteFact_Happy(t *testing.T) {
 	}
 
 	// Attempt to delete our Fact
-	_, err = DeleteFact(&input_msg, nil, store, &input_auth)
+	_, err = removeFact(&input_msg, store, &input_auth)
 	if err != nil {
-		t.Error("DeleteFact returned an error: ", err)
+		t.Error("removeFact returned an error: ", err)
 	}
 }
