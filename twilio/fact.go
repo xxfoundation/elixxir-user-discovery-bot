@@ -26,7 +26,7 @@ func RegisterFact(uid *id.ID, fact string, factType uint8, signature []byte,
 	h.Write([]byte(fact))
 
 	// Adds entry to facts and verifications tables
-	err = db.InsertFactTwilio(uid.Marshal(), h.Sum(nil), signature, fact, uint(factType), verifyId)
+	err = db.InsertFactTwilio(uid.Marshal(), h.Sum(nil), signature, uint(factType), fact, verifyId)
 	// Makes call to Verification endpoint in twilio
 	// Return the confirmation ID from db entry
 	return verifyId, err
@@ -41,7 +41,7 @@ func ConfirmFact(confirmationID string, code int, verifier VerificationService, 
 	}
 	// If good, verify associated fact
 	if valid {
-		err = db.VerifyFactTwilio(confirmationID)
+		err = db.MarkTwilioFactVerified(confirmationID)
 		return valid, err
 	} else {
 		return valid, nil
