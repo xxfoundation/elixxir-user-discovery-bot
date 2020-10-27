@@ -19,6 +19,7 @@ import (
 	"gitlab.com/elixxir/primitives/utils"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/udb"
+	"net"
 	"os"
 )
 
@@ -41,12 +42,28 @@ var RootCmd = &cobra.Command{
 		udb.BannedUsernameList = *udb.InitBlackList(viper.GetString("blacklistedNamesFilePath"))
 
 		// Set up database connection
-		storage.UserDiscoveryDb = storage.NewDatabase(
+		rawAddr := viper.GetString("dbAddress")
+
+		var addr, port string
+		var err error
+		if rawAddr != "" {
+			addr, port, err = net.SplitHostPort(rawAddr)
+			if err != nil {
+				jww.FATAL.Panicf("Unable to get database port: %+v", err)
+			}
+		}
+
+		// Set up database connection
+		var closeFunc func() error
+		storage.UserDiscoveryDB, closeFunc, err = storage.NewDatabase(
 			viper.GetString("dbUsername"),
 			viper.GetString("dbPassword"),
 			viper.GetString("dbName"),
-			viper.GetString("dbAddress"),
-		)
+			addr, port)
+		if err != nil {
+			jww.FATAL.Panicf("Unable to initialize Storage: %+v", err)
+		}
+		defer closeFunc()
 
 		// Import the network definition file
 		ndfBytes, err := utils.ReadFile(viper.GetString("ndfPath"))

@@ -11,7 +11,9 @@ package storage
 import (
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/primitives/id"
+	"time"
 )
 
 // Check if a username is available
@@ -63,7 +65,7 @@ func (db *DatabaseImpl) InsertFact(fact *Fact) error {
 }
 
 // Retreive a fact by confirmation ID
-func (db *DatabaseImpl) VerifyFact(factHash []byte) error {
+func (db *DatabaseImpl) MarkFactVerified(factHash []byte) error {
 	return db.db.Model(&Fact{}).Where("hash = ?", factHash).UpdateColumn("verified", "true").Error
 }
 
@@ -75,7 +77,7 @@ func (db *DatabaseImpl) DeleteFact(factHash []byte) error {
 }
 
 // Insert a twilio-verified fact
-func (db *DatabaseImpl) InsertFactTwilio(userID, factHash, signature []byte, fact string, factType uint, confirmationID string) error {
+func (db *DatabaseImpl) InsertFactTwilio(userID, factHash, signature []byte, factType uint, fact, confirmationID string) error {
 	f := &Fact{
 		Hash:      factHash,
 		UserId:    userID,
@@ -105,7 +107,7 @@ func (db *DatabaseImpl) InsertFactTwilio(userID, factHash, signature []byte, fac
 }
 
 // Verify a fact through twilio
-func (db *DatabaseImpl) VerifyFactTwilio(confirmationId string) error {
+func (db *DatabaseImpl) MarkTwilioFactVerified(confirmationId string) error {
 	tf := func(tx *gorm.DB) error {
 		var err error
 		tv := &TwilioVerification{}
@@ -136,4 +138,37 @@ func (db *DatabaseImpl) Search(factHashs [][]byte) []*User {
 	}
 
 	return users
+}
+
+func (db *DatabaseImpl) StartFactManager(i time.Duration) chan chan bool {
+	stopChan := make(chan chan bool)
+	go func() {
+		interval := time.NewTicker(i)
+		select {
+		case <-interval.C:
+			tf := func(tx *gorm.DB) error {
+				var err error
+				var facts []*Fact
+				err = db.db.Where(&facts, "verified = false AND timestamp <= (NOW() - INTERVAL '5 minutes')").Error
+				if err != nil {
+					return errors.Errorf("error retrieving out of date unverified facts: %+v", err)
+				}
+				for _, f := range facts {
+					err = db.db.Delete(f, "hash = ?", f.Hash).Error
+					if err != nil {
+						return errors.Errorf("error deleting out of date fact %+v: %+v", f.Hash, err)
+					}
+				}
+				return err
+			}
+			err := db.db.Transaction(tf)
+			if err != nil {
+				jww.ERROR.Print(err)
+			}
+		case kc := <-stopChan:
+			kc <- true
+			return
+		}
+	}()
+	return stopChan
 }
