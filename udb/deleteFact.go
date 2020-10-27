@@ -3,7 +3,6 @@ package udb
 import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/client/api"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/hash"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
@@ -13,7 +12,7 @@ import (
 )
 
 // Takes in a FactRemovalRequest from a client and deletes the Fact if the client owns it
-func DeleteFact(msg *pb.FactRemovalRequest, client *api.Client, store storage.Storage, auth *connect.Auth) (*messages.Ack, error) {
+func DeleteFact(msg *pb.FactRemovalRequest, store storage.Storage, auth *connect.Auth) (*messages.Ack, error) {
 	// Generic copy of the internal error message
 	e := errors.New("Removal could not be " +
 		"completed do to internal error, please try again later")
