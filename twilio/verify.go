@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -31,13 +32,6 @@ type VerificationService interface {
 	VerificationCheck(code int, to string) (bool, error)
 }
 
-// Twilio implementation of verificationservice interface
-type TwilioVerifier struct {
-	accountSid      string
-	authToken       string
-	verificationSid string
-}
-
 // Channels that can be passed into twilio
 type Channel int
 
@@ -51,9 +45,13 @@ func (c Channel) String() string {
 	return [...]string{"sms", "email", "call"}[c]
 }
 
+type verifier struct {
+	p params.Twilio
+}
+
 // Posts to the verification endpoint of twilio, returns confirmation id
-func (v *TwilioVerifier) Verification(to, channel string) (string, error) {
-	verificationURL := fmt.Sprintf(VERIFICATION_URL, v.verificationSid)
+func (v *verifier) Verification(to, channel string) (string, error) {
+	verificationURL := fmt.Sprintf(VERIFICATION_URL, v.p.VerificationSid)
 	payload := url.Values{}
 	payload.Set(PAYLOAD_TO, to)
 	payload.Set(PAYLOAD_CHAN, channel)
@@ -68,8 +66,8 @@ func (v *TwilioVerifier) Verification(to, channel string) (string, error) {
 }
 
 // Posts to the verificationcheck endpoint of twilio, returns verification status (bool)
-func (v *TwilioVerifier) VerificationCheck(code int, to string) (bool, error) {
-	checkUrl := fmt.Sprintf(VERIFICATION_CHECK_URL, v.verificationSid)
+func (v *verifier) VerificationCheck(code int, to string) (bool, error) {
+	checkUrl := fmt.Sprintf(VERIFICATION_CHECK_URL, v.p.VerificationSid)
 	payload := url.Values{}
 	payload.Set(PAYLOAD_TO, to)
 	payload.Set(PAYLOAD_CHAN, strconv.Itoa(code))
@@ -87,14 +85,14 @@ func (v *TwilioVerifier) VerificationCheck(code int, to string) (bool, error) {
 }
 
 // Helper function for sending post requests to twilio
-func (v *TwilioVerifier) twilioRequest(payload url.Values, url string) (map[string]interface{}, error) {
+func (v *verifier) twilioRequest(payload url.Values, url string) (map[string]interface{}, error) {
 	client := &http.Client{} // TODO: this may need special configurations.  See Transport object
 
 	req, err := http.NewRequest("POST", url, strings.NewReader(payload.Encode()))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	req.SetBasicAuth(v.accountSid, v.authToken)
+	req.SetBasicAuth(v.p.AccountSid, v.p.AuthToken)
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 

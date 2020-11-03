@@ -115,9 +115,9 @@ func (m *MapImpl) MarkTwilioFactVerified(confirmationId string) error {
 }
 
 // Search for users by fact hashes
-func (m *MapImpl) Search(factHashs [][]byte) []*User {
+func (m *MapImpl) Search(factHashes [][]byte) []*User {
 	users := map[id.ID]User{}
-	for _, h := range factHashs {
+	for _, h := range factHashes {
 		fid := factId{}
 		copy(fid[:], h)
 		if f, ok := m.facts[fid]; ok {

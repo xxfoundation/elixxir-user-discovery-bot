@@ -4,7 +4,7 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// Handles high level database control and interfaces
+// Handles low level Database control and interfaces
 
 package storage
 
@@ -18,10 +18,8 @@ import (
 	"time"
 )
 
-var UserDiscoveryDB Storage
-
-// Interface declaration for storage methods
-type Storage interface {
+// Interface declaration for Storage methods
+type database interface {
 	CheckUser(username string, id *id.ID, rsaPem string) error
 
 	InsertUser(user *User) error
@@ -35,7 +33,7 @@ type Storage interface {
 	InsertFactTwilio(userID, factHash, signature []byte, factType uint, fact, confirmationID string) error
 	MarkTwilioFactVerified(confirmationId string) error
 
-	Search(factHashs [][]byte) []*User
+	Search(factHashes [][]byte) []*User
 
 	StartFactManager(i time.Duration) chan chan bool
 }
@@ -99,8 +97,8 @@ type TwilioVerification struct {
 
 // Initialize the Database interface with database backend
 // Returns a Storage interface, Close function, and error
-func NewDatabase(username, password, database, address,
-	port string) (Storage, func() error, error) {
+func newDatabase(username, password, database, address,
+	port string) (*Storage, func() error, error) {
 	var err error
 	var db *gorm.DB
 	//connect to the database if the correct information is provided
@@ -134,7 +132,7 @@ func NewDatabase(username, password, database, address,
 			twilioVerifications: map[string]*TwilioVerification{},
 		}
 
-		return Storage(mapImpl), func() error { return nil }, nil
+		return &Storage{mapImpl}, func() error { return nil }, nil
 	}
 
 	// Initialize the database logger
@@ -154,15 +152,10 @@ func NewDatabase(username, password, database, address,
 	for _, model := range models {
 		err = db.AutoMigrate(model).Error
 		if err != nil {
-			return Storage(&DatabaseImpl{}), func() error { return nil }, err
+			return nil, func() error { return nil }, err
 		}
 	}
 
-	// Build the interface
-	di := &DatabaseImpl{
-		db: db,
-	}
-
 	jww.INFO.Println("Database backend initialized successfully!")
-	return Storage(di), db.Close, nil
+	return &Storage{&DatabaseImpl{db: db}}, db.Close, nil
 }

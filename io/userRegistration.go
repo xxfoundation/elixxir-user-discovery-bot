@@ -3,25 +3,23 @@
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
-package udb
+package io
 
 import (
 	"github.com/pkg/errors"
-	"gitlab.com/elixxir/client/api"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/hash"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/crypto/signature/rsa"
-	"gitlab.com/xx_network/crypto/tls"
 	"gitlab.com/xx_network/primitives/id"
 	"time"
 )
 
 // Endpoint which handles a users attempt to register
-func RegisterUser(msg *pb.UDBUserRegistration, client *api.Client,
-	store storage.Storage, auth *connect.Auth) (*messages.Ack, error) {
+func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
+	store *storage.Storage, auth *connect.Auth) (*messages.Ack, error) {
 
 	// Nil checks
 	if msg == nil || msg.Frs == nil || msg.Frs.Fact == nil ||
@@ -50,14 +48,6 @@ func RegisterUser(msg *pb.UDBUserRegistration, client *api.Client,
 			"Please try again", username)
 	}
 
-	// Pull the public key out of the permissioning cert
-	permCert := client.GetNDF().Registration.TlsCertificate
-	permPubKey, err := LoadPermissioningPubKey(permCert)
-	if err != nil {
-		return &messages.Ack{}, errors.New("Could not verify signature due " +
-			"to internal error. Please try again later")
-	}
-
 	// Hash the rsa public key, what permissioning signature was signed off of
 	h, err := hash.NewCMixHash()
 	if err != nil {
@@ -68,7 +58,7 @@ func RegisterUser(msg *pb.UDBUserRegistration, client *api.Client,
 	hashedRsaKey := h.Sum(nil)
 
 	// Verify the Permissioning signature provided
-	err = rsa.Verify(permPubKey, hash.CMixHash, hashedRsaKey, msg.PermissioningSignature, nil)
+	err = rsa.Verify(permPublicKey, hash.CMixHash, hashedRsaKey, msg.PermissioningSignature, nil)
 	if err != nil {
 		return &messages.Ack{}, errors.Errorf("Could not verify permissioning signature")
 	}
@@ -123,15 +113,4 @@ func RegisterUser(msg *pb.UDBUserRegistration, client *api.Client,
 	}
 
 	return &messages.Ack{}, nil
-}
-
-// Loads permissioning public key from the certificate
-func LoadPermissioningPubKey(cert string) (*rsa.PublicKey, error) {
-	permCert, err := tls.LoadCertificate(cert)
-	if err != nil {
-		return nil, errors.Errorf("Could not decode permissioning tls cert file "+
-			"into a tls cert: %v", err)
-	}
-
-	return tls.ExtractPublicKey(permCert)
 }

@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // Registration Commands (Register, PushKey, GetKey)
-package udb
+package cmix
 
 import (
 	"encoding/base64"

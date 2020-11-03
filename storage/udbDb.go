@@ -31,7 +31,7 @@ func (db *DatabaseImpl) CheckUser(username string, id *id.ID, rsaPem string) err
 
 	err = db.db.Where("type = ? AND user_id = ?", Username, id.Marshal()).Find(&facts).Count(&count).Error
 	if err != nil {
-		return errors.WithMessage(err, "Failed to check facts for usernames registerd to user")
+		return errors.WithMessage(err, "Failed to check facts for usernames registered to user")
 	}
 	if count > 0 {
 		return errors.New("error: user has already registered a username")
@@ -45,7 +45,7 @@ func (db *DatabaseImpl) InsertUser(user *User) error {
 	return db.db.Create(user).Error
 }
 
-// Retreive a user by ID
+// Retrieve a user by ID
 func (db *DatabaseImpl) GetUser(id []byte) (*User, error) {
 	result := &User{}
 	err := db.db.First(&result, "id = ?", id).Error
@@ -126,9 +126,9 @@ func (db *DatabaseImpl) MarkTwilioFactVerified(confirmationId string) error {
 }
 
 // Search for users by facts
-func (db *DatabaseImpl) Search(factHashs [][]byte) []*User {
+func (db *DatabaseImpl) Search(factHashes [][]byte) []*User {
 	var facts []*Fact
-	db.db.Select(&Fact{}, "hash in ?", factHashs).Find(&facts)
+	db.db.Select(&Fact{}, "hash in ?", factHashes).Find(&facts)
 
 	var users []*User
 	for _, f := range facts {
