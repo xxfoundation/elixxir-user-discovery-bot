@@ -15,7 +15,6 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/elixxir/crypto/hash"
-	"gitlab.com/elixxir/primitives/utils"
 	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/xx_network/comms/connect"
@@ -23,6 +22,7 @@ import (
 	"gitlab.com/xx_network/crypto/tls"
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/ndf"
+	"gitlab.com/xx_network/primitives/utils"
 	"testing"
 	"time"
 )
