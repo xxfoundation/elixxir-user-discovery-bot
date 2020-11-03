@@ -10,8 +10,6 @@ import (
 	"crypto/rand"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/client/api"
-	"gitlab.com/elixxir/client/globals"
-	"gitlab.com/elixxir/client/user"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/elixxir/crypto/hash"
@@ -38,7 +36,14 @@ func loadPermissioningPubKey(cert string) (*rsa.PublicKey, error) {
 }
 
 func getNDF() string {
+	cert, _ := utils.ReadFile(testkeys.GetNodeCertPath())
+	addr := "0.0.0.0:4321"
+
 	ndfObj :=  &ndf.NetworkDefinition{
+		Registration: ndf.Registration{
+			Address:        addr,
+			TlsCertificate: string(cert),
+		},
 		E2E: ndf.Group{
 			Prime: "E2EE983D031DC1DB6F1A7A67DF0E9A8E5561DB8E8D49413394C049B" +
 				"7A8ACCEDC298708F121951D9CF920EC5D146727AA4AE535B0922C688B55B3DD2AE" +
@@ -76,6 +81,7 @@ func getNDF() string {
 				"DC4473F996BDCE6EED1CABED8B6F116F7AD9CF505DF0F998E34AB27514B0FFE7",
 		},
 	}
+
 	ndfBytes, _ := ndfObj.Marshal()
 	return string(ndfBytes)
 }
@@ -85,11 +91,13 @@ func TestRegisterUser(t *testing.T) {
 	// Initialize client and storage
 	client := initTestClient(t)
 	store, _, _ := storage.NewStorage(params.Database{})
+	ndfObj, _, _ :=	ndf.DecodeNDF(getNDF())
+	clientId := client.GetUser().ID
 
 	// Create a mock host
 	p := connect.GetDefaultHostParams()
 	p.MaxRetries = 0
-	fakeHost, err := connect.NewHost(client(), "", nil, p)
+	fakeHost, err := connect.NewHost(clientId, "", nil, p)
 	if err != nil {
 		t.Errorf("Failed to create fakeHost, %s", err)
 	}
@@ -100,7 +108,7 @@ func TestRegisterUser(t *testing.T) {
 		Sender:          fakeHost,
 	}
 
-	cert, err := loadPermissioningPubKey(client.GetNDF().Registration.TlsCertificate)
+	cert, err := loadPermissioningPubKey(ndfObj.Registration.TlsCertificate)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -113,7 +121,7 @@ func TestRegisterUser(t *testing.T) {
 	}
 
 	// Grab the inserted user from database
-	retrievedUser, err := store.GetUser(client.GetCurrentUser().Bytes())
+	retrievedUser, err := store.GetUser(clientId.Bytes())
 	if err != nil {
 		t.Errorf("Failed to get user from storage: %v", err)
 	}
@@ -158,11 +166,13 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 	// Initialize client and storage
 	client := initTestClient(t)
 	store, _, _ := storage.NewStorage(params.Database{})
+	clientId := client.GetUser().ID
+	ndfObj, _, _ :=	ndf.DecodeNDF(getNDF())
 
 	// Create a mock host
 	p := connect.GetDefaultHostParams()
 	p.MaxRetries = 0
-	fakeHost, err := connect.NewHost(client.GetCurrentUser(), "", nil, p)
+	fakeHost, err := connect.NewHost(clientId, "", nil, p)
 	if err != nil {
 		t.Errorf("Failed to create fakeHost, %s", err)
 	}
@@ -172,7 +182,7 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 		IsAuthenticated: true,
 		Sender:          fakeHost,
 	}
-	cert, err := loadPermissioningPubKey(client.GetNDF().Registration.TlsCertificate)
+	cert, err := loadPermissioningPubKey(ndfObj.Registration.TlsCertificate)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -208,11 +218,13 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 	// Initialize client and storage
 	client := initTestClient(t)
 	store, _, _ := storage.NewStorage(params.Database{})
+	ndfObj, _, _ :=	ndf.DecodeNDF(getNDF())
+	clientId := client.GetUser().ID
 
 	// Create a mock host
 	p := connect.GetDefaultHostParams()
 	p.MaxRetries = 0
-	fakeHost, err := connect.NewHost(client.GetCurrentUser(), "", nil, p)
+	fakeHost, err := connect.NewHost(clientId, "", nil, p)
 	if err != nil {
 		t.Errorf("Failed to create fakeHost, %s", err)
 	}
@@ -223,7 +235,7 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 		Sender:          fakeHost,
 	}
 
-	cert, err := loadPermissioningPubKey(client.GetNDF().Registration.TlsCertificate)
+	cert, err := loadPermissioningPubKey(ndfObj.Registration.TlsCertificate)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -265,16 +277,15 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 // Helper function which generates a client for testing
 func initTestClient(t *testing.T) *api.Client {
 	// Initialize client with ram storage
-
-	storagePath := "testDir.ignore"
+	storagePath := "testDir"
 	pass :=  []byte("password")
 	testId := 25
-		err := api.NewPrecannedClient(testId, getNDF(), storagePath, pass)
+		err := api.NewPrecannedClient(uint(testId), getNDF(), storagePath, pass)
 	if err != nil {
 		t.Fatalf("Failed to initialize UDB client: %s", err.Error())
 	}
 
-	client, err := api.Login("storeDir", pass)
+	client, err := api.Login(storagePath, pass)
 	if err != nil {
 		t.Fatalf("Cannot retrieve client: %+v", err)
 	}

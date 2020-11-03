@@ -21,7 +21,10 @@ func TestRegisterFact(t *testing.T) {
 	// Create a mock host
 	p := connect.GetDefaultHostParams()
 	p.MaxRetries = 0
-	fakeHost, err := connect.NewHost(client.GetCurrentUser(), "", nil, p)
+	clientId := client.GetUser().ID
+	clientKey := client.GetUser().RSA
+
+	fakeHost, err := connect.NewHost(clientId, "", nil, p)
 	if err != nil {
 		t.Errorf("Failed to create fakeHost, %s", err)
 	}
@@ -33,8 +36,8 @@ func TestRegisterFact(t *testing.T) {
 	}
 
 	err = store.InsertUser(&storage.User{
-		Id:     client.GetCurrentUser().Bytes(),
-		RsaPub: string(rsa.CreatePublicKeyPem(client.GetCommManager().Comms.GetPrivateKey().GetPublic())),
+		Id:     clientId.Bytes(),
+		RsaPub: string(rsa.CreatePublicKeyPem(clientKey.GetPublic())),
 	})
 	if err != nil {
 		t.Fatalf("Failed to insert user: %+v", err)
@@ -70,7 +73,9 @@ func TestRegisterFact_BadSigError(t *testing.T) {
 	// Create a mock host
 	p := connect.GetDefaultHostParams()
 	p.MaxRetries = 0
-	fakeHost, err := connect.NewHost(client.GetCurrentUser(), "", nil, p)
+	clientId := client.GetUser().ID
+	clientKey := client.GetUser().RSA
+	fakeHost, err := connect.NewHost(clientId, "", nil, p)
 	if err != nil {
 		t.Errorf("Failed to create fakeHost, %s", err)
 	}
@@ -82,8 +87,8 @@ func TestRegisterFact_BadSigError(t *testing.T) {
 	}
 
 	err = store.InsertUser(&storage.User{
-		Id:     client.GetCurrentUser().Bytes(),
-		RsaPub: string(rsa.CreatePublicKeyPem(client.GetCommManager().Comms.GetPrivateKey().GetPublic())),
+		Id:     clientId.Bytes(),
+		RsaPub: string(rsa.CreatePublicKeyPem(clientKey.GetPublic())),
 	})
 	if err != nil {
 		t.Fatalf("Failed to insert user: %+v", err)
@@ -111,11 +116,13 @@ func TestConfirmFact(t *testing.T) {
 	// Initialize client and storage
 	client := initTestClient(t)
 	store, _, err := storage.NewStorage(params.Database{})
+	clientId := client.GetUser().ID
+	clientKey := client.GetUser().RSA
 
 	// Create a mock host
 	p := connect.GetDefaultHostParams()
 	p.MaxRetries = 0
-	fakeHost, err := connect.NewHost(client.GetCurrentUser(), "", nil, p)
+	fakeHost, err := connect.NewHost(clientId, "", nil, p)
 	if err != nil {
 		t.Errorf("Failed to create fakeHost, %s", err)
 	}
@@ -127,8 +134,8 @@ func TestConfirmFact(t *testing.T) {
 	}
 
 	err = store.InsertUser(&storage.User{
-		Id:     client.GetCurrentUser().Bytes(),
-		RsaPub: string(rsa.CreatePublicKeyPem(client.GetCommManager().Comms.GetPrivateKey().GetPublic())),
+		Id:     clientId.Bytes(),
+		RsaPub: string(rsa.CreatePublicKeyPem(clientKey.GetPublic())),
 	})
 	if err != nil {
 		t.Fatalf("Failed to insert user: %+v", err)
@@ -158,11 +165,13 @@ func TestConfirmFact_FailedVerification(t *testing.T) {
 	// Initialize client and storage
 	client := initTestClient(t)
 	store, _, err := storage.NewStorage(params.Database{})
+	clientId := client.GetUser().ID
+	clientKey := client.GetUser().RSA
 
 	// Create a mock host
 	p := connect.GetDefaultHostParams()
 	p.MaxRetries = 0
-	fakeHost, err := connect.NewHost(client.GetCurrentUser(), "", nil, p)
+	fakeHost, err := connect.NewHost(clientId, "", nil, p)
 	if err != nil {
 		t.Errorf("Failed to create fakeHost, %s", err)
 	}
@@ -174,8 +183,8 @@ func TestConfirmFact_FailedVerification(t *testing.T) {
 	}
 
 	err = store.InsertUser(&storage.User{
-		Id:     client.GetCurrentUser().Bytes(),
-		RsaPub: string(rsa.CreatePublicKeyPem(client.GetCommManager().Comms.GetPrivateKey().GetPublic())),
+		Id:     clientId.Bytes(),
+		RsaPub: string(rsa.CreatePublicKeyPem(clientKey.GetPublic())),
 	})
 	if err != nil {
 		t.Fatalf("Failed to insert user: %+v", err)
