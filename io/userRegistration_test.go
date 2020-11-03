@@ -6,27 +6,9 @@
 package io
 
 import (
-	"bytes"
-	"crypto/rand"
-	"github.com/pkg/errors"
-	"gitlab.com/elixxir/client/api"
-	"gitlab.com/elixxir/client/globals"
-	"gitlab.com/elixxir/client/user"
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/comms/testkeys"
-	"gitlab.com/elixxir/crypto/hash"
-	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
-	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/crypto/signature/rsa"
-	"gitlab.com/xx_network/crypto/tls"
-	"gitlab.com/xx_network/primitives/id"
-	"gitlab.com/xx_network/primitives/ndf"
-	"gitlab.com/xx_network/primitives/utils"
-	"testing"
-	"time"
-)
 
+)
+/*
 // Loads permissioning public key from the certificate
 func loadPermissioningPubKey(cert string) (*rsa.PublicKey, error) {
 	permCert, err := tls.LoadCertificate(cert)
@@ -398,4 +380,4 @@ func generatePermissioningSignature(clientPubKey []byte, t *testing.T) []byte {
 
 	return permSig
 
-}
+}*/
