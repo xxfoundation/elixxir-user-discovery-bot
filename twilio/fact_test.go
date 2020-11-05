@@ -8,12 +8,13 @@ import (
 
 // Unit test for registerfact using mock twilio and db interfaces
 func TestRegisterFact(t *testing.T) {
-	mockDb, _, err := storage.newDatabase("", "", "", "", "11")
-	if err != nil {
-		t.Errorf("Failed to init mock db: %+v", err)
+	mockDb := storage.NewTestDB(t)
+	m := Manager{
+		storage:  mockDb,
+		verifier: newMockVerifier(),
 	}
 	uid := id.NewIdFromString("zezima", id.User, t)
-	_, err = RegisterFact(uid, "water is wet", 0, []byte("hancock"), MV, mockDb)
+	_, err := m.RegisterFact(uid, "water is wet", 0, []byte("hancock"))
 	if err != nil {
 		t.Errorf("Failed to register fact: %+v", err)
 	}
@@ -21,17 +22,18 @@ func TestRegisterFact(t *testing.T) {
 
 // unit test for confirmfact using mock twilio and db interfaces
 func TestConfirmFact(t *testing.T) {
-	mockDb, _, err := storage.newDatabase("", "", "", "", "11")
-	if err != nil {
-		t.Errorf("Failed to init mock db: %+v", err)
+	mockDb := storage.NewTestDB(t)
+	m := Manager{
+		storage:  mockDb,
+		verifier: newMockVerifier(),
 	}
 	uid := id.NewIdFromString("zezima", id.User, t)
-	confId, err := RegisterFact(uid, "water is wet", 0, []byte("hancock"), MV, mockDb)
+	confId, err := m.RegisterFact(uid, "water is wet", 0, []byte("hancock"))
 	if err != nil {
 		t.Errorf("Failed to register fact: %+v", err)
 	}
 
-	_, err = ConfirmFact(confId, 1234, MV, mockDb)
+	_, err = m.ConfirmFact(confId, 1234)
 	if err != nil {
 		t.Errorf("Failed to confirm fact: %+v", err)
 	}

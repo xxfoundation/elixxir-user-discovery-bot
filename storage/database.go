@@ -15,6 +15,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/primitives/id"
 	"sync"
+	"testing"
 	"time"
 )
 
@@ -93,6 +94,17 @@ type Fact struct {
 type TwilioVerification struct {
 	ConfirmationId string `gorm:"primary_key"`
 	FactHash       []byte `gorm:"NOT NULL;type:bytea REFERENCES facts(Hash)"`
+}
+
+func NewTestDB(t *testing.T) *Storage {
+	if t == nil {
+		jww.FATAL.Panic("CAnnot use this outside of testing")
+	}
+	mockDb, _, err := newDatabase("", "", "", "", "11")
+	if err != nil {
+		jww.FATAL.Panicf("Failed to init mock db: %+v", err)
+	}
+	return mockDb
 }
 
 // Initialize the Database interface with database backend
