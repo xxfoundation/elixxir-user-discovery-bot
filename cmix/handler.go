@@ -6,6 +6,7 @@ import (
 	"gitlab.com/elixxir/client/interfaces/contact"
 )
 
+// CMIX Handler struct for user discovery
 type UD struct {
 	client *api.Client
 }
@@ -21,6 +22,8 @@ func (ud *UD) Start(storagedir string, password []byte) error {
 	if err != nil {
 		return err
 	}
+
+	// Create and register authenticated channel receiver
 	registrar := ud.client.GetAuthRegistrar()
 	rcb := func(requestor contact.Contact, message string) {
 		err := c.ConfirmAuthenticatedChannel(requestor)
