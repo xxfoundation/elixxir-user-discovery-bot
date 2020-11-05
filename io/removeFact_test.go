@@ -33,7 +33,7 @@ func TestDeleteFact_AuthCheck(t *testing.T) {
 	// Make a FactRemovalRequest to put into the Delete function
 	badmsg := pb.FactRemovalRequest{
 		UID: id.DummyUser.Marshal(),
-		RemovalData: &pb.FactRemoval{
+		RemovalData: &pb.Fact{
 			Fact:     "Testing",
 			FactType: 0,
 		},
@@ -62,7 +62,7 @@ func TestDeleteFact_UsersCheck(t *testing.T) {
 	// Make a FactRemovalRequest to put into the Delete function
 	badmsg := pb.FactRemovalRequest{
 		UID: id.DummyUser.Marshal(),
-		RemovalData: &pb.FactRemoval{
+		RemovalData: &pb.Fact{
 			Fact:     "Testing",
 			FactType: 0,
 		},
@@ -97,7 +97,7 @@ func TestDeleteFact_WrongOwner(t *testing.T) {
 	// Create an input message
 	input_msg := pb.FactRemovalRequest{
 		UID: []byte{0, 1, 2, 3},
-		RemovalData: &pb.FactRemoval{
+		RemovalData: &pb.Fact{
 			Fact:     "Testing",
 			FactType: 0,
 		},
@@ -171,7 +171,7 @@ func TestDeleteFact_Happy(t *testing.T) {
 	// Create an input message
 	input_msg := pb.FactRemovalRequest{
 		UID: []byte{0, 1, 2, 3},
-		RemovalData: &pb.FactRemoval{
+		RemovalData: &pb.Fact{
 			Fact:     "Testing",
 			FactType: 0,
 		},
