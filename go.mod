@@ -3,10 +3,11 @@ module gitlab.com/elixxir/user-discovery-bot
 go 1.13
 
 require (
+	github.com/golang/protobuf v1.4.3
 	github.com/jinzhu/gorm v1.9.16
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/client v1.2.1-0.20201103000621-83d5c7af6e1d
+	gitlab.com/elixxir/client v1.2.1-0.20201111182603-523ffb9e00cc
 	gitlab.com/elixxir/comms v0.0.4-0.20201105181719-08a161d0c9ac
 	gitlab.com/elixxir/crypto v0.0.4
 	gitlab.com/xx_network/comms v0.0.3
