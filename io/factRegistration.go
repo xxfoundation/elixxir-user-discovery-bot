@@ -45,7 +45,11 @@ func registerFact(request *pb.FactRegisterRequest, verifier *twilio.Manager, sto
 
 	// Return an error if the fact is already registered
 	hashedFact := request.Fact.Digest()
-	if len(store.Search([][]byte{hashedFact})) != 0 {
+	ret, err := store.Search([][]byte{hashedFact})
+	if err != nil {
+		return &pb.FactRegisterResponse{}, err
+	}
+	if len(ret) != 0 {
 		return &pb.FactRegisterResponse{}, errors.New(factExistsError)
 	}
 

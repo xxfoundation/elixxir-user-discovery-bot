@@ -126,18 +126,34 @@ func (db *DatabaseImpl) MarkTwilioFactVerified(confirmationId string) error {
 }
 
 // Search for users by facts
-func (db *DatabaseImpl) Search(factHashes [][]byte) []*User {
+func (db *DatabaseImpl) Search(factHashes [][]byte) ([]*User, error) {
 	var facts []*Fact
-	db.db.Select(&Fact{}, "hash in ?", factHashes).Find(&facts)
-
-	var users []*User
-	for _, f := range facts {
-		users = append(users, &User{
-			Id: f.UserId,
-		})
+	err := db.db.Where("hash in (?)", factHashes).Find(&facts).Error
+	if err != nil {
+		return nil, err
 	}
 
-	return users
+	var found map[id.ID]bool
+	found = make(map[id.ID]bool)
+	var users []*User
+	for _, f := range facts {
+		uid, err := id.Unmarshal(f.UserId)
+		if err != nil {
+			return nil, errors.WithMessage(err, "failed to unmarshal uid")
+		}
+		if _, ok := found[*uid]; ok {
+			continue
+		}
+		u := &User{}
+		err = db.db.Take(u, "id = ?", f.UserId).Error
+		if err != nil {
+			return nil, err
+		}
+		found[*uid] = true
+		users = append(users, u)
+	}
+
+	return users, nil
 }
 
 func (db *DatabaseImpl) StartFactManager(i time.Duration) chan chan bool {

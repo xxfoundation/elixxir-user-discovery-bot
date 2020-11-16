@@ -34,7 +34,7 @@ type database interface {
 	InsertFactTwilio(userID, factHash, signature []byte, factType uint, fact, confirmationID string) error
 	MarkTwilioFactVerified(confirmationId string) error
 
-	Search(factHashes [][]byte) []*User
+	Search(factHashes [][]byte) ([]*User, error)
 
 	StartFactManager(i time.Duration) chan chan bool
 }

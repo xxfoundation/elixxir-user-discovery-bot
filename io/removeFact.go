@@ -39,7 +39,10 @@ func removeFact(msg *pb.FactRemovalRequest, store *storage.Storage, auth *connec
 	hashFact := h.Sum(nil)
 
 	// Get the user who owns the fact
-	users := store.Search([][]byte{hashFact})
+	users, err := store.Search([][]byte{hashFact})
+	if err != nil {
+		return &messages.Ack{}, err
+	}
 	if len(users) != 1 {
 		jww.ERROR.Print("removeFact internal error users != 1")
 		return &messages.Ack{}, e
