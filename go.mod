@@ -7,7 +7,7 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/client v1.2.1-0.20201106230549-6dd73947e84b
+	gitlab.com/elixxir/client v1.2.1-0.20201116174929-8121d767912b
 	gitlab.com/elixxir/comms v0.0.4-0.20201111191043-cce6aafab33b
 	gitlab.com/elixxir/crypto v0.0.5-0.20201110193609-6b5e881867b4
 	gitlab.com/xx_network/comms v0.0.4-0.20201110022115-4a6171cad07d
