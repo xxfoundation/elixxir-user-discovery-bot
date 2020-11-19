@@ -131,11 +131,13 @@ func TestRegisterUser(t *testing.T) {
 		t.Errorf("Failed to get user from storage: %v", err)
 	}
 
-	hashedFact := registerMsg.Frs.Fact.Digest()
-
+	tf, err := fact.NewFact(fact.FactType(registerMsg.Frs.Fact.FactType), registerMsg.Frs.Fact.Fact)
+	if err != nil {
+		t.Errorf(" failed to hash fact: %+v", err)
+	}
 	// Create the expected fact object
 	f := storage.Fact{
-		Hash:      hashedFact,
+		Hash:      factID.Fingerprint(tf),
 		UserId:    registerMsg.UID,
 		Fact:      registerMsg.Frs.Fact.Fact,
 		Type:      uint8(registerMsg.Frs.Fact.FactType),
