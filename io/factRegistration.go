@@ -3,7 +3,9 @@ package io
 import (
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/crypto/factID"
 	"gitlab.com/elixxir/crypto/hash"
+	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/twilio"
 	"gitlab.com/xx_network/comms/connect"
@@ -43,8 +45,13 @@ func registerFact(request *pb.FactRegisterRequest, verifier *twilio.Manager, sto
 		return &pb.FactRegisterResponse{}, errors.New(invalidFactRegisterRequestError)
 	}
 
+	f, err := fact.NewFact(fact.FactType(request.Fact.FactType), request.Fact.Fact)
+	if err != nil {
+		return &pb.FactRegisterResponse{}, err
+	}
+
 	// Return an error if the fact is already registered
-	hashedFact := request.Fact.Digest()
+	hashedFact := factID.Fingerprint(f)
 	ret, err := store.Search([][]byte{hashedFact})
 	if err != nil {
 		return &pb.FactRegisterResponse{}, err

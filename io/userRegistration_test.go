@@ -11,7 +11,9 @@ import (
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
+	"gitlab.com/elixxir/crypto/factID"
 	"gitlab.com/elixxir/crypto/hash"
+	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/xx_network/comms/connect"
@@ -39,7 +41,7 @@ func getNDF() string {
 	cert, _ := utils.ReadFile(testkeys.GetGatewayCertPath())
 	addr := "0.0.0.0:4321"
 
-	ndfObj :=  &ndf.NetworkDefinition{
+	ndfObj := &ndf.NetworkDefinition{
 		Registration: ndf.Registration{
 			Address:        addr,
 			TlsCertificate: string(cert),
@@ -91,7 +93,7 @@ func TestRegisterUser(t *testing.T) {
 	// Initialize client and storage
 	clientId, clientKey := initClientFields(t)
 	store, _, _ := storage.NewStorage(params.Database{})
-	ndfObj, _, _ :=	ndf.DecodeNDF(getNDF())
+	ndfObj, _, _ := ndf.DecodeNDF(getNDF())
 
 	// Create a mock host
 	p := connect.GetDefaultHostParams()
@@ -113,7 +115,10 @@ func TestRegisterUser(t *testing.T) {
 	}
 
 	// Build user registration message
-	registerMsg := buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err := buildUserRegistrationMessage(clientId, clientKey, t)
+	if err != nil {
+		t.FailNow()
+	}
 	_, err = registerUser(registerMsg, cert, store, auth)
 	if err != nil {
 		t.Errorf("Error in happy path: %v", err)
@@ -166,7 +171,7 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 	// Initialize client and storage
 	clientId, clientKey := initClientFields(t)
 	store, _, _ := storage.NewStorage(params.Database{})
-	ndfObj, _, _ :=	ndf.DecodeNDF(getNDF())
+	ndfObj, _, _ := ndf.DecodeNDF(getNDF())
 
 	// Create a mock host
 	p := connect.GetDefaultHostParams()
@@ -187,7 +192,10 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 	}
 
 	// Set an invalid identity signature, check that error occurred
-	registerMsg := buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err := buildUserRegistrationMessage(clientId, clientKey, t)
+	if err != nil {
+		t.FailNow()
+	}
 	registerMsg.IdentitySignature = []byte("invalid")
 	_, err = registerUser(registerMsg, cert, store, auth)
 	if err == nil {
@@ -195,7 +203,10 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 	}
 
 	// Set invalid fact registration signature, check that error occurred
-	registerMsg = buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, t)
+	if err != nil {
+		t.FailNow()
+	}
 	registerMsg.Frs.FactSig = []byte("invalid")
 	_, err = registerUser(registerMsg, cert, store, auth)
 	if err == nil {
@@ -203,7 +214,10 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 	}
 
 	// Set invalid permissioning signature, check that error occurred
-	registerMsg = buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, t)
+	if err != nil {
+		t.FailNow()
+	}
 	registerMsg.PermissioningSignature = []byte("invalid")
 	_, err = registerUser(registerMsg, cert, store, auth)
 	if err == nil {
@@ -217,7 +231,7 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 	// Initialize client and storage
 	clientId, clientKey := initClientFields(t)
 	store, _, _ := storage.NewStorage(params.Database{})
-	ndfObj, _, _ :=	ndf.DecodeNDF(getNDF())
+	ndfObj, _, _ := ndf.DecodeNDF(getNDF())
 
 	// Create a mock host
 	p := connect.GetDefaultHostParams()
@@ -239,7 +253,10 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 	}
 
 	// Set an invalid message, check that error occurred
-	registerMsg := buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err := buildUserRegistrationMessage(clientId, clientKey, t)
+	if err != nil {
+		t.FailNow()
+	}
 	registerMsg = nil
 	_, err = registerUser(registerMsg, cert, store, auth)
 	if err == nil {
@@ -247,7 +264,10 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 	}
 
 	// Set invalid fact registration, check that error occurred
-	registerMsg = buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, t)
+	if err != nil {
+		t.FailNow()
+	}
 	registerMsg.Frs = nil
 	_, err = registerUser(registerMsg, cert, store, auth)
 	if err == nil {
@@ -255,7 +275,10 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 	}
 
 	// Set invalid fact, check that error occurred
-	registerMsg = buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, t)
+	if err != nil {
+		t.FailNow()
+	}
 	registerMsg.Frs.Fact = nil
 	_, err = registerUser(registerMsg, cert, store, auth)
 	if err == nil {
@@ -263,7 +286,10 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 	}
 
 	// Set invalid identity registration, check that error occurred
-	registerMsg = buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, t)
+	if err != nil {
+		t.FailNow()
+	}
 	registerMsg.IdentityRegistration = nil
 	_, err = registerUser(registerMsg, cert, store, auth)
 	if err == nil {
@@ -274,7 +300,6 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 
 // Helper function which generates needed client fields for a simulated client for testing
 func initClientFields(t *testing.T) (*id.ID, *rsa.PrivateKey) {
-
 
 	clientID := id.NewIdFromBytes([]byte("testClient"), t)
 
@@ -289,7 +314,7 @@ func initClientFields(t *testing.T) (*id.ID, *rsa.PrivateKey) {
 
 // Helper function which generates a user registration message
 func buildUserRegistrationMessage(clientId *id.ID, clientKey *rsa.PrivateKey,
-	t *testing.T) *pb.UDBUserRegistration {
+	t *testing.T) (*pb.UDBUserRegistration, error) {
 	// Pull keys and ID out of client
 	clientPubKeyPem := rsa.CreatePublicKeyPem(clientKey.GetPublic())
 
@@ -297,7 +322,10 @@ func buildUserRegistrationMessage(clientId *id.ID, clientKey *rsa.PrivateKey,
 	permSig := generatePermissioningSignature(clientPubKeyPem, t)
 	requestedUsername := "newUser123"
 	identity, identitySig := buildIdentityMsg(requestedUsername, clientId, clientKey)
-	frs := buildFactMessage(requestedUsername, clientId, clientKey)
+	frs, err := buildFactMessage(requestedUsername, clientId, clientKey)
+	if err != nil {
+		return nil, err
+	}
 
 	// Construct the user registration message and return
 	registerMsg := &pb.UDBUserRegistration{
@@ -309,7 +337,7 @@ func buildUserRegistrationMessage(clientId *id.ID, clientKey *rsa.PrivateKey,
 		UID:                    clientId.Bytes(),
 	}
 
-	return registerMsg
+	return registerMsg, nil
 }
 
 // Helper function which generates the identity message
@@ -330,26 +358,28 @@ func buildIdentityMsg(username string, clientID *id.ID, clientKey *rsa.PrivateKe
 }
 
 // Helper function which builds the fact messsage
-func buildFactMessage(username string, clientId *id.ID, clientKey *rsa.PrivateKey) *pb.FactRegisterRequest {
-
+func buildFactMessage(username string, clientId *id.ID, clientKey *rsa.PrivateKey) (*pb.FactRegisterRequest, error) {
 
 	// Build the fact
-	f := &pb.Fact{
-		Fact:     username,
-		FactType: uint32(storage.Username),
+	f, err := fact.NewFact(fact.Username, username)
+	if err != nil {
+		return nil, errors.WithMessage(err, "Failed to hash fact")
 	}
 
 	// Sign the fact
-	factSig, _ := rsa.Sign(rand.Reader, clientKey, hash.CMixHash, f.Digest(), nil)
+	factSig, _ := rsa.Sign(rand.Reader, clientKey, hash.CMixHash, factID.Fingerprint(f), nil)
 
 	// Build the fact registration request and return
 	frs := &pb.FactRegisterRequest{
-		UID:     clientId.Bytes(),
-		Fact:    f,
+		UID: clientId.Bytes(),
+		Fact: &pb.Fact{
+			Fact:     username,
+			FactType: 0,
+		},
 		FactSig: factSig,
 	}
 
-	return frs
+	return frs, nil
 }
 
 // Helper function which creates a permissioning signature for a client

@@ -7,9 +7,11 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/client v1.2.1-0.20201116174929-8121d767912b
+	gitlab.com/elixxir/bloomfilter v0.0.0-20200930191214-10e9ac31b228 // indirect
+	gitlab.com/elixxir/client v1.2.1-0.20201116175330-9e4dab33bc7e
 	gitlab.com/elixxir/comms v0.0.4-0.20201111191043-cce6aafab33b
-	gitlab.com/elixxir/crypto v0.0.5-0.20201110193609-6b5e881867b4
+	gitlab.com/elixxir/crypto v0.0.5-0.20201118204646-9b23991834c6
+	gitlab.com/elixxir/primitives v0.0.3-0.20201116174806-97f190989704
 	gitlab.com/xx_network/comms v0.0.4-0.20201110022115-4a6171cad07d
 	gitlab.com/xx_network/crypto v0.0.4
 	gitlab.com/xx_network/primitives v0.0.2
