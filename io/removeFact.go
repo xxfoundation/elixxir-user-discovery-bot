@@ -4,7 +4,8 @@ import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/crypto/hash"
+	"gitlab.com/elixxir/crypto/factID"
+	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
@@ -30,16 +31,17 @@ func removeFact(msg *pb.FactRemovalRequest, store *storage.Storage, auth *connec
 	}
 
 	// Generate the hash function and hash the fact
-	h, err := hash.NewCMixHash()
+	f, err := fact.NewFact(fact.FactType(msg.RemovalData.FactType), msg.RemovalData.Fact)
 	if err != nil {
-		jww.ERROR.Print("removeFact internal error NewCMixHash", err)
-		return &messages.Ack{}, e
+		return &messages.Ack{}, errors.WithMessage(err, "Failed to create fact object")
 	}
-	h.Write(msg.RemovalData.Digest())
-	hashFact := h.Sum(nil)
+	hashFact := factID.Fingerprint(f)
 
 	// Get the user who owns the fact
-	users := store.Search([][]byte{hashFact})
+	users, err := store.Search([][]byte{hashFact})
+	if err != nil {
+		return &messages.Ack{}, err
+	}
 	if len(users) != 1 {
 		jww.ERROR.Print("removeFact internal error users != 1")
 		return &messages.Ack{}, e

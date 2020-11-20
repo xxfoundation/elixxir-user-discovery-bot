@@ -8,7 +8,9 @@ package io
 import (
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/crypto/factID"
 	"gitlab.com/elixxir/crypto/hash"
+	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
@@ -77,7 +79,11 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 	}
 
 	// Verify the signed fact
-	hashedFact := msg.Frs.Fact.Digest()
+	tf, err := fact.NewFact(fact.FactType(msg.Frs.Fact.FactType), msg.Frs.Fact.Fact)
+	if err != nil {
+		return &messages.Ack{}, errors.WithMessage(err, "Failed to hash fact")
+	}
+	hashedFact := factID.Fingerprint(tf)
 	err = rsa.Verify(clientPubKey, hash.CMixHash, hashedFact, msg.Frs.FactSig, nil)
 	if err != nil {
 		return &messages.Ack{}, errors.New("Could not verify fact signature")

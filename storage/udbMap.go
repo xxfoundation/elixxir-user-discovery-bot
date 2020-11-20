@@ -115,7 +115,7 @@ func (m *MapImpl) MarkTwilioFactVerified(confirmationId string) error {
 }
 
 // Search for users by fact hashes
-func (m *MapImpl) Search(factHashes [][]byte) []*User {
+func (m *MapImpl) Search(factHashes [][]byte) ([]*User, error) {
 	users := map[id.ID]User{}
 	for _, h := range factHashes {
 		fid := factId{}
@@ -134,7 +134,7 @@ func (m *MapImpl) Search(factHashes [][]byte) []*User {
 	for _, u := range users {
 		result = append(result, &u)
 	}
-	return result
+	return result, nil
 }
 
 func (m *MapImpl) StartFactManager(i time.Duration) chan chan bool {

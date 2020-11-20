@@ -1,66 +1,87 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
-
-// Search Command
 package cmix
 
 import (
-	"encoding/base64"
-	"fmt"
-	"gitlab.com/elixxir/client/cmixproto"
-	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"github.com/golang/protobuf/proto"
+	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/client/interfaces/message"
+	"gitlab.com/elixxir/client/interfaces/params"
+	"gitlab.com/elixxir/client/ud"
 	"gitlab.com/xx_network/primitives/id"
 )
 
-const SEARCH_USAGE = "Usage: 'SEARCH [EMAIL] [email-address]'"
+func (m *Manager) SearchProcess() {
+	for true {
+		request := <-m.searchChan
 
-// Search for an entry in the database
-// The search command takes the form "SEARCH TYPE VALUE"
-// WHERE:
-// - TYPE = EMAIL
-// - VALUE = "rick@elixxir.io"
-// It returns a list of fingerprints if found (1 per message), or NOTFOUND
-func Search(userId *id.ID, args []string) {
-	Log.INFO.Printf("Search %d: %v", userId, args)
-	SearchErr := func(msg string) {
-		Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
-		Send(userId, SEARCH_USAGE, cmixproto.Type_UDB_SEARCH_RESPONSE)
-		Log.INFO.Printf("User %d, error: %s", userId, msg)
+		if request.Encryption != message.E2E {
+			jww.ERROR.Printf("Ignoring improperly encrypted search "+
+				"request from %s", request.Sender)
+		}
+
+		searchMsg := &ud.SearchSend{}
+		if err := proto.Unmarshal(request.Payload, searchMsg); err != nil {
+			jww.ERROR.Printf("failed to unmarshal search "+
+				"request from %s: %+v", request.Sender, err)
+			continue
+		}
+
+		response := m.handleSearch(searchMsg, request.Sender)
+
+		marshaledResponse, err := proto.Marshal(response)
+		if err != nil {
+			jww.ERROR.Printf("failed to marshal responce "+
+				"to search request from %s: %+v", request.Sender, err)
+			continue
+		}
+
+		responseMsg := message.Send{
+			Recipient:   request.Sender,
+			Payload:     marshaledResponse,
+			MessageType: message.UdSearchResponse,
+		}
+
+		_, _, err = m.client.SendE2E(responseMsg, params.GetDefaultE2E())
+
+		if err != nil {
+			jww.ERROR.Printf("failed to send responce "+
+				"to search request from %s: %+v", request.Sender, err)
+		}
 	}
-	if len(args) != 2 {
-		SearchErr("Invalid command syntax!")
-		return
+}
+
+func (m *Manager) handleSearch(msg *ud.SearchSend, requestor *id.ID) (response *ud.SearchResponse) {
+	response = &ud.SearchResponse{
+		Contacts: nil,
+		CommID:   msg.CommID,
+		Error:    "",
 	}
 
-	regType := args[0]
-	regVal := args[1]
-
-	// Verify that regType == EMAIL
-	// TODO: Functionalize this. Leaving it be for now.
-	if regType != "EMAIL" {
-		SearchErr("EMAIL is the only acceptable registration type")
-		return
+	var factHashs [][]byte
+	facts := msg.GetFact()
+	for _, f := range facts {
+		factHashs = append(factHashs, f.Hash)
 	}
-	// TODO: Add parse func to storage class, embed into function and
-	// pass it a string instead
 
-	// Get the userID associated to email
-	foundUser, err := storage.UserDiscoveryDb.GetUserByValue(regVal)
+	users, err := m.db.Search(factHashs)
 	if err != nil {
-		msg := fmt.Sprintf("SEARCH %s NOTFOUND", regVal)
-		Log.INFO.Printf("User %d: %s: %s", userId, msg, err)
-		Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
+		response.Error = errors.WithMessage(err, "handleSearch error: failed to execute search").Error()
 		return
 	}
+	for _, u := range users {
+		var ufacts []*ud.HashFact
+		for _, f := range u.Facts {
+			ufacts = append(ufacts, &ud.HashFact{
+				Hash: f.Hash,
+				Type: int32(f.Type),
+			})
+		}
+		response.Contacts = append(response.Contacts, &ud.Contact{
+			UserID:    u.Id,
+			PubKey:    u.DhPub,
+			TrigFacts: ufacts,
+		})
+	}
 
-	searchedUserID := foundUser.Id
-	searchedUserKeyID := foundUser.KeyId
-
-	msg := fmt.Sprintf("SEARCH %s FOUND %+v %+v", regVal,
-		base64.StdEncoding.EncodeToString(searchedUserID[:]), searchedUserKeyID)
-	Log.INFO.Printf("User %d: %s", userId, msg)
-	Send(userId, msg, cmixproto.Type_UDB_SEARCH_RESPONSE)
+	return
 }

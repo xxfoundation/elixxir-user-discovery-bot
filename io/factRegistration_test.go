@@ -15,13 +15,14 @@ import (
 // Happy path.
 func TestRegisterFact(t *testing.T) {
 	// Initialize client and storage
-	client := initTestClient(t)
+	clientId, clientKey := initClientFields(t)
 	store, _, err := storage.NewStorage(params.Database{})
 
 	// Create a mock host
 	p := connect.GetDefaultHostParams()
 	p.MaxRetries = 0
-	fakeHost, err := connect.NewHost(client.GetCurrentUser(), "", nil, p)
+
+	fakeHost, err := connect.NewHost(clientId, "", nil, p)
 	if err != nil {
 		t.Errorf("Failed to create fakeHost, %s", err)
 	}
@@ -33,14 +34,17 @@ func TestRegisterFact(t *testing.T) {
 	}
 
 	err = store.InsertUser(&storage.User{
-		Id:     client.GetCurrentUser().Bytes(),
-		RsaPub: string(rsa.CreatePublicKeyPem(client.GetCommManager().Comms.GetPrivateKey().GetPublic())),
+		Id:     clientId.Bytes(),
+		RsaPub: string(rsa.CreatePublicKeyPem(clientKey.GetPublic())),
 	})
 	if err != nil {
 		t.Fatalf("Failed to insert user: %+v", err)
 	}
 
-	request := buildFactMessage("newUser123", client)
+	request, err := buildFactMessage("newUser123", clientId, clientKey)
+	if err != nil {
+		t.FailNow()
+	}
 
 	response, err := registerFact(request, twilio.NewMockManager(store), store, auth)
 	if err != nil {
@@ -64,13 +68,14 @@ func TestRegisterFact(t *testing.T) {
 // Error path: Invalid fact signature.
 func TestRegisterFact_BadSigError(t *testing.T) {
 	// Initialize client and storage
-	client := initTestClient(t)
+	clientId, clientKey := initClientFields(t)
 	store, _, err := storage.NewStorage(params.Database{})
 
 	// Create a mock host
 	p := connect.GetDefaultHostParams()
 	p.MaxRetries = 0
-	fakeHost, err := connect.NewHost(client.GetCurrentUser(), "", nil, p)
+
+	fakeHost, err := connect.NewHost(clientId, "", nil, p)
 	if err != nil {
 		t.Errorf("Failed to create fakeHost, %s", err)
 	}
@@ -82,14 +87,17 @@ func TestRegisterFact_BadSigError(t *testing.T) {
 	}
 
 	err = store.InsertUser(&storage.User{
-		Id:     client.GetCurrentUser().Bytes(),
-		RsaPub: string(rsa.CreatePublicKeyPem(client.GetCommManager().Comms.GetPrivateKey().GetPublic())),
+		Id:     clientId.Bytes(),
+		RsaPub: string(rsa.CreatePublicKeyPem(clientKey.GetPublic())),
 	})
 	if err != nil {
 		t.Fatalf("Failed to insert user: %+v", err)
 	}
 
-	request := buildFactMessage("newUser123", client)
+	request, err := buildFactMessage("newUser123", clientId, clientKey)
+	if err != nil {
+		t.FailNow()
+	}
 	request.FactSig = []byte("Bad signature")
 
 	response, err := registerFact(request, twilio.NewMockManager(store), store, auth)
@@ -109,13 +117,13 @@ func TestConfirmFact(t *testing.T) {
 	jww.SetLogThreshold(jww.LevelTrace)
 	jww.SetStdoutThreshold(jww.LevelTrace)
 	// Initialize client and storage
-	client := initTestClient(t)
+	clientId, clientKey := initClientFields(t)
 	store, _, err := storage.NewStorage(params.Database{})
 
 	// Create a mock host
 	p := connect.GetDefaultHostParams()
 	p.MaxRetries = 0
-	fakeHost, err := connect.NewHost(client.GetCurrentUser(), "", nil, p)
+	fakeHost, err := connect.NewHost(clientId, "", nil, p)
 	if err != nil {
 		t.Errorf("Failed to create fakeHost, %s", err)
 	}
@@ -127,15 +135,18 @@ func TestConfirmFact(t *testing.T) {
 	}
 
 	err = store.InsertUser(&storage.User{
-		Id:     client.GetCurrentUser().Bytes(),
-		RsaPub: string(rsa.CreatePublicKeyPem(client.GetCommManager().Comms.GetPrivateKey().GetPublic())),
+		Id:     clientId.Bytes(),
+		RsaPub: string(rsa.CreatePublicKeyPem(clientKey.GetPublic())),
 	})
 	if err != nil {
 		t.Fatalf("Failed to insert user: %+v", err)
 	}
 	manager := twilio.NewMockManager(store)
-
-	response, err := registerFact(buildFactMessage("newUser123", client), manager, store, auth)
+	req, err := buildFactMessage("newUser123", clientId, clientKey)
+	if err != nil {
+		t.FailNow()
+	}
+	response, err := registerFact(req, manager, store, auth)
 	if err != nil {
 		t.Fatalf("registerFact() produced an error: %+v", err)
 	}
@@ -156,13 +167,13 @@ func TestConfirmFact(t *testing.T) {
 // and code.
 func TestConfirmFact_FailedVerification(t *testing.T) {
 	// Initialize client and storage
-	client := initTestClient(t)
+	clientId, clientKey := initClientFields(t)
 	store, _, err := storage.NewStorage(params.Database{})
 
 	// Create a mock host
 	p := connect.GetDefaultHostParams()
 	p.MaxRetries = 0
-	fakeHost, err := connect.NewHost(client.GetCurrentUser(), "", nil, p)
+	fakeHost, err := connect.NewHost(clientId, "", nil, p)
 	if err != nil {
 		t.Errorf("Failed to create fakeHost, %s", err)
 	}
@@ -174,14 +185,18 @@ func TestConfirmFact_FailedVerification(t *testing.T) {
 	}
 
 	err = store.InsertUser(&storage.User{
-		Id:     client.GetCurrentUser().Bytes(),
-		RsaPub: string(rsa.CreatePublicKeyPem(client.GetCommManager().Comms.GetPrivateKey().GetPublic())),
+		Id:     clientId.Bytes(),
+		RsaPub: string(rsa.CreatePublicKeyPem(clientKey.GetPublic())),
 	})
 	if err != nil {
 		t.Fatalf("Failed to insert user: %+v", err)
 	}
+	req, err := buildFactMessage("newUser123", clientId, clientKey)
+	if err != nil {
+		t.FailNow()
+	}
 	manager := twilio.NewMockManager(store)
-	_, err = registerFact(buildFactMessage("newUser123", client), manager, store, auth)
+	_, err = registerFact(req, manager, store, auth)
 	if err != nil {
 		t.Fatalf("registerFact() produced an error: %+v", err)
 	}

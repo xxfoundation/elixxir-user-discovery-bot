@@ -2,7 +2,8 @@ package io
 
 import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/crypto/hash"
+	"gitlab.com/elixxir/crypto/factID"
+	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/xx_network/comms/connect"
@@ -33,7 +34,7 @@ func TestDeleteFact_AuthCheck(t *testing.T) {
 	// Make a FactRemovalRequest to put into the Delete function
 	badmsg := pb.FactRemovalRequest{
 		UID: id.DummyUser.Marshal(),
-		RemovalData: &pb.FactRemoval{
+		RemovalData: &pb.Fact{
 			Fact:     "Testing",
 			FactType: 0,
 		},
@@ -62,7 +63,7 @@ func TestDeleteFact_UsersCheck(t *testing.T) {
 	// Make a FactRemovalRequest to put into the Delete function
 	badmsg := pb.FactRemovalRequest{
 		UID: id.DummyUser.Marshal(),
-		RemovalData: &pb.FactRemoval{
+		RemovalData: &pb.Fact{
 			Fact:     "Testing",
 			FactType: 0,
 		},
@@ -97,7 +98,7 @@ func TestDeleteFact_WrongOwner(t *testing.T) {
 	// Create an input message
 	input_msg := pb.FactRemovalRequest{
 		UID: []byte{0, 1, 2, 3},
-		RemovalData: &pb.FactRemoval{
+		RemovalData: &pb.Fact{
 			Fact:     "Testing",
 			FactType: 0,
 		},
@@ -138,14 +139,12 @@ func TestDeleteFact_WrongOwner(t *testing.T) {
 
 	// Create a Fact object to put into our Storage object
 	// Generate the hash function and hash the fact
-	sfhash, err := hash.NewCMixHash()
+	f, err := fact.NewFact(fact.FactType(input_msg.RemovalData.FactType), input_msg.RemovalData.Fact)
 	if err != nil {
 		t.Fatal(err)
 	}
-	sfhash.Write(input_msg.RemovalData.Digest())
-	hashFact := sfhash.Sum(nil)
 	sfact := storage.Fact{
-		Hash:         hashFact,
+		Hash:         factID.Fingerprint(f),
 		UserId:       id.NewIdFromUInt(0, id.User, t).Marshal(),
 		Fact:         "Testing",
 		Type:         0,
@@ -171,7 +170,7 @@ func TestDeleteFact_Happy(t *testing.T) {
 	// Create an input message
 	input_msg := pb.FactRemovalRequest{
 		UID: []byte{0, 1, 2, 3},
-		RemovalData: &pb.FactRemoval{
+		RemovalData: &pb.Fact{
 			Fact:     "Testing",
 			FactType: 0,
 		},
@@ -212,14 +211,12 @@ func TestDeleteFact_Happy(t *testing.T) {
 
 	// Create a Fact object to put into our Storage object
 	// Generate the hash function and hash the fact
-	sfhash, err := hash.NewCMixHash()
+	f, err := fact.NewFact(fact.FactType(input_msg.RemovalData.FactType), input_msg.RemovalData.Fact)
 	if err != nil {
 		t.Fatal(err)
 	}
-	sfhash.Write(input_msg.RemovalData.Digest())
-	hashFact := sfhash.Sum(nil)
 	sfact := storage.Fact{
-		Hash:         hashFact,
+		Hash:         factID.Fingerprint(f),
 		UserId:       id.DummyUser.Marshal(),
 		Fact:         "Testing",
 		Type:         0,

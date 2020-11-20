@@ -78,6 +78,17 @@ import (
 //		t.Errorf("Failed to verify twilio fact: %+v", err)
 //	}
 //
+//	users, err := db.Search([][]byte{
+//		factid, factid2,
+//	})
+//	if err != nil {
+//		t.Errorf("Failed to search for users: %+v", err)
+//	}
+//	if len(users) != 1 {
+//		t.Error("Search did not return expected results")
+//	}
+//
+//
 //	err = db.DeleteFact(factid2)
 //	if err != nil {
 //		t.Errorf("Failed to delete fact2: %+v", err)
@@ -418,7 +429,10 @@ func TestMapImpl_Search(t *testing.T) {
 		t.Errorf("Failed to verify twilio fact: %+v", err)
 	}
 
-	ulist := mapImpl.Search([][]byte{factHash})
+	ulist, err := mapImpl.Search([][]byte{factHash})
+	if err != nil {
+		t.Errorf("Failed to search: %+v", err)
+	}
 	if len(ulist) != 1 {
 		t.Errorf("Did not receive expected num users.  Received: %d, expected: %d", len(ulist), 1)
 	}

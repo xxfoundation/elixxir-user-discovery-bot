@@ -10,7 +10,8 @@ package twilio
 
 import (
 	"github.com/pkg/errors"
-	"gitlab.com/xx_network/crypto/hasher"
+	"gitlab.com/elixxir/crypto/factID"
+	fact2 "gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/xx_network/primitives/id"
 )
 
@@ -20,11 +21,14 @@ func (m *Manager) RegisterFact(uid *id.ID, fact string, factType uint8, signatur
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
-	h := hasher.SHA3_256.New()
-	h.Write([]byte(fact))
+	f, err := fact2.NewFact(fact2.FactType(factType), fact)
+	if err != nil {
+		return "", errors.WithMessage(err, "Failed to hash fact object")
+	}
+	factId := factID.Fingerprint(f)
 
 	// Adds entry to facts and verifications tables
-	err = m.storage.InsertFactTwilio(uid.Marshal(), h.Sum(nil), signature, uint(factType), fact, verifyId)
+	err = m.storage.InsertFactTwilio(uid.Marshal(), factId, signature, uint(factType), fact, verifyId)
 	// Makes call to Verification endpoint in twilio
 	// Return the confirmation ID from db entry
 	return verifyId, err
