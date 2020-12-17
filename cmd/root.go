@@ -75,8 +75,8 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.Flags().StringVarP(&cfgFile, "config", "c", "",
-		"Path to load the Gateway configuration file from. If not set, this "+
-			"file must be named gateway.yaml and must be located in "+
+		"Path to load the UDB configuration file from. If not set, this "+
+			"file must be named udb.yaml and must be located in "+
 			"~/.xxnetwork/, /opt/xxnetwork, or /etc/xxnetwork.")
 
 	rootCmd.Flags().IntP("port", "p", -1,
@@ -90,7 +90,7 @@ func init() {
 	err = viper.BindPFlag("logLevel", rootCmd.Flags().Lookup("logLevel"))
 	handleBindingError(err, "logLevel")
 
-	rootCmd.Flags().StringVar(&logPath, "log", "./gateway-logs/gateway.log",
+	rootCmd.Flags().StringVar(&logPath, "log", "./udb-logs/udb.log",
 		"Path where log file will be saved.")
 	err = viper.BindPFlag("log", rootCmd.Flags().Lookup("log"))
 	handleBindingError(err, "log")
