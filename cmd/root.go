@@ -26,9 +26,9 @@ var (
 
 // RootCmd represents the base command when called without any sub-commands
 var rootCmd = &cobra.Command{
-	Use:   "gateway",
-	Short: "Runs a cMix gateway",
-	Long:  `The cMix gateways coordinate communications between servers and clients`,
+	Use:   "UDB",
+	Short: "Runs the cmix UDB server",
+	Long:  `The cMix UDB server handles user & fact registration for the network`,
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		initConfig()
