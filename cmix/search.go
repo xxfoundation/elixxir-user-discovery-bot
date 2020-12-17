@@ -14,11 +14,6 @@ func (m *Manager) SearchProcess() {
 	for true {
 		request := <-m.searchChan
 
-		if request.Encryption != message.E2E {
-			jww.ERROR.Printf("Ignoring improperly encrypted search "+
-				"request from %s", request.Sender)
-		}
-
 		searchMsg := &ud.SearchSend{}
 		if err := proto.Unmarshal(request.Payload, searchMsg); err != nil {
 			jww.ERROR.Printf("failed to unmarshal search "+
@@ -41,7 +36,7 @@ func (m *Manager) SearchProcess() {
 			MessageType: message.UdSearchResponse,
 		}
 
-		_, _, err = m.client.SendE2E(responseMsg, params.GetDefaultE2E())
+		_, err = m.client.SendUnsafe(responseMsg, params.GetDefaultUnsafe())
 
 		if err != nil {
 			jww.ERROR.Printf("failed to send responce "+

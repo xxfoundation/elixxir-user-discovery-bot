@@ -11,6 +11,7 @@ package params
 type General struct {
 	SessionPath string
 	NdfPath     string
+	PermCert    []byte
 
 	Database
 	IO

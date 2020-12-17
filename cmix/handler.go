@@ -11,10 +11,10 @@ import (
 
 // CMIX Handler struct for user discovery
 type Manager struct {
-	client *api.Client
+	client     *api.Client
 	lookupChan chan message.Receive
 	searchChan chan message.Receive
-	db *storage.Storage
+	db         *storage.Storage
 }
 
 // Start user discovery CMIX handler with a general callback that confirms all authenticated channel requests
@@ -53,6 +53,7 @@ func NewManager(storagedir string, password []byte) error {
 	registrar.AddGeneralRequestCallback(rcb)
 
 	go m.LookupProcess()
+	go m.SearchProcess()
 
 	return nil
 }

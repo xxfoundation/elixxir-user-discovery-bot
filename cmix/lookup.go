@@ -14,12 +14,6 @@ func (m *Manager) LookupProcess() {
 	for true {
 		request := <-m.lookupChan
 
-		if request.Encryption != message.E2E {
-			jww.ERROR.Printf("Ignoring improperly encrypted lookup "+
-				"request from %s", request.Sender)
-			continue
-		}
-
 		lookupMsg := &ud.LookupSend{}
 		if err := proto.Unmarshal(request.Payload, lookupMsg); err != nil {
 			jww.ERROR.Printf("failed to unmarshal lookup "+
@@ -42,7 +36,7 @@ func (m *Manager) LookupProcess() {
 			MessageType: message.UdLookupResponse,
 		}
 
-		_, _, err = m.client.SendE2E(responseMsg, params.GetDefaultE2E())
+		_, err = m.client.SendUnsafe(responseMsg, params.GetDefaultUnsafe())
 
 		if err != nil {
 			jww.ERROR.Printf("failed to send responce "+

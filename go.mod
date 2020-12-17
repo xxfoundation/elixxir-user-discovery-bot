@@ -6,7 +6,9 @@ require (
 	github.com/golang/protobuf v1.4.3
 	github.com/jinzhu/gorm v1.9.16
 	github.com/pkg/errors v0.9.1
+	github.com/spf13/cobra v1.0.0
 	github.com/spf13/jwalterweatherman v1.1.0
+	github.com/spf13/viper v1.7.1
 	gitlab.com/elixxir/bloomfilter v0.0.0-20200930191214-10e9ac31b228 // indirect
 	gitlab.com/elixxir/client v1.2.1-0.20201116175330-9e4dab33bc7e
 	gitlab.com/elixxir/comms v0.0.4-0.20201119231344-fcf142c9b7f1
