@@ -12,6 +12,7 @@ func InitParams(vip *viper.Viper) params.General {
 	if !validConfig {
 		jww.FATAL.Panicf("Invalid Config File: %s", cfgFile)
 	}
+
 	certPath = viper.GetString("certPath")
 	if certPath == "" {
 		jww.FATAL.Fatalf("certPath is blank - cannot run without certs")
@@ -20,6 +21,7 @@ func InitParams(vip *viper.Viper) params.General {
 	if err != nil {
 		jww.FATAL.Fatalf("Failed to read certificate at %s: %+v", certPath, err)
 	}
+
 	keyPath = viper.GetString("keyPath")
 	if keyPath == "" {
 		jww.FATAL.Fatalf("keyPath is blank - cannot run without keys")
@@ -28,6 +30,7 @@ func InitParams(vip *viper.Viper) params.General {
 	if err != nil {
 		jww.FATAL.Fatalf("Failed to read key at %s: %+v", keyPath, err)
 	}
+
 	permCertPath = viper.GetString("permCertPath")
 	if permCertPath == "" {
 		jww.FATAL.Fatalf("permCertPath is blank - cannot run without permissioning certificate")
@@ -36,6 +39,9 @@ func InitParams(vip *viper.Viper) params.General {
 	if err != nil {
 		jww.FATAL.Fatalf("Failed to read permissioning certificate at %s: %+v", permCertPath, err)
 	}
+
+	sessionPass = viper.GetString("sessionPass")
+
 	ioparams := params.IO{
 		Cert: cert,
 		Key:  key,

@@ -22,6 +22,7 @@ var (
 	logLevel                        uint // 0 = info, 1 = debug, >1 = trace
 	validConfig                     bool
 	devMode                         bool
+	sessionPass                     string
 )
 
 // RootCmd represents the base command when called without any sub-commands
@@ -49,7 +50,7 @@ var rootCmd = &cobra.Command{
 		}
 		_ = io.NewManager(p.IO, &id.UDB, permCert, twilioManager, storage)
 
-		err = cmix.NewManager(p.SessionPath, []byte(""))
+		err = cmix.NewManager(p.SessionPath, []byte(sessionPass))
 		if err != nil {
 			jww.ERROR.Print(err)
 		}
@@ -112,6 +113,10 @@ func init() {
 			"format. Required field.")
 	err = viper.BindPFlag("permCertPath", rootCmd.Flags().Lookup("permCertPath"))
 	handleBindingError(err, "permCertPath")
+
+	rootCmd.Flags().StringVar(&sessionPass, "sessionPass", "", "Password for session files")
+	err = viper.BindPFlag("sessionPass", rootCmd.Flags().Lookup("sessionPass"))
+	handleBindingError(err, "sessionPass")
 
 	rootCmd.Flags().BoolVarP(&devMode, "devMode", "", false, "Developer run mode")
 }
