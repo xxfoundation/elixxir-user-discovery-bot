@@ -9,6 +9,7 @@ import (
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -29,7 +30,7 @@ func TestRegisterFact(t *testing.T) {
 
 	// Construct mock auth object
 	auth := &connect.Auth{
-		IsAuthenticated: true,
+		IsAuthenticated: false,
 		Sender:          fakeHost,
 	}
 
@@ -45,6 +46,23 @@ func TestRegisterFact(t *testing.T) {
 	if err != nil {
 		t.FailNow()
 	}
+
+	// test bad authentication error path
+	_, err = registerFact(request, twilio.NewMockManager(store), store, auth)
+	if err == nil || !strings.Contains(err.Error(), "Failed to authenticate") {
+		t.Errorf("registerFact() did not fail with bad auth %+v", err)
+	}
+
+	auth.IsAuthenticated = true
+
+	// test bad request error path
+	old := request.Fact
+	request.Fact = nil
+	_, err = registerFact(request, twilio.NewMockManager(store), store, auth)
+	if err == nil || !strings.Contains(err.Error(), invalidFactRegisterRequestError) {
+		t.Errorf("registerFact() did not fail with bad request %+v", err)
+	}
+	request.Fact = old
 
 	response, err := registerFact(request, twilio.NewMockManager(store), store, auth)
 	if err != nil {
