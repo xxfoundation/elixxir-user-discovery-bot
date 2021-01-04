@@ -50,9 +50,14 @@ var rootCmd = &cobra.Command{
 		}
 		_ = io.NewManager(p.IO, &id.UDB, permCert, twilioManager, storage)
 
-		err = cmix.NewManager(p.SessionPath, []byte(sessionPass))
+		m, err := cmix.NewManager(p.SessionPath, []byte(sessionPass), storage)
 		if err != nil {
-			jww.ERROR.Print(err)
+			jww.FATAL.Fatalf("Failed to create cmix manager: %+v", err)
+		}
+
+		err = m.Start()
+		if err != nil {
+			jww.FATAL.Fatalf("Failed to start cmix manager: %+v", err)
 		}
 		// Wait forever
 		select {}
