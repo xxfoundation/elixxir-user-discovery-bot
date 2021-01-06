@@ -16,6 +16,7 @@ import (
 type MockClient struct {
 	sw interfaces.Switchboard
 	ar interfaces.Auth
+	r  bool
 }
 
 func (mc *MockClient) GetSwitchboard() interfaces.Switchboard {
@@ -32,6 +33,7 @@ func (mc *MockClient) ConfirmAuthenticatedChannel(contact2 contact.Contact) erro
 }
 func (mc *MockClient) SendUnsafe(m message.Send, param params.Unsafe) ([]id.Round,
 	error) {
+	mc.r = true
 	return nil, nil
 }
 
