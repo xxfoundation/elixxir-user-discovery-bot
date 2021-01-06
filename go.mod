@@ -7,25 +7,26 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/mattn/go-shellwords v1.0.10
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/mitchellh/mapstructure v1.3.3 // indirect
+	github.com/mitchellh/mapstructure v1.4.0 // indirect
 	github.com/onsi/ginkgo v1.12.0 // indirect
 	github.com/onsi/gomega v1.10.0 // indirect
-	github.com/pelletier/go-toml v1.8.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/smartystreets/assertions v1.1.0 // indirect
-	github.com/spf13/afero v1.3.3 // indirect
-	github.com/spf13/cobra v1.0.0
+	github.com/spf13/afero v1.5.1 // indirect
+	github.com/spf13/cobra v1.1.1
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.7.1
-	gitlab.com/elixxir/client v1.2.1-0.20200804230047-3333f302722f
-	gitlab.com/elixxir/comms v0.0.0-20200804225939-84dbe3cccc62
-	gitlab.com/elixxir/crypto v0.0.0-20200804182833-984246dea2c4
-	gitlab.com/elixxir/primitives v0.0.0-20200804182913-788f47bded40
-	gitlab.com/xx_network/primitives v0.0.0-20200804183002-f99f7a7284da
-	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de // indirect
-	golang.org/x/sys v0.0.0-20200803210538-64077c9b5642 // indirect
-	google.golang.org/genproto v0.0.0-20200804151602-45615f50871c // indirect
-	google.golang.org/grpc v1.31.0 // indirect
-	gopkg.in/ini.v1 v1.57.0 // indirect
+	gitlab.com/elixxir/client v1.2.1-0.20210106002050-ebd9682d1b24
+	gitlab.com/elixxir/comms v0.0.4-0.20210106001934-9bb3731ad8be
+	gitlab.com/elixxir/crypto v0.0.7-0.20210106001826-bf1cc50f1a2c
+	gitlab.com/elixxir/ekv v0.1.4 // indirect
+	gitlab.com/elixxir/primitives v0.0.3-0.20210106001742-69578b457afa
+	gitlab.com/xx_network/primitives v0.0.4-0.20201229212313-fe33d9809f27
+	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
+	golang.org/x/net v0.0.0-20201224014010-6772e930b67b // indirect
+	golang.org/x/sys v0.0.0-20210105210732-16f7687f5001 // indirect
+	google.golang.org/genproto v0.0.0-20210105202744-fe13368bc0e1 // indirect
+	google.golang.org/grpc v1.34.0 // indirect
+	gopkg.in/ini.v1 v1.62.0 // indirect
 	mellium.im/sasl v0.2.1 // indirect
 )
