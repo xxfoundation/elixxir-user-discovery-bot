@@ -10,7 +10,7 @@ import (
 	"gitlab.com/elixxir/user-discovery-bot/io"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/twilio"
-	"gitlab.com/xx_network/crypto/signature/rsa"
+	"gitlab.com/xx_network/crypto/tls"
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/utils"
 	"os"
@@ -44,10 +44,11 @@ var rootCmd = &cobra.Command{
 			twilioManager = twilio.NewManager(p.Twilio, storage)
 		}
 
-		permCert, err := rsa.LoadPublicKeyFromPem(p.PermCert)
+		cert, err := tls.LoadCertificate(string(p.PermCert))
 		if err != nil {
 			jww.FATAL.Fatalf("Failed to load permissioning cert to pem: %+v", err)
 		}
+		permCert, err := tls.ExtractPublicKey(cert)
 		_ = io.NewManager(p.IO, &id.UDB, permCert, twilioManager, storage)
 
 		m, err := cmix.NewManager(p.SessionPath, []byte(sessionPass), storage)
