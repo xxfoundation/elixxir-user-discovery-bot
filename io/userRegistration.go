@@ -31,7 +31,7 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 	}
 
 	// Ensure client is properly authenticated
-	if !auth.IsAuthenticated || auth.Sender.IsDynamicHost() {
+	if !auth.IsAuthenticated || !auth.Sender.IsDynamicHost() {
 		return &messages.Ack{}, connect.AuthError(auth.Sender.GetId())
 	}
 
