@@ -6,6 +6,8 @@
 package io
 
 import (
+	"crypto"
+	"crypto/sha256"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/factID"
@@ -51,18 +53,18 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 	}
 
 	// Hash the rsa public key, what permissioning signature was signed off of
-	h, err := hash.NewCMixHash()
-	if err != nil {
-		return &messages.Ack{}, errors.New("Could not verify signature due " +
-			"to internal error. Please try again later")
-	}
+	h := sha256.New()
 	h.Write([]byte(msg.RSAPublicPem))
 	hashedRsaKey := h.Sum(nil)
 
 	// Verify the Permissioning signature provided
-	err = rsa.Verify(permPublicKey, hash.CMixHash, hashedRsaKey, msg.PermissioningSignature, nil)
+	err = rsa.Verify(permPublicKey, crypto.SHA256, hashedRsaKey,
+		msg.PermissioningSignature, nil)
 	if err != nil {
-		return &messages.Ack{}, errors.Errorf("Could not verify permissioning signature")
+		return &messages.Ack{}, errors.Errorf(
+			"Could not verify permissioning signature. "+
+				"Data: %s, Signature: %s",
+			msg.RSAPublicPem, msg.PermissioningSignature)
 	}
 
 	// Parse the client's public key
