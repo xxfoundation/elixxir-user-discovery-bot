@@ -9,6 +9,7 @@ import (
 	"crypto"
 	"crypto/sha256"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/factID"
 	"gitlab.com/elixxir/crypto/hash"
@@ -119,6 +120,8 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 			"to internal error. Please try again later")
 
 	}
+
+	jww.INFO.Printf("User Registered: %s", uid)
 
 	return &messages.Ack{}, nil
 }

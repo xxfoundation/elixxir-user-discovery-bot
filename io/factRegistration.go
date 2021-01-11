@@ -18,7 +18,7 @@ import (
 var (
 	invalidFactRegisterRequestError = "Unable to parse required fields in FactRegisterRequest."
 	factExistsError                 = "Cannot register fact that already exists."
-	noUserError                     = "User associated with fact not registered."
+	noUserError                     = "User associated with fact not registered: %s"
 	invalidUserKeyError             = "Could not parse user's key."
 	invalidFactSigError             = "Failed to verify fact signature."
 	getUserFailureError             = "Failed to find user"
@@ -60,12 +60,19 @@ func registerFact(request *pb.FactRegisterRequest, verifier *twilio.Manager, sto
 		return &pb.FactRegisterResponse{}, errors.New(factExistsError)
 	}
 
+	// Marshal user ID
+	userID, err := id.Unmarshal(request.UID)
+	if err != nil {
+		return &pb.FactRegisterResponse{}, errors.New(invalidUserIdError)
+	}
+
 	// Return an error if the fact's user is not registered
 	user, err := store.GetUser(request.UID)
 	if err != nil {
 		return &pb.FactRegisterResponse{}, errors.Errorf(getUserFailureError+": %+v", err)
 	} else if user == nil {
-		return &pb.FactRegisterResponse{}, errors.New(noUserError)
+		return &pb.FactRegisterResponse{}, errors.Errorf(noUserError,
+			userID)
 	}
 
 	// Parse the client's public key
@@ -78,12 +85,6 @@ func registerFact(request *pb.FactRegisterRequest, verifier *twilio.Manager, sto
 	err = rsa.Verify(clientPubKey, hash.CMixHash, hashedFact, request.FactSig, nil)
 	if err != nil {
 		return &pb.FactRegisterResponse{}, errors.New(invalidFactSigError)
-	}
-
-	// Marshal user ID
-	userID, err := id.Unmarshal(request.UID)
-	if err != nil {
-		return &pb.FactRegisterResponse{}, errors.New(invalidUserIdError)
 	}
 
 	// Register fact with Twilio to get confirmation ID
