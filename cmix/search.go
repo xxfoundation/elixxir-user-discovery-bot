@@ -21,6 +21,9 @@ func (m *Manager) SearchProcess() {
 			continue
 		}
 
+		jww.INFO.Printf("Search Request from %s: %v", request.Sender,
+			request)
+
 		response := m.handleSearch(searchMsg, request.Sender)
 
 		marshaledResponse, err := proto.Marshal(response)
@@ -64,6 +67,9 @@ func (m *Manager) handleSearch(msg *ud.SearchSend, requestor *id.ID) (response *
 		return
 	}
 	for _, u := range users {
+		uid, _ := id.Unmarshal(u.Id)
+		jww.DEBUG.Printf("User found in Search by %s: %s", requestor,
+			uid)
 		var ufacts []*ud.HashFact
 		for _, f := range u.Facts {
 			ufacts = append(ufacts, &ud.HashFact{
