@@ -116,7 +116,7 @@ func (m *MapImpl) MarkTwilioFactVerified(confirmationId string) error {
 
 // Search for users by fact hashes
 func (m *MapImpl) Search(factHashes [][]byte) ([]*User, error) {
-	users := map[id.ID]User{}
+	users := map[id.ID]*User{}
 	for _, h := range factHashes {
 		fid := factId{}
 		copy(fid[:], h)
@@ -125,14 +125,12 @@ func (m *MapImpl) Search(factHashes [][]byte) ([]*User, error) {
 			if err != nil {
 				jww.ERROR.Printf("Failed to decode uid %+v: %+v", f.UserId, err)
 			}
-			users[*uid] = User{
-				Id: uid.Marshal(),
-			}
+			users[*uid] = m.users[*uid]
 		}
 	}
 	var result []*User
 	for _, u := range users {
-		result = append(result, &u)
+		result = append(result, u)
 	}
 	return result, nil
 }
