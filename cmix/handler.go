@@ -51,6 +51,10 @@ func (m *Manager) Start() error {
 	m.client.GetSwitchboard().RegisterChannel("UDLookup",
 		switchboard.AnyUser(), message.UdLookup, m.lookupChan)
 
+	//register the search listener
+	m.client.GetSwitchboard().RegisterChannel("UDSearch",
+		switchboard.AnyUser(), message.UdSearch, m.searchChan)
+
 	err = m.client.StartNetworkFollower()
 	if err != nil {
 		return err
