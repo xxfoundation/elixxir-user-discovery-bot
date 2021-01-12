@@ -6,11 +6,12 @@ require (
 	github.com/golang/protobuf v1.4.3
 	github.com/jinzhu/gorm v1.9.16
 	github.com/lib/pq v1.9.0 // indirect
+	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.7.1
-	gitlab.com/elixxir/client v1.2.1-0.20210112181113-e73779727e4c
+	gitlab.com/elixxir/client v1.2.1-0.20210112233051-5b31384256fc
 	gitlab.com/elixxir/comms v0.0.4-0.20210108215809-3fd92afa101f
 	gitlab.com/elixxir/crypto v0.0.7-0.20210107184400-5c3e52a35758
 	gitlab.com/elixxir/primitives v0.0.3-0.20210107183456-9cf6fe2de1e5
