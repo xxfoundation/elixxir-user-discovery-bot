@@ -1,17 +1,17 @@
 package io
 
-import (
-	jww "github.com/spf13/jwalterweatherman"
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
-	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"gitlab.com/elixxir/user-discovery-bot/twilio"
-	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/crypto/signature/rsa"
-	"reflect"
-	"strings"
-	"testing"
-)
+// import (
+// 	jww "github.com/spf13/jwalterweatherman"
+// 	pb "gitlab.com/elixxir/comms/mixmessages"
+// 	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
+// 	"gitlab.com/elixxir/user-discovery-bot/storage"
+// 	"gitlab.com/elixxir/user-discovery-bot/twilio"
+// 	"gitlab.com/xx_network/comms/connect"
+// 	"gitlab.com/xx_network/crypto/signature/rsa"
+// 	"reflect"
+// 	"strings"
+// 	"testing"
+// )
 
 // Happy path.
 // func TestRegisterFact(t *testing.T) {
