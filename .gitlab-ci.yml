@@ -9,7 +9,7 @@ cache:
 variables:
   REPO_DIR: gitlab.com/elixxir
   REPO_NAME: user-discovery-bot
-  DOCKER_IMAGE: golang:1.13.4-buster
+  DOCKER_IMAGE: elixxirlabs/cuda-go:go1.13-cuda11.1-mc
   MIN_CODE_COVERAGE: "48.0"
 
 before_script:
@@ -25,6 +25,7 @@ before_script:
   - ssh-keyscan -t rsa gitlab.com > ~/.ssh/known_hosts
   - git config --global url."git@gitlab.com:".insteadOf "https://gitlab.com/"
   - export GOFLAGS=-mod=vendor
+  - export PATH=$HOME/go/bin:$PATH
   - export GOPRIVATE="*gitlab.com/elixxir/*,*gitlab.com/xx_network/*"
 
 
@@ -87,6 +88,7 @@ build:
     - GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags '-w -s' -o release/udb.win64 main.go
     - GOOS=windows GOARCH=386 CGO_ENABLED=0 go build -ldflags '-w -s' -o release/udb.win32 main.go
     - GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -ldflags '-w -s' -o release/udb.darwin64 main.go
+    - /upload-artifacts.sh release/
   artifacts:
     paths:
      - release/
