@@ -38,7 +38,7 @@ func NewManager(storagedir string, password []byte, db *storage.Storage) (*Manag
 		db:         db,
 	}
 	var err error
-	m.client, err = api.Login(storagedir, password)
+	m.client, err = api.Login(storagedir, password, params.GetDefaultNetwork())
 
 	return m, err
 }
