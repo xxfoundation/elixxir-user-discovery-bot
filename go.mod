@@ -12,17 +12,17 @@ require (
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.7.1
-	gitlab.com/elixxir/client v1.2.1-0.20210122230404-7f1d50b3d889
-	gitlab.com/elixxir/comms v0.0.4-0.20210122211001-eb3e305c85ff
-	gitlab.com/elixxir/crypto v0.0.7-0.20210122203651-a435a4de4d5e
-	gitlab.com/elixxir/primitives v0.0.3-0.20210122185056-ad244787d961
+	gitlab.com/elixxir/client v1.2.1-0.20210125223538-95402516322a
+	gitlab.com/elixxir/comms v0.0.4-0.20210125223154-baf943b4a165
+	gitlab.com/elixxir/crypto v0.0.7-0.20210125223043-72e029309669
+	gitlab.com/elixxir/primitives v0.0.3-0.20210125222950-fc017397c606
 	gitlab.com/xx_network/comms v0.0.4-0.20210121204701-7a1eb0542424
 	gitlab.com/xx_network/crypto v0.0.5-0.20210121204626-b251b926e4f7
 	gitlab.com/xx_network/primitives v0.0.4-0.20210121203635-8a771fc14f8a
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
-	golang.org/x/sys v0.0.0-20210122093101-04d7465088b8 // indirect
+	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c // indirect
 	golang.org/x/text v0.3.5 // indirect
-	google.golang.org/genproto v0.0.0-20210122163508-8081c04a3579 // indirect
+	google.golang.org/genproto v0.0.0-20210125195502-f46fe6c6624a // indirect
 	google.golang.org/grpc v1.35.0 // indirect
 )
 
