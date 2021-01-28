@@ -8,6 +8,7 @@ package io
 import (
 	"crypto"
 	"crypto/sha256"
+	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -44,6 +45,10 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 	if err != nil {
 		return &messages.Ack{}, errors.New("Could not parse UID sent over. " +
 			"Please try again")
+	}
+
+	if fact.FactType(msg.Frs.Fact.FactType) == fact.Nickname {
+		return &messages.Ack{}, errors.New(fmt.Sprintf("Cannot register user %s with nickname fact", username))
 	}
 
 	// Check if username is taken

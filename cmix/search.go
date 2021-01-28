@@ -7,6 +7,7 @@ import (
 	"gitlab.com/elixxir/client/interfaces/message"
 	"gitlab.com/elixxir/client/interfaces/params"
 	"gitlab.com/elixxir/client/ud"
+	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/xx_network/primitives/id"
 )
 
@@ -58,6 +59,10 @@ func (m *Manager) handleSearch(msg *ud.SearchSend, requestor *id.ID) (response *
 	var factHashs [][]byte
 	facts := msg.GetFact()
 	for _, f := range facts {
+		if fact.FactType(f.Type) == fact.Nickname {
+			jww.WARN.Printf("Cannot search by nickname, fact hash %+v rejected\n", f.Hash)
+			continue
+		}
 		factHashs = append(factHashs, f.Hash)
 	}
 
