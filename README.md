@@ -9,11 +9,16 @@ The user discovery bot helps users make first contact with other users. Users ca
 
 |Long flag|Short flag|Effect|Example|
 |---|---|---|---|
-|--config| |Specify a different configuration file|--config udb2.yaml|
-|--help|-h|Shows a help message|-h|
+|--config|-c|Specify a different configuration file|--config udb2.yaml|
+|--port|-p|Port which UDB will listen on|--port 1234|
 |--logLevel|-l|Sets the log message level to print. (0 = info, 1 = debug, >1 = trace)|-v 2|
-|--version|-V|Prints generated version information for the UDB and its dependencies. To regenerate log messages, run `$ go generate cmd/version.go`.|-V|
-|--ndf|-n|Path to the network definition file|-V|
+|--log||Path where log file will be saved|--log ./udb-logs/udb.log|
+|--certPath||Path to UDB TLS certificate|--certPath ./keys/udb.pem|
+|--keyPath||Path to UDB TLS private key|--keyPath ./keys/udb.key|
+|--permCertPath||Path to permissioning public certificate|--permCertPath ./keys/permissioning.pem|
+|--sessionPass||Password for UDB session files|--sessionPass pass|
+|--devMode||Activate developer mode|--devMode|
+|--help|-h|Shows a help message|-h|
 
 ## Example configuration
 
@@ -22,10 +27,14 @@ Note: Yaml prohibits the use of tabs. If you put tabs in your config file, the U
 ```yaml
 # Path where UDB will store its logs
 logPath: "udb.log"
+# Path to NDF
+ndfPath: "path/to/ndf"
 # Path where UDB will store session file
-sessionfile: "udb.session"
-#List of names in file that are blacklisted userNames
-blacklistedNamesFilePath: ""
+sessionPath: "/path/to/session"
+sessionPass: "password for session"
+
+# Port which UDB will listen on
+port: "1234"
 
 # Database connection information
 dbUsername: "cmix"
@@ -33,13 +42,26 @@ dbPassword: ""
 dbName: "cmix_server"
 dbAddress: ""
 
+# Certificates
+certPath: "/path/udb.pem"
+keyPath: "/path/udb.key"
+permCertPath: "permissioning.pem"
+
+# Twilio account information
+twilioSid: "sid"
+twilioToken: "token"
+twilioVerification: "verification"
 ```
 
 ## Running
 
 ### Installing dependencies
+Running `make release` will update all dependent repositories to most recent release version
 
-`$ glide up` should automatically download or update all dependencies and place them in the vendor/ folder. If it's not working correctly, try removing `~/.glide/` and `./glide.lock` and trying again to clear the cache. If it still doesn't work, make sure you're pointing to the right versions and that you have access to all the repositories that are getting downloaded.
+Running `go mod vendor` causes updated repos to push to your vendor folder, so your project can use them
+
+Note that repeatedly updating dependencies and running `go mod vendor` will add unneccesary lines to your go.mod file.  Run `go mod tidy` every so often to clean it up.  
+
 
 ### Running tests
 
