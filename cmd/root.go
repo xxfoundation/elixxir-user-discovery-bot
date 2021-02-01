@@ -125,6 +125,8 @@ func init() {
 	handleBindingError(err, "sessionPass")
 
 	rootCmd.Flags().BoolVarP(&devMode, "devMode", "", false, "Developer run mode")
+	err = viper.BindPFlag("devMode", rootCmd.Flags().Lookup("devMode"))
+	handleBindingError(err, "devMode")
 }
 
 // Handle flag binding errors
