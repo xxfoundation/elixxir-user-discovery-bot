@@ -48,6 +48,7 @@ keyPath: "/path/udb.key"
 permCertPath: "permissioning.pem"
 
 # Twilio account information
+# Note: running with --devMode bypasses twilio verification
 twilioSid: "sid"
 twilioToken: "token"
 twilioVerification: "verification"
@@ -62,7 +63,35 @@ Running `go mod vendor` causes updated repos to push to your vendor folder, so y
 
 Note that repeatedly updating dependencies and running `go mod vendor` will add unneccesary lines to your go.mod file.  Run `go mod tidy` every so often to clean it up.  
 
+### Building binaries
 
-### Running tests
+#### Linux
+
+```
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags '-w -s' -o udb main.go
+```
+
+#### Windows
+
+```
+GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags '-w -s' -o udb main.go
+```
+
+or
+
+```
+GOOS=windows GOARCH=386 CGO_ENABLED=0 go build -ldflags '-w -s' -o udb main.go
+```
+
+for a 32 bit version.
+
+#### Mac OSX
+
+```
+GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -ldflags '-w -s' -o udb main.go
+```
+
+
+## Running tests
 
 Simply run `$ go test ./...`
