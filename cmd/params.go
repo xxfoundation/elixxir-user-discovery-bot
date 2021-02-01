@@ -65,6 +65,8 @@ func InitParams(vip *viper.Viper) params.General {
 		DbPort:     port,
 	}
 
+	devMode = viper.GetBool("devMode")
+
 	twilioparams := params.Twilio{
 		AccountSid:      viper.GetString("twilioSid"),
 		AuthToken:       viper.GetString("twilioToken"),
