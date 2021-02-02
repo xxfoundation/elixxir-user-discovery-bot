@@ -26,7 +26,7 @@ Note: Yaml prohibits the use of tabs. If you put tabs in your config file, the U
 
 ```yaml
 # Path where UDB will store its logs
-logPath: "udb.log"
+log: "udb.log"
 # Path to NDF
 ndfPath: "path/to/ndf"
 # Path where UDB will store session file
