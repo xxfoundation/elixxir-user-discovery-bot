@@ -8,15 +8,15 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/lib/pq v1.9.0 // indirect
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
-	github.com/nyaruka/phonenumbers v1.0.64 // indirect
+	github.com/nyaruka/phonenumbers v1.0.65 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.7.1
 	github.com/ugorji/go v1.1.4 // indirect
 	github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77 // indirect
-	gitlab.com/elixxir/client v1.2.1-0.20210128233214-5432d9a6c2b4
-	gitlab.com/elixxir/comms v0.0.4-0.20210128232810-8f2ffd6ed805
+	gitlab.com/elixxir/client v1.2.1-0.20210202031227-5c143de28e66
+	gitlab.com/elixxir/comms v0.0.4-0.20210202030342-3e0a43736d5b
 	gitlab.com/elixxir/crypto v0.0.7-0.20210128232700-0d547d16aff5
 	gitlab.com/elixxir/primitives v0.0.3-0.20210126180712-bfbfb725c75a
 	gitlab.com/xx_network/comms v0.0.4-0.20210121204701-7a1eb0542424
@@ -25,7 +25,7 @@ require (
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
 	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c // indirect
 	golang.org/x/text v0.3.5 // indirect
-	google.golang.org/genproto v0.0.0-20210126160654-44e461bb6506 // indirect
+	google.golang.org/genproto v0.0.0-20210201184850-646a494a81ea // indirect
 	google.golang.org/grpc v1.35.0 // indirect
 )
 
