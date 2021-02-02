@@ -139,12 +139,18 @@ func handleBindingError(err error, flag string) {
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	validConfig = true
+	var err error
 	if cfgFile == "" {
-		var err error
 		cfgFile, err = utils.SearchDefaultLocations("udb.yaml", "xxnetwork")
 		if err != nil {
 			validConfig = false
 			jww.FATAL.Panicf("Failed to find config file: %+v", err)
+		}
+	} else {
+		cfgFile, err = utils.ExpandPath(cfgFile)
+		if err != nil {
+			validConfig = false
+			jww.FATAL.Panicf("Failed to expand config file path: %+v", err)
 		}
 	}
 	viper.SetConfigFile(cfgFile)
