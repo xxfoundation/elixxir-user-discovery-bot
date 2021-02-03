@@ -30,7 +30,7 @@ type ClientInterface interface {
 }
 
 // Create a CMIX Manager
-func NewManager(storagedir string, password []byte, db *storage.Storage) (*Manager, error) {
+func NewManager(storagedir string, password []byte, ndf string, db *storage.Storage) (*Manager, error) {
 	m := &Manager{
 		client:     nil,
 		lookupChan: make(chan message.Receive, 1000),
@@ -38,7 +38,7 @@ func NewManager(storagedir string, password []byte, db *storage.Storage) (*Manag
 		db:         db,
 	}
 	var err error
-	m.client, err = api.Login(storagedir, password, params.GetDefaultNetwork())
+	m.client, err = api.LoginWithNewBaseNDF_UNSAFE(storagedir, password, ndf, params.GetDefaultNetwork())
 
 	return m, err
 }

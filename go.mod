@@ -3,7 +3,6 @@ module gitlab.com/elixxir/user-discovery-bot
 go 1.13
 
 require (
-	github.com/armon/consul-api v0.0.0-20180202201655-eb2c6b5be1b6 // indirect
 	github.com/golang/protobuf v1.4.3
 	github.com/jinzhu/gorm v1.9.16
 	github.com/lib/pq v1.9.0 // indirect
@@ -13,9 +12,7 @@ require (
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.7.1
-	github.com/ugorji/go v1.1.4 // indirect
-	github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77 // indirect
-	gitlab.com/elixxir/client v1.2.1-0.20210202031227-5c143de28e66
+	gitlab.com/elixxir/client v1.2.1-0.20210203181527-e93e7a9d201b
 	gitlab.com/elixxir/comms v0.0.4-0.20210202030342-3e0a43736d5b
 	gitlab.com/elixxir/crypto v0.0.7-0.20210128232700-0d547d16aff5
 	gitlab.com/elixxir/primitives v0.0.3-0.20210126180712-bfbfb725c75a
