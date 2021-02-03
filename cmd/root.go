@@ -51,7 +51,7 @@ var rootCmd = &cobra.Command{
 		permCert, err := tls.ExtractPublicKey(cert)
 		_ = io.NewManager(p.IO, &id.UDB, permCert, twilioManager, storage)
 
-		m, err := cmix.NewManager(p.SessionPath, []byte(sessionPass), storage)
+		m, err := cmix.NewManager(p.SessionPath, []byte(sessionPass), p.Ndf, storage)
 		if err != nil {
 			jww.FATAL.Fatalf("Failed to create cmix manager: %+v", err)
 		}
