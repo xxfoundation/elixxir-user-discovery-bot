@@ -371,6 +371,8 @@ gitlab.com/elixxir/client v1.2.1-0.20210128233214-5432d9a6c2b4 h1:/EcVxVmUf4XhsH
 gitlab.com/elixxir/client v1.2.1-0.20210128233214-5432d9a6c2b4/go.mod h1:Km/k7EeF8jhKWI3cgKgeBF6krleDjJt48Am5imy8+iY=
 gitlab.com/elixxir/client v1.2.1-0.20210202031227-5c143de28e66 h1:kM48ZpmloV0I52hicFERCvVtmDPTOKej61lLRBxNE/8=
 gitlab.com/elixxir/client v1.2.1-0.20210202031227-5c143de28e66/go.mod h1:PPGSTmnQBYO/3PvcIOi08fsT+UtR9ps6FpPHBrfgQSQ=
+gitlab.com/elixxir/client v1.2.1-0.20210204160105-d3d6552cb2e5 h1:75Kn0E01qqQ2IHPqEokriew/HoQvYza1XAG8HoPoag8=
+gitlab.com/elixxir/client v1.2.1-0.20210204160105-d3d6552cb2e5/go.mod h1:PPGSTmnQBYO/3PvcIOi08fsT+UtR9ps6FpPHBrfgQSQ=
 gitlab.com/elixxir/comms v0.0.3 h1:7cFvBZddX/8JSY5MvfPpg21niV88IpeqQkoKs15erZM=
 gitlab.com/elixxir/comms v0.0.3/go.mod h1:5p7oz4yFrK037rPap6ooaWrloJrzuVZ4jnzOdvgyqnU=
 gitlab.com/elixxir/comms v0.0.4-0.20201103220934-c476c9282f30/go.mod h1:5p7oz4yFrK037rPap6ooaWrloJrzuVZ4jnzOdvgyqnU=
@@ -720,6 +722,8 @@ google.golang.org/genproto v0.0.0-20210126160654-44e461bb6506 h1:uLBY0yHDCj2PMQ9
 google.golang.org/genproto v0.0.0-20210126160654-44e461bb6506/go.mod h1:FWY/as6DDZQgahTzZj3fqbO1CbirC29ZNUFHwi0/+no=
 google.golang.org/genproto v0.0.0-20210201184850-646a494a81ea h1:B/tOZ5zKaomKBjKJJMjuqwmIc3YNX10q5DcCt8xLYY4=
 google.golang.org/genproto v0.0.0-20210201184850-646a494a81ea/go.mod h1:FWY/as6DDZQgahTzZj3fqbO1CbirC29ZNUFHwi0/+no=
+google.golang.org/genproto v0.0.0-20210204154452-deb828366460 h1:pvsg2TgyP8bWrYqyL10tbNHu5KypD5DWJPrCjaTkwZA=
+google.golang.org/genproto v0.0.0-20210204154452-deb828366460/go.mod h1:FWY/as6DDZQgahTzZj3fqbO1CbirC29ZNUFHwi0/+no=
 google.golang.org/protobuf v0.0.0-20200109180630-ec00e32a8dfd/go.mod h1:DFci5gLYBciE7Vtevhsrf46CRTquxDuWsQurQQe4oz8=
 google.golang.org/protobuf v0.0.0-20200221191635-4d8936d0db64/go.mod h1:kwYJMbMJ01Woi6D6+Kah6886xMZcty6N08ah7+eCXa0=
 google.golang.org/protobuf v0.0.0-20200228230310-ab0ca4ff8a60/go.mod h1:cfTl7dwQJ+fmap5saPgwCLgHXTUD7jkjRqWcaiX5VyM=
