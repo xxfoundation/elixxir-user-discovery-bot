@@ -6,8 +6,6 @@
 package io
 
 import (
-	"crypto"
-	"crypto/sha256"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -54,18 +52,21 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 	}
 
 	// Hash the rsa public key, what permissioning signature was signed off of
-	h := sha256.New()
+	h, err := hash.NewCMixHash()
+	if err != nil {
+		return &messages.Ack{}, errors.Errorf("Failed to create cmix hash: %+v", err)
+	}
 	h.Write([]byte(msg.RSAPublicPem))
 	hashedRsaKey := h.Sum(nil)
 
 	// Verify the Permissioning signature provided
-	err = rsa.Verify(permPublicKey, crypto.SHA256, hashedRsaKey,
+	err = rsa.Verify(permPublicKey, hash.CMixHash, hashedRsaKey,
 		msg.PermissioningSignature, nil)
 	if err != nil {
 		return &messages.Ack{}, errors.Errorf(
 			"Could not verify permissioning signature. "+
-				"Data: %s, Signature: %s",
-			msg.RSAPublicPem, msg.PermissioningSignature)
+				"Data: %s, Signature: %s, %+v",
+			msg.RSAPublicPem, msg.PermissioningSignature, err)
 	}
 
 	// Parse the client's public key

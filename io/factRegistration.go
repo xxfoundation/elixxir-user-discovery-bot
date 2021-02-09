@@ -29,6 +29,7 @@ var (
 	invalidFactCodeError           = "Failed to parse the FactConfirmRequest code."
 	twilioConfirmFailureError      = "Failed to confirm fact with Twilio"
 	twilioVerificationFailureError = "Twilio verification failed."
+	nicknameFactError              = "Cannot register nickname type facts"
 )
 
 // registerFact is an endpoint that attempts to register a user's fact.
@@ -43,6 +44,10 @@ func registerFact(request *pb.FactRegisterRequest, verifier *twilio.Manager, sto
 	// Return an error if the request is invalid
 	if request == nil || request.Fact == nil {
 		return &pb.FactRegisterResponse{}, errors.New(invalidFactRegisterRequestError)
+	}
+
+	if fact.FactType(request.Fact.FactType) == fact.Nickname {
+		return &pb.FactRegisterResponse{}, errors.New(nicknameFactError)
 	}
 
 	f, err := fact.NewFact(fact.FactType(request.Fact.FactType), request.Fact.Fact)

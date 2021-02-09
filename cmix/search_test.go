@@ -6,6 +6,7 @@ import (
 	"gitlab.com/elixxir/client/switchboard"
 	"gitlab.com/elixxir/client/ud"
 	"gitlab.com/elixxir/crypto/e2e"
+	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/xx_network/primitives/id"
 	"testing"
@@ -104,5 +105,18 @@ func TestManager_handleSearch(t *testing.T) {
 	}
 	if len(resp.Contacts) != 1 {
 		t.Errorf("Did not receive expected number of contacts")
+	}
+
+	resp = manager.handleSearch(&ud.SearchSend{
+		Fact: []*ud.HashFact{
+			{
+				Hash: fid,
+				Type: int32(fact.Nickname),
+			},
+		},
+		CommID: 0,
+	}, id.NewIdFromString("zezima", id.User, t))
+	if len(resp.Contacts) != 0 {
+		t.Errorf("Should not be able to search with nickname")
 	}
 }
