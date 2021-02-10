@@ -10,18 +10,18 @@ require (
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/nyaruka/phonenumbers v1.0.66 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/spf13/cobra v1.1.1
+	github.com/spf13/cobra v1.1.3
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.7.1
 	github.com/ugorji/go v1.1.4 // indirect
 	github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77 // indirect
-	gitlab.com/elixxir/client v1.2.1-0.20210209204400-fa65e7abf18d
-	gitlab.com/elixxir/comms v0.0.4-0.20210209203849-4550368d6bc9
-	gitlab.com/elixxir/crypto v0.0.7-0.20210208211519-5f5b427b29d7
-	gitlab.com/elixxir/primitives v0.0.3-0.20210208211427-8140bdd93b0b
-	gitlab.com/xx_network/comms v0.0.4-0.20210208222850-a4426ef99e37
-	gitlab.com/xx_network/crypto v0.0.5-0.20210208211326-ba22f885317c
-	gitlab.com/xx_network/primitives v0.0.4-0.20210208204253-ed1a9ef0c75e
+	gitlab.com/elixxir/client v1.2.1-0.20210210220409-cf010dd8def6
+	gitlab.com/elixxir/comms v0.0.4-0.20210210215855-f8a4b9751c59
+	gitlab.com/elixxir/crypto v0.0.7-0.20210210215733-951b4e717763
+	gitlab.com/elixxir/primitives v0.0.3-0.20210210215643-bf48247248e5
+	gitlab.com/xx_network/comms v0.0.4-0.20210210215624-622913c0a215
+	gitlab.com/xx_network/crypto v0.0.5-0.20210210215543-446333e9022e
+	gitlab.com/xx_network/primitives v0.0.4-0.20210210215152-e4534abf3ae5
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
 	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c // indirect
 	golang.org/x/text v0.3.5 // indirect
