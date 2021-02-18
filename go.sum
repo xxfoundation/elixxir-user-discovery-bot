@@ -387,6 +387,8 @@ gitlab.com/elixxir/client v1.2.1-0.20210216175214-320219a1cac5 h1:vylQD9NA9Wfrn5
 gitlab.com/elixxir/client v1.2.1-0.20210216175214-320219a1cac5/go.mod h1:0ktWYTqnCMFmYGvlfMCSQsbVgx/ZONclIVryIS+LJn4=
 gitlab.com/elixxir/client v1.2.1-0.20210217224525-69f8857780b6 h1:gBd4vWlVz5T/gfl678nIk3PqSzYs9nVe9TX5dF0C8mg=
 gitlab.com/elixxir/client v1.2.1-0.20210217224525-69f8857780b6/go.mod h1:bIDIpK7VKevdSP8H/ysVVgJc7hy0CxSdOoiTjIBfmuA=
+gitlab.com/elixxir/client v1.2.1-0.20210218184103-4b97f64a0d19 h1:6gXXgPSh0Nxqcq7LdwCmd5knba3rbDEm/G3vr/EcO6o=
+gitlab.com/elixxir/client v1.2.1-0.20210218184103-4b97f64a0d19/go.mod h1:bIDIpK7VKevdSP8H/ysVVgJc7hy0CxSdOoiTjIBfmuA=
 gitlab.com/elixxir/comms v0.0.3 h1:7cFvBZddX/8JSY5MvfPpg21niV88IpeqQkoKs15erZM=
 gitlab.com/elixxir/comms v0.0.3/go.mod h1:5p7oz4yFrK037rPap6ooaWrloJrzuVZ4jnzOdvgyqnU=
 gitlab.com/elixxir/comms v0.0.4-0.20201103220934-c476c9282f30/go.mod h1:5p7oz4yFrK037rPap6ooaWrloJrzuVZ4jnzOdvgyqnU=
@@ -601,6 +603,8 @@ golang.org/x/crypto v0.0.0-20201217014255-9d1352758620 h1:3wPMTskHO3+O6jqTEXyFcs
 golang.org/x/crypto v0.0.0-20201217014255-9d1352758620/go.mod h1:jdWPYTVW3xRLrWPugEBEK3UY2ZEsg3UU495nc5E+M+I=
 golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad h1:DN0cp81fZ3njFcrLCytUHRSUkqBjfTo4Tx9RJTWs0EY=
 golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad/go.mod h1:jdWPYTVW3xRLrWPugEBEK3UY2ZEsg3UU495nc5E+M+I=
+golang.org/x/crypto v0.0.0-20210218145215-b8e89b74b9df h1:y7QZzfUiTwWam+xBn29Ulb8CBwVN5UdzmMDavl9Whlw=
+golang.org/x/crypto v0.0.0-20210218145215-b8e89b74b9df/go.mod h1:jdWPYTVW3xRLrWPugEBEK3UY2ZEsg3UU495nc5E+M+I=
 golang.org/x/exp v0.0.0-20190121172915-509febef88a4/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
 golang.org/x/exp v0.0.0-20190306152737-a1d7652674e8/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
 golang.org/x/exp v0.0.0-20190510132918-efd6b22b2522/go.mod h1:ZjyILWgesfNpC6sMxTJOJm9Kp84zZh5NQWvqDGG3Qr8=
@@ -701,6 +705,8 @@ golang.org/x/sys v0.0.0-20210216163648-f7da38b97c65 h1:pTMjDVnP5eVRRlWO76rEWJ8Jo
 golang.org/x/sys v0.0.0-20210216163648-f7da38b97c65/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210217105451-b926d437f341 h1:2/QtM1mL37YmcsT8HaDNHDgTqqFVw+zr8UzMiBVLzYU=
 golang.org/x/sys v0.0.0-20210217105451-b926d437f341/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20210218155724-8ebf48af031b h1:lAZ0/chPUDWwjqosYR0X4M490zQhMsiJ4K3DbA7o+3g=
+golang.org/x/sys v0.0.0-20210218155724-8ebf48af031b/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/term v0.0.0-20201117132131-f5c789dd3221/go.mod h1:Nr5EML6q2oocZ2LXRh80K7BxOlk5/8JxuGnuhpl+muw=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
@@ -790,6 +796,8 @@ google.golang.org/genproto v0.0.0-20210212180131-e7f2df4ecc2d h1:Edhcm0CKDPLQIec
 google.golang.org/genproto v0.0.0-20210212180131-e7f2df4ecc2d/go.mod h1:FWY/as6DDZQgahTzZj3fqbO1CbirC29ZNUFHwi0/+no=
 google.golang.org/genproto v0.0.0-20210217220511-c18582744cc2 h1:pkt4FLyKaqUuYonDpjdYNhcyWRKxn9Fs8cttR9ldTHA=
 google.golang.org/genproto v0.0.0-20210217220511-c18582744cc2/go.mod h1:FWY/as6DDZQgahTzZj3fqbO1CbirC29ZNUFHwi0/+no=
+google.golang.org/genproto v0.0.0-20210218151259-fe80b386bf06 h1:Px6YyLaNKEo5eoniIBAv6Es0jbvyEmSYqOac64iS2Rs=
+google.golang.org/genproto v0.0.0-20210218151259-fe80b386bf06/go.mod h1:FWY/as6DDZQgahTzZj3fqbO1CbirC29ZNUFHwi0/+no=
 google.golang.org/protobuf v0.0.0-20200109180630-ec00e32a8dfd/go.mod h1:DFci5gLYBciE7Vtevhsrf46CRTquxDuWsQurQQe4oz8=
 google.golang.org/protobuf v0.0.0-20200221191635-4d8936d0db64/go.mod h1:kwYJMbMJ01Woi6D6+Kah6886xMZcty6N08ah7+eCXa0=
 google.golang.org/protobuf v0.0.0-20200228230310-ab0ca4ff8a60/go.mod h1:cfTl7dwQJ+fmap5saPgwCLgHXTUD7jkjRqWcaiX5VyM=
