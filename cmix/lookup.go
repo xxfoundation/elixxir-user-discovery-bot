@@ -4,70 +4,58 @@ import (
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/client/interfaces/message"
-	"gitlab.com/elixxir/client/interfaces/params"
+	"gitlab.com/elixxir/client/single"
 	"gitlab.com/elixxir/client/ud"
 	"gitlab.com/xx_network/primitives/id"
+	"time"
 )
 
-func (m *Manager) LookupProcess() {
-	for true {
-		request := <-m.lookupChan
+func (m *Manager) lookupCallback(payload []byte, c single.Contact) {
+	lookupMsg := &ud.LookupSend{}
+	if err := proto.Unmarshal(payload, lookupMsg); err != nil {
+		jww.ERROR.Printf("Failed to unmarshal lookup request from %s: %+v",
+			c.GetPartner(), err)
+		return
+	}
 
-		lookupMsg := &ud.LookupSend{}
-		if err := proto.Unmarshal(request.Payload, lookupMsg); err != nil {
-			jww.ERROR.Printf("failed to unmarshal lookup "+
-				"request from %s: %+v", request.Sender, err)
-			continue
-		}
+	jww.INFO.Printf("Lookup request from %s: %v", c.GetPartner(), payload)
 
-		response := m.handleLookup(lookupMsg, request.Sender)
+	response := m.handleLookup(lookupMsg, c)
 
-		marshaledResponse, err := proto.Marshal(response)
-		if err != nil {
-			jww.ERROR.Printf("failed to marshal responce "+
-				"to request from %s: %+v", request.Sender, err)
-			continue
-		}
+	marshaledResponse, err := proto.Marshal(response)
+	if err != nil {
+		jww.ERROR.Printf("Failed to marshal request to lookup request from "+
+			"%s: %+v", c.GetPartner(), err)
+		return
+	}
 
-		responseMsg := message.Send{
-			Recipient:   request.Sender,
-			Payload:     marshaledResponse,
-			MessageType: message.UdLookupResponse,
-		}
-
-		_, err = m.client.SendUnsafe(responseMsg, params.GetDefaultUnsafe())
-
-		if err != nil {
-			jww.ERROR.Printf("failed to send responce "+
-				"to lookup request from %s: %+v", request.Sender, err)
-		}
+	// TODO: make timeout come from config file, default to 1 minute
+	err = m.singleUse.RespondSingleUse(c, marshaledResponse, 1*time.Minute)
+	if err != nil {
+		jww.ERROR.Printf("Failed to send single-use response to to lookup "+
+			"request from %s: %+v", c.GetPartner(), err)
+		return
 	}
 }
 
-func (m *Manager) handleLookup(msg *ud.LookupSend, requestor *id.ID) *ud.LookupResponse {
+func (m *Manager) handleLookup(msg *ud.LookupSend, c single.Contact) *ud.LookupResponse {
+	response := &ud.LookupResponse{}
 
-	response := &ud.LookupResponse{
-		PubKey: nil,
-		CommID: msg.CommID,
-		Error:  "",
-	}
-
-	//decode the id to lookup
+	// Decode the ID to lookup
 	lookupID, err := id.Unmarshal(msg.UserID)
 	if err != nil {
 		response.Error = fmt.Sprintf("failed to unmarshal lookup ID in "+
-			"request from %s: %+v", requestor, err)
-		jww.WARN.Println(response.Error)
+			"request from %s: %+v", c.GetPartner(), err)
+		jww.WARN.Printf("Failed to handle lookup response: %+v", response.Error)
 		return response
 	}
 
-	//lookup the id
-	usr, err := m.db.GetUser(lookupID.Bytes())
+	// Lookup the ID
+	usr, err := m.db.GetUser(lookupID.Marshal())
 	if err != nil {
-		response.Error = fmt.Sprintf("failed to lookup ID %s in "+
-			"request from %s: %+v", lookupID, requestor, err)
-		jww.WARN.Println(response.Error)
+		response.Error = fmt.Sprintf("failed to lookup ID %s in request from "+
+			"%s: %+v", lookupID, c.GetPartner(), err)
+		jww.WARN.Printf("Failed to handle lookup response: %+v", response.Error)
 		return response
 	}
 

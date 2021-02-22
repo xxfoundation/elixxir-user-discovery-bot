@@ -5,6 +5,9 @@ import (
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
+	"gitlab.com/elixxir/client/api"
+	"gitlab.com/elixxir/client/interfaces/params"
+	"gitlab.com/elixxir/client/single"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/user-discovery-bot/cmix"
 	"gitlab.com/elixxir/user-discovery-bot/io"
@@ -28,8 +31,8 @@ var (
 // RootCmd represents the base command when called without any sub-commands
 var rootCmd = &cobra.Command{
 	Use:   "UDB",
-	Short: "Runs the cmix UDB server",
-	Long:  `The cMix UDB server handles user & fact registration for the network`,
+	Short: "Runs the cMix UDB server.",
+	Long:  "The cMix UDB server handles user and fact registration for the network.",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		initConfig()
@@ -51,15 +54,19 @@ var rootCmd = &cobra.Command{
 		permCert, err := tls.ExtractPublicKey(cert)
 		_ = io.NewManager(p.IO, &id.UDB, permCert, twilioManager, storage)
 
-		m, err := cmix.NewManager(p.SessionPath, []byte(sessionPass), storage)
+		client, err := api.Login(p.SessionPath, []byte(sessionPass), params.GetDefaultNetwork())
 		if err != nil {
-			jww.FATAL.Fatalf("Failed to create cmix manager: %+v", err)
+			jww.FATAL.Fatalf("Failed to create client: %+v", err)
 		}
 
-		err = m.Start()
+		err = client.StartNetworkFollower()
 		if err != nil {
-			jww.FATAL.Fatalf("Failed to start cmix manager: %+v", err)
+			jww.FATAL.Fatal(err)
 		}
+
+		m := cmix.NewManager(single.NewManager(client), storage)
+		client.AddService(m.Start)
+
 		// Wait forever
 		select {}
 	},
@@ -73,14 +80,6 @@ func Execute() {
 }
 
 func init() {
-	// NOTE: The point of init() is to be declarative.
-	// There is one init in each sub command. Do not put variable declarations
-	// here, and ensure all the Flags are of the *P variety, unless there's a
-	// very good reason not to have them as local Params to sub command."
-
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
 	rootCmd.Flags().StringVarP(&cfgFile, "config", "c", "",
 		"Path to load the UDB configuration file from. If not set, this "+
 			"file must be named udb.yaml and must be located in "+
@@ -103,8 +102,7 @@ func init() {
 	handleBindingError(err, "log")
 
 	rootCmd.Flags().StringVar(&certPath, "certPath", "",
-		"Path to the TLS certificate for UDB. Expects PEM "+
-			"format. Required field.")
+		"Path to the TLS certificate for UDB. Expects PEM format. Required field.")
 	err = viper.BindPFlag("certPath", rootCmd.Flags().Lookup("certPath"))
 	handleBindingError(err, "certPath")
 

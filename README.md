@@ -12,12 +12,12 @@ The user discovery bot helps users make first contact with other users. Users ca
 |--config|-c|Specify a different configuration file|--config udb2.yaml|
 |--port|-p|Port which UDB will listen on|--port 1234|
 |--logLevel|-l|Sets the log message level to print. (0 = info, 1 = debug, >1 = trace)|-v 2|
-|--log||Path where log file will be saved|--log ./udb-logs/udb.log|
-|--certPath||Path to UDB TLS certificate|--certPath ./keys/udb.pem|
-|--keyPath||Path to UDB TLS private key|--keyPath ./keys/udb.key|
-|--permCertPath||Path to permissioning public certificate|--permCertPath ./keys/permissioning.pem|
-|--sessionPass||Password for UDB session files|--sessionPass pass|
-|--devMode||Activate developer mode|--devMode|
+|--log| |Path where log file will be saved|--log ./udb-logs/udb.log|
+|--certPath| |Path to UDB TLS certificate|--certPath ./keys/udb.pem|
+|--keyPath| |Path to UDB TLS private key|--keyPath ./keys/udb.key|
+|--permCertPath| |Path to permissioning public certificate|--permCertPath ./keys/permissioning.pem|
+|--sessionPass| |Password for UDB session files|--sessionPass pass|
+|--devMode| |Activate developer mode|--devMode|
 |--help|-h|Shows a help message|-h|
 
 ## Example configuration
