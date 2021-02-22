@@ -4,90 +4,80 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/client/interfaces/message"
-	"gitlab.com/elixxir/client/interfaces/params"
+	"gitlab.com/elixxir/client/single"
 	"gitlab.com/elixxir/client/ud"
 	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/xx_network/primitives/id"
+	"time"
 )
 
-func (m *Manager) SearchProcess() {
-	for true {
-		request := <-m.searchChan
+func (m *Manager) searchCallback(payload []byte, c single.Contact) {
+	searchMsg := &ud.SearchSend{}
+	if err := proto.Unmarshal(payload, searchMsg); err != nil {
+		jww.ERROR.Printf("Failed to unmarshal search request from %s: %+v",
+			c.GetPartner(), err)
+		return
+	}
 
-		searchMsg := &ud.SearchSend{}
-		if err := proto.Unmarshal(request.Payload, searchMsg); err != nil {
-			jww.ERROR.Printf("failed to unmarshal search "+
-				"request from %s: %+v", request.Sender, err)
-			continue
-		}
+	jww.INFO.Printf("Search request from %s: %v", c.GetPartner(), payload)
 
-		jww.INFO.Printf("Search Request from %s: %v", request.Sender,
-			request)
+	response := m.handleSearch(searchMsg, c)
 
-		response := m.handleSearch(searchMsg, request.Sender)
+	marshaledResponse, err := proto.Marshal(response)
+	if err != nil {
+		jww.ERROR.Printf("Failed to marshal request to search request from "+
+			"%s: %+v", c.GetPartner(), err)
+		return
+	}
 
-		marshaledResponse, err := proto.Marshal(response)
-		if err != nil {
-			jww.ERROR.Printf("failed to marshal responce "+
-				"to search request from %s: %+v", request.Sender, err)
-			continue
-		}
-
-		responseMsg := message.Send{
-			Recipient:   request.Sender,
-			Payload:     marshaledResponse,
-			MessageType: message.UdSearchResponse,
-		}
-
-		_, err = m.client.SendUnsafe(responseMsg, params.GetDefaultUnsafe())
-
-		if err != nil {
-			jww.ERROR.Printf("failed to send responce "+
-				"to search request from %s: %+v", request.Sender, err)
-		}
+	// TODO: make timeout come from config file, default to 1 minute
+	err = m.singleUse.RespondSingleUse(c, marshaledResponse, 1*time.Minute)
+	if err != nil {
+		jww.ERROR.Printf("Failed to send single-use response to to search "+
+			"request from %s: %+v", c.GetPartner(), err)
+		return
 	}
 }
 
-func (m *Manager) handleSearch(msg *ud.SearchSend, requestor *id.ID) (response *ud.SearchResponse) {
-	response = &ud.SearchResponse{
-		Contacts: nil,
-		CommID:   msg.CommID,
-		Error:    "",
-	}
+func (m *Manager) handleSearch(msg *ud.SearchSend, c single.Contact) *ud.SearchResponse {
+	response := &ud.SearchResponse{}
 
-	var factHashs [][]byte
+	var factHashes [][]byte
 	facts := msg.GetFact()
 	for _, f := range facts {
 		if fact.FactType(f.Type) == fact.Nickname {
-			jww.WARN.Printf("Cannot search by nickname, fact hash %+v rejected\n", f.Hash)
+			jww.WARN.Printf("Cannot search by nickname; fact hash %+v rejected.",
+				f.Hash)
 			continue
 		}
-		factHashs = append(factHashs, f.Hash)
+		factHashes = append(factHashes, f.Hash)
 	}
 
-	users, err := m.db.Search(factHashs)
+	users, err := m.db.Search(factHashes)
 	if err != nil {
-		response.Error = errors.WithMessage(err, "handleSearch error: failed to execute search").Error()
-		return
+		response.Error = errors.WithMessage(err, "failed to execute search").Error()
+		jww.WARN.Printf("Failed to handle search response: %+v", response.Error)
+		return response
 	}
+
 	for _, u := range users {
 		uid, _ := id.Unmarshal(u.Id)
-		jww.DEBUG.Printf("User found in Search by %s: %s", requestor,
-			uid)
-		var ufacts []*ud.HashFact
+		jww.DEBUG.Printf("User found in search by %s: %s", c.GetPartner(), uid)
+
+		var uFacts []*ud.HashFact
 		for _, f := range u.Facts {
-			ufacts = append(ufacts, &ud.HashFact{
+			uFacts = append(uFacts, &ud.HashFact{
 				Hash: f.Hash,
 				Type: int32(f.Type),
 			})
 		}
+
 		response.Contacts = append(response.Contacts, &ud.Contact{
 			UserID:    u.Id,
 			PubKey:    u.DhPub,
-			TrigFacts: ufacts,
+			TrigFacts: uFacts,
 		})
 	}
 
-	return
+	return response
 }
