@@ -54,7 +54,7 @@ var rootCmd = &cobra.Command{
 		permCert, err := tls.ExtractPublicKey(cert)
 		_ = io.NewManager(p.IO, &id.UDB, permCert, twilioManager, storage)
 
-		client, err := api.Login(p.SessionPath, []byte(sessionPass), params.GetDefaultNetwork())
+		client, err := api.LoginWithNewBaseNDF_UNSAFE(p.SessionPath, []byte(sessionPass), p.Ndf, params.GetDefaultNetwork())
 		if err != nil {
 			jww.FATAL.Fatalf("Failed to create client: %+v", err)
 		}
