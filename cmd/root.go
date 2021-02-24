@@ -61,7 +61,10 @@ var rootCmd = &cobra.Command{
 
 		// Set up manager with the ability to contact permissioning
 		manager := io.NewManager(p.IO, &id.UDB, permCert, twilioManager, storage)
-		permHost, err := manager.Comms.AddHost(&id.Permissioning, viper.GetString("permAddress"), p.PermCert, connect.GetDefaultHostParams())
+		hostParams := connect.GetDefaultHostParams()
+		hostParams.AuthEnabled = false
+		permHost, err := manager.Comms.AddHost(&id.Permissioning,
+			viper.GetString("permAddress"), p.PermCert, hostParams)
 		if err != nil {
 			jww.FATAL.Panicf("Unable to add permissioning host: %+v", err)
 		}
