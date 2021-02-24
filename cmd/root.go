@@ -16,8 +16,11 @@ import (
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/crypto/tls"
 	"gitlab.com/xx_network/primitives/id"
+	"gitlab.com/xx_network/primitives/ndf"
 	"gitlab.com/xx_network/primitives/utils"
 	"os"
+	"strings"
+	"time"
 )
 
 var (
@@ -56,19 +59,31 @@ var rootCmd = &cobra.Command{
 		}
 		permCert, err := tls.ExtractPublicKey(cert)
 
-		// Obtain NDF from permissioning
+		// Set up manager with the ability to contact permissioning
 		manager := io.NewManager(p.IO, &id.UDB, permCert, twilioManager, storage)
 		permHost, err := manager.Comms.AddHost(&id.Permissioning, viper.GetString("permAddress"), p.PermCert, connect.GetDefaultHostParams())
 		if err != nil {
 			jww.FATAL.Panicf("Unable to add permissioning host: %+v", err)
 		}
-		ndf, err := manager.Comms.RequestNdf(permHost)
-		if err != nil {
-			jww.FATAL.Panicf("Unable to get NDF: %+v", err)
+
+		// Obtain the NDF from permissioning
+		returnedNdf, err := manager.Comms.RequestNdf(permHost)
+		// Keep going until we get a grpc error or we get an ndf
+		for err != nil {
+			// If there is an unexpected error
+			if !strings.Contains(err.Error(), ndf.NO_NDF) {
+				// If it is not an issue with no ndf, return the error up the stack
+				jww.FATAL.Panicf("Failed to get NDF from permissioning: %v", err)
+			}
+
+			// If the error is that the permissioning server is not ready, ask again
+			jww.WARN.Println("Failed to get an ndf, possibly not ready yet. Retying now...")
+			time.Sleep(250 * time.Millisecond)
+			returnedNdf, err = manager.Comms.RequestNdf(permHost)
 		}
 
 		// Pass NDF directly into client library
-		client, err := api.LoginWithNewBaseNDF_UNSAFE(p.SessionPath, []byte(sessionPass), string(ndf.GetNdf()), params.GetDefaultNetwork())
+		client, err := api.LoginWithNewBaseNDF_UNSAFE(p.SessionPath, []byte(sessionPass), string(returnedNdf.GetNdf()), params.GetDefaultNetwork())
 		if err != nil {
 			jww.FATAL.Fatalf("Failed to create client: %+v", err)
 		}
