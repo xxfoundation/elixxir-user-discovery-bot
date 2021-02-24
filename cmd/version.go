@@ -12,18 +12,15 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"gitlab.com/elixxir/client/api"
 	"gitlab.com/xx_network/primitives/utils"
 )
 
 // Change this value to set the version for this build
 const currentVersion = "1.4.0"
 
-func Version() string {
-	out := fmt.Sprintf("Elixxir UDB v%s -- %s\n\n", api.SEMVER,
-		api.GITVERSION)
-	out += fmt.Sprintf("Dependencies:\n\n%s\n", api.DEPENDENCIES)
-	return out
+func printVersion() {
+	fmt.Printf("xx network User Discovery v%s -- %s\n\n", SEMVER, GITVERSION)
+	fmt.Printf("Dependencies:\n\n%s\n", DEPENDENCIES)
 }
 
 func init() {
@@ -33,17 +30,17 @@ func init() {
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Print the version and dependency information for the Elixxir binary",
-	Long:  `Print the version and dependency information for the Elixxir binary`,
+	Short: "Print the version and dependency information for the xx network binary",
+	Long:  `Print the version and dependency information for the xx network binary`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf(Version())
+		printVersion()
 	},
 }
 
 var generateCmd = &cobra.Command{
 	Use:   "generate",
-	Short: "Generates version and dependency information for the Elixxir binary",
-	Long:  `Generates version and dependency information for the Elixxir binary`,
+	Short: "Generates version and dependency information for the xx network binary",
+	Long:  `Generates version and dependency information for the xx network binary`,
 	Run: func(cmd *cobra.Command, args []string) {
 		utils.GenerateVersionFile(currentVersion)
 	},
