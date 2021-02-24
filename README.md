@@ -25,10 +25,10 @@ The user discovery bot helps users make first contact with other users. Users ca
 Note: Yaml prohibits the use of tabs. If you put tabs in your config file, the UDB will fail to parse it.
 
 ```yaml
+# Enables mock twilio manager
+devMode: true
 # Path where UDB will store its logs
 log: "udb.log"
-# Path to NDF
-ndfPath: "path/to/ndf"
 # Path where UDB will store session file
 sessionPath: "/path/to/session"
 sessionPass: "password for session"
@@ -46,6 +46,7 @@ dbAddress: ""
 certPath: "/path/udb.pem"
 keyPath: "/path/udb.key"
 permCertPath: "permissioning.pem"
+permAddress: "0.0.0.0:12345"
 
 # Twilio account information
 # Note: running with --devMode bypasses twilio verification

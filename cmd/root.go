@@ -13,6 +13,7 @@ import (
 	"gitlab.com/elixxir/user-discovery-bot/io"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/twilio"
+	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/crypto/tls"
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/utils"
@@ -22,6 +23,7 @@ import (
 var (
 	cfgFile, logPath                string
 	certPath, keyPath, permCertPath string
+	permAddress                     string
 	logLevel                        uint // 0 = info, 1 = debug, >1 = trace
 	validConfig                     bool
 	devMode                         bool
@@ -41,6 +43,7 @@ var rootCmd = &cobra.Command{
 		storage, _, err := storage.NewStorage(p.Database)
 
 		var twilioManager *twilio.Manager
+		devMode = viper.GetBool("devMode")
 		if devMode {
 			twilioManager = twilio.NewMockManager(storage)
 		} else {
@@ -52,9 +55,20 @@ var rootCmd = &cobra.Command{
 			jww.FATAL.Fatalf("Failed to load permissioning cert to pem: %+v", err)
 		}
 		permCert, err := tls.ExtractPublicKey(cert)
-		_ = io.NewManager(p.IO, &id.UDB, permCert, twilioManager, storage)
 
-		client, err := api.LoginWithNewBaseNDF_UNSAFE(p.SessionPath, []byte(sessionPass), p.Ndf, params.GetDefaultNetwork())
+		// Obtain NDF from permissioning
+		manager := io.NewManager(p.IO, &id.UDB, permCert, twilioManager, storage)
+		permHost, err := manager.Comms.AddHost(&id.Permissioning, viper.GetString("permAddress"), p.PermCert, connect.GetDefaultHostParams())
+		if err != nil {
+			jww.FATAL.Panicf("Unable to add permissioning host: %+v", err)
+		}
+		ndf, err := manager.Comms.RequestNdf(permHost)
+		if err != nil {
+			jww.FATAL.Panicf("Unable to get NDF: %+v", err)
+		}
+
+		// Pass NDF directly into client library
+		client, err := api.LoginWithNewBaseNDF_UNSAFE(p.SessionPath, []byte(sessionPass), string(ndf.GetNdf()), params.GetDefaultNetwork())
 		if err != nil {
 			jww.FATAL.Fatalf("Failed to create client: %+v", err)
 		}
@@ -115,6 +129,11 @@ func init() {
 	rootCmd.Flags().StringVar(&permCertPath, "permCertPath", "",
 		"Path to the TLS certificate for Permissioning server. Expects PEM "+
 			"format. Required field.")
+	err = viper.BindPFlag("permCertPath", rootCmd.Flags().Lookup("permCertPath"))
+	handleBindingError(err, "permCertPath")
+
+	rootCmd.Flags().StringVar(&permAddress, "permAddress", "",
+		"Public address of the Permissioning server. Required field.")
 	err = viper.BindPFlag("permCertPath", rootCmd.Flags().Lookup("permCertPath"))
 	handleBindingError(err, "permCertPath")
 

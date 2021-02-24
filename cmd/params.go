@@ -65,25 +65,10 @@ func InitParams(vip *viper.Viper) params.General {
 		DbPort:     port,
 	}
 
-	devMode = viper.GetBool("devMode")
-
 	twilioparams := params.Twilio{
 		AccountSid:      viper.GetString("twilioSid"),
 		AuthToken:       viper.GetString("twilioToken"),
 		VerificationSid: viper.GetString("twilioVerification"),
-	}
-
-	ndfPath := viper.GetString("ndfPath")
-	if ndfPath == "" {
-		jww.FATAL.Fatal("ndfPath is blank, cannot run without an NDF")
-	}
-	ndfPathExpanded, err := utils.ExpandPath(ndfPath)
-	if err != nil {
-		jww.FATAL.Fatalf("Failed to expand ndfPath %s: %+v", ndfPath, err)
-	}
-	ndf, err := utils.ReadFile(ndfPathExpanded)
-	if err != nil {
-		jww.FATAL.Fatalf("Failed to read ndf at %s: %+v", ndfPathExpanded, err)
 	}
 
 	jww.INFO.Printf("config: %+v", viper.ConfigFileUsed())
@@ -93,7 +78,6 @@ func InitParams(vip *viper.Viper) params.General {
 	return params.General{
 		PermCert:    permCert,
 		SessionPath: viper.GetString("sessionPath"),
-		Ndf:         string(ndf),
 		Database:    dbparams,
 		IO:          ioparams,
 		Twilio:      twilioparams,
