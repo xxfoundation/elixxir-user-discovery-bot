@@ -37,7 +37,7 @@ func loadPermissioningPubKey(cert string) (*rsa.PublicKey, error) {
 	return tls.ExtractPublicKey(permCert)
 }
 
-func getNDF() string {
+func getNDF() []byte {
 	cert, _ := utils.ReadFile(testkeys.GetGatewayCertPath())
 	addr := "0.0.0.0:4321"
 
@@ -85,7 +85,7 @@ func getNDF() string {
 	}
 
 	ndfBytes, _ := ndfObj.Marshal()
-	return string(ndfBytes)
+	return ndfBytes
 }
 
 // Happy path test
@@ -93,7 +93,7 @@ func TestRegisterUser(t *testing.T) {
 	// Initialize client and storage
 	clientId, clientKey := initClientFields(t)
 	store, _, _ := storage.NewStorage(params.Database{})
-	ndfObj, _, _ := ndf.DecodeNDF(getNDF())
+	ndfObj, _ := ndf.Unmarshal(getNDF())
 
 	// Create a mock host
 	p := connect.GetDefaultHostParams()
@@ -175,7 +175,7 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 	// Initialize client and storage
 	clientId, clientKey := initClientFields(t)
 	store, _, _ := storage.NewStorage(params.Database{})
-	ndfObj, _, _ := ndf.DecodeNDF(getNDF())
+	ndfObj, _ := ndf.Unmarshal(getNDF())
 
 	// Create a mock host
 	p := connect.GetDefaultHostParams()
@@ -235,7 +235,7 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 	// Initialize client and storage
 	clientId, clientKey := initClientFields(t)
 	store, _, _ := storage.NewStorage(params.Database{})
-	ndfObj, _, _ := ndf.DecodeNDF(getNDF())
+	ndfObj, _ := ndf.Unmarshal(getNDF())
 
 	// Create a mock host
 	p := connect.GetDefaultHostParams()
