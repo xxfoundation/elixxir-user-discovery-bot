@@ -304,6 +304,8 @@ gitlab.com/elixxir/client v1.2.1-0.20210226183603-13252e1d97d2 h1:WtOUzzjGbkCy5Y
 gitlab.com/elixxir/client v1.2.1-0.20210226183603-13252e1d97d2/go.mod h1:gFCj9k2z8MAW3Pm1T0heBpRUcfesPgG6cB200LuXhnk=
 gitlab.com/elixxir/client v1.2.1-0.20210226223814-7cc1a664cab8 h1:mtrf2Zmfv1tXoCy9+sglYpyKNkUEWEFlP5n9V2SNbMw=
 gitlab.com/elixxir/client v1.2.1-0.20210226223814-7cc1a664cab8/go.mod h1:e/IDXq3sAdIuDXalvJzsysjF/BJI0jpy+tvVMk+iV3g=
+gitlab.com/elixxir/client v1.2.1-0.20210303204902-822ad5aad3ca h1:rRaBNli9eDKOwFW+pNLIyNalVh79xQw31yeMX3+0UoI=
+gitlab.com/elixxir/client v1.2.1-0.20210303204902-822ad5aad3ca/go.mod h1:6GCmN2lqQeBo9qgxaQVWflJwvTMPxXXOsscBv7aTpq4=
 gitlab.com/elixxir/comms v0.0.4-0.20210223195527-d5bc4fbb0d9b h1:KO9n5MY24B3HLZJ2aLj6CAxJgrQ4NL6y/pDlXhvM1Fc=
 gitlab.com/elixxir/comms v0.0.4-0.20210223195527-d5bc4fbb0d9b/go.mod h1:4OEQ9pDRH3lX7+DshjZw6848fnVMWe3ZXSTQ+oG4G4Y=
 gitlab.com/elixxir/comms v0.0.4-0.20210223220608-106df6a8f6eb h1:YjqP65RYYQKNFlkvWxFn2IkdLbF0SaZ94l7rsFwKkh4=
@@ -322,6 +324,8 @@ gitlab.com/elixxir/comms v0.0.4-0.20210226172424-ab8c1dc47e40 h1:IwqPqB2E0C/k1Tc
 gitlab.com/elixxir/comms v0.0.4-0.20210226172424-ab8c1dc47e40/go.mod h1:QpkiEhND2w37M5+FSkFIYT6Fs5Ygw8gkBftQlrua0qk=
 gitlab.com/elixxir/comms v0.0.4-0.20210226175832-0cf63a696bf9 h1:O+HQbCo9uQ6EDpysurBxr26cnPCeerZEPF2gJd4ZUFo=
 gitlab.com/elixxir/comms v0.0.4-0.20210226175832-0cf63a696bf9/go.mod h1:zcKyiRMYf9YVFiVapcKQ/qvSUg62UGLW/xH/2tDzwdI=
+gitlab.com/elixxir/comms v0.0.4-0.20210301202451-4cfc6b78e6d3 h1:XBucipuu+S1iMOp/yeGTLO0C8lztscNKfD5uilRgPgg=
+gitlab.com/elixxir/comms v0.0.4-0.20210301202451-4cfc6b78e6d3/go.mod h1:zcKyiRMYf9YVFiVapcKQ/qvSUg62UGLW/xH/2tDzwdI=
 gitlab.com/elixxir/crypto v0.0.0-20200804182833-984246dea2c4 h1:28ftZDeYEko7xptCZzeFWS1Iam95dj46TWFVVlKmw6A=
 gitlab.com/elixxir/crypto v0.0.0-20200804182833-984246dea2c4/go.mod h1:ucm9SFKJo+K0N2GwRRpaNr+tKXMIOVWzmyUD0SbOu2c=
 gitlab.com/elixxir/crypto v0.0.3/go.mod h1:ZNgBOblhYToR4m8tj4cMvJ9UsJAUKq+p0gCp07WQmhA=
@@ -360,6 +364,8 @@ gitlab.com/elixxir/primitives v0.0.3-0.20210226175744-d424cb7261fd h1:+hvXICaSkR
 gitlab.com/elixxir/primitives v0.0.3-0.20210226175744-d424cb7261fd/go.mod h1:l4DczasdfnrLdf2qimxOlJjr0RpcMzSwVCZXN3wxSzM=
 gitlab.com/elixxir/primitives v0.0.3-0.20210226221108-bf887a3ea74e h1:zMaKbpBKOSH0LWUFRxndy+NSsYYG1kT/PHyUvsKlBEw=
 gitlab.com/elixxir/primitives v0.0.3-0.20210226221108-bf887a3ea74e/go.mod h1:l4DczasdfnrLdf2qimxOlJjr0RpcMzSwVCZXN3wxSzM=
+gitlab.com/elixxir/primitives v0.0.3-0.20210303204509-22fc3de07f22 h1:WqnAR7CoU8YGHpKhX5ce4C08knb9U6wDv7IDjjaigrQ=
+gitlab.com/elixxir/primitives v0.0.3-0.20210303204509-22fc3de07f22/go.mod h1:l4DczasdfnrLdf2qimxOlJjr0RpcMzSwVCZXN3wxSzM=
 gitlab.com/xx_network/comms v0.0.0-20200805174823-841427dd5023/go.mod h1:owEcxTRl7gsoM8c3RQ5KAm5GstxrJp5tn+6JfQ4z5Hw=
 gitlab.com/xx_network/comms v0.0.3/go.mod h1:YViGbRj7FjJYoaO4NpALGEd9dK/l8uUT000FEBbUTL8=
 gitlab.com/xx_network/comms v0.0.4-0.20210223181809-c8f2acdf4670 h1:MrRsSpz23MHY8ZPsRt8pziZLWE51qvJBwXzXacxqOO4=
@@ -523,6 +529,8 @@ golang.org/x/sys v0.0.0-20210225134936-a50acf3fe073 h1:8qxJSnu+7dRq6upnbntrmriWB
 golang.org/x/sys v0.0.0-20210225134936-a50acf3fe073/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210226181700-f36f78243c0c h1:Stq64DYWAFeYzD3+NSVDBisCYn5P9VyxxgHIov440m8=
 golang.org/x/sys v0.0.0-20210226181700-f36f78243c0c/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20210303074136-134d130e1a04 h1:cEhElsAv9LUt9ZUUocxzWe05oFLVd+AA2nstydTeI8g=
+golang.org/x/sys v0.0.0-20210303074136-134d130e1a04/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/term v0.0.0-20201117132131-f5c789dd3221/go.mod h1:Nr5EML6q2oocZ2LXRh80K7BxOlk5/8JxuGnuhpl+muw=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
@@ -590,6 +598,8 @@ google.golang.org/genproto v0.0.0-20210225212918-ad91960f0274 h1:FuPOK/iY40x3uIB
 google.golang.org/genproto v0.0.0-20210225212918-ad91960f0274/go.mod h1:FWY/as6DDZQgahTzZj3fqbO1CbirC29ZNUFHwi0/+no=
 google.golang.org/genproto v0.0.0-20210226172003-ab064af71705 h1:PYBmACG+YEv8uQPW0r1kJj8tR+gkF0UWq7iFdUezwEw=
 google.golang.org/genproto v0.0.0-20210226172003-ab064af71705/go.mod h1:FWY/as6DDZQgahTzZj3fqbO1CbirC29ZNUFHwi0/+no=
+google.golang.org/genproto v0.0.0-20210303154014-9728d6b83eeb h1:hcskBH5qZCOa7WpTUFUFvoebnSFZBYpjykLtjIp9DVk=
+google.golang.org/genproto v0.0.0-20210303154014-9728d6b83eeb/go.mod h1:FWY/as6DDZQgahTzZj3fqbO1CbirC29ZNUFHwi0/+no=
 google.golang.org/protobuf v0.0.0-20200109180630-ec00e32a8dfd/go.mod h1:DFci5gLYBciE7Vtevhsrf46CRTquxDuWsQurQQe4oz8=
 google.golang.org/protobuf v0.0.0-20200221191635-4d8936d0db64/go.mod h1:kwYJMbMJ01Woi6D6+Kah6886xMZcty6N08ah7+eCXa0=
 google.golang.org/protobuf v0.0.0-20200228230310-ab0ca4ff8a60/go.mod h1:cfTl7dwQJ+fmap5saPgwCLgHXTUD7jkjRqWcaiX5VyM=
