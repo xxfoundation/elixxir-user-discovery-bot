@@ -91,7 +91,7 @@ var rootCmd = &cobra.Command{
 			jww.FATAL.Fatalf("Failed to create client: %+v", err)
 		}
 
-		err = client.StartNetworkFollower()
+		_, err = client.StartNetworkFollower()
 		if err != nil {
 			jww.FATAL.Fatal(err)
 		}
