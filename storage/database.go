@@ -1,135 +1,173 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2019 Privategrity Corporation                                   /
+// Copyright © 2020 Privategrity Corporation                                   /
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
+
+// Handles low level Database control and interfaces
+
 package storage
 
 import (
-	"github.com/go-pg/pg"
-	"github.com/go-pg/pg/orm"
-	"gitlab.com/elixxir/client/globals"
-	"gitlab.com/elixxir/primitives/id"
+	"fmt"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/xx_network/primitives/id"
+	"sync"
+	"testing"
+	"time"
 )
+
+// Interface declaration for Storage methods
+type database interface {
+	CheckUser(username string, id *id.ID, rsaPem string) error
+
+	InsertUser(user *User) error
+	GetUser(id []byte) (*User, error)
+	DeleteUser(id []byte) error
+
+	InsertFact(fact *Fact) error
+	MarkFactVerified(factHash []byte) error
+	DeleteFact(factHash []byte) error
+
+	InsertFactTwilio(userID, factHash, signature []byte, factType uint, fact, confirmationID string) error
+	MarkTwilioFactVerified(confirmationId string) error
+
+	Search(factHashes [][]byte) ([]*User, error)
+
+	StartFactManager(i time.Duration) chan chan bool
+}
 
 // Struct implementing the Database Interface with an underlying DB
 type DatabaseImpl struct {
-	db *pg.DB // Stored database connection
+	db *gorm.DB // Stored database connection
 }
 
-var UserDiscoveryDb Database
+// ID type for facts map
+type factId [32]byte
 
-type Database interface {
-	// Insert or Update a User into the database
-	UpsertUser(user *User) error
-	// Fetch a User from the database by ID
-	GetUser(id *id.ID) (*User, error)
-	// Fetch a User from the database by Value
-	GetUserByValue(value string) (*User, error)
-	// Fetch a User from the database by KeyId
-	GetUserByKeyId(keyId string) (*User, error)
-	//Delete a user
-	DeleteUser(id *id.ID) error
+// Struct implementing the Database Interface with an underlying Map
+type MapImpl struct {
+	users               map[id.ID]*User
+	facts               map[factId]*Fact
+	twilioVerifications map[string]*TwilioVerification
+	sync.RWMutex
 }
 
-// Struct representing the udb_users table in the database
+// Struct defining the users table for the database
 type User struct {
-	// Overwrite table name
-	tableName struct{} `sql:"udb_users,alias:udb_users"`
-
-	// User Id
-	Id []byte `sql:",pk,unique"`
-	// Identifying informationgo-pg
-	Value string `sql:",unique"`
-	// Type of identifying information as denoted by the ValueType type
-	ValueType int
-	// Hash of the User public key
-	KeyId string `sql:",unique"`
-	// User public key
-	Key []byte `sql:",unique"`
+	Id        []byte `gorm:"primary_key"`
+	RsaPub    string `gorm:"NOT NULL"`
+	DhPub     []byte `gorm:"NOT NULL"`
+	Salt      []byte `gorm:"NOT NULL"`
+	Signature []byte `gorm:"NOT NULL"`
+	Facts     []Fact `gorm:"foreignkey:UserId;association_foreignkey:Id"`
 }
 
-// Initialize a new User object
-func NewUser() *User {
-	return &User{
-		Id:        make([]byte, id.ArrIDLen),
-		Value:     "",
-		ValueType: -1,
-		KeyId:     "",
-		Key:       make([]byte, 0),
+// Fact type enum
+type FactType uint8
+
+const (
+	Username FactType = iota
+	SMS
+	Email
+)
+
+func (f FactType) String() string {
+	return [...]string{"Username", "SMS", "Email"}[f]
+}
+
+// Struct defining the facts table in the database
+type Fact struct {
+	Hash         []byte             `gorm:"primary_key"`
+	UserId       []byte             `gorm:"NOT NULL;type:bytea REFERENCES users(Id)"`
+	Fact         string             `gorm:"NOT NULL"`
+	Type         uint8              `gorm:"NOT NULL"`
+	Signature    []byte             `gorm:"NOT NULL"`
+	Verified     bool               `gorm:"NOT NULL"`
+	Timestamp    time.Time          `gorm:"NOT NULL"`
+	Verification TwilioVerification `gorm:"foreignkey:FactHash;association_foreignkey:Hash"`
+}
+
+// Struct defining twilio_verifications table
+type TwilioVerification struct {
+	ConfirmationId string `gorm:"primary_key"`
+	FactHash       []byte `gorm:"NOT NULL;type:bytea REFERENCES facts(Hash)"`
+}
+
+func NewTestDB(t *testing.T) *Storage {
+	if t == nil {
+		jww.FATAL.Panic("CAnnot use this outside of testing")
 	}
-}
-
-func (u *User) SetID(id *id.ID) {
-	u.Id = id.Marshal()
-}
-
-func (u *User) SetValue(val string) {
-	u.Value = val
-}
-
-func (u *User) SetValueType(valType int) {
-	u.ValueType = valType
-}
-
-func (u *User) SetKeyID(keyID string) {
-	u.KeyId = keyID
-}
-
-func (u *User) SetKey(key []byte) {
-	u.Key = key
+	mockDb, _, err := newDatabase("", "", "", "", "11")
+	if err != nil {
+		jww.FATAL.Panicf("Failed to init mock db: %+v", err)
+	}
+	return mockDb
 }
 
 // Initialize the Database interface with database backend
-func NewDatabase(username, password, database, address string) Database {
-	// Create the database connection
-	db := pg.Connect(&pg.Options{
-		User:         username,
-		Password:     password,
-		Database:     database,
-		Addr:         address,
-		MaxRetries:   10,
-		MinIdleConns: 1,
-	})
-
-	// Initialize the schema
-	err := createSchema(db)
-	if err != nil {
-		// If an error is thrown with the database, run with a map backend
-		globals.Log.ERROR.Printf("Unable to initalize database backend: %+v", err)
-		globals.Log.INFO.Println("Using map backend for User Discovery!")
-		return &MapImpl{
-			Users: make(map[*id.ID]*User),
+// Returns a Storage interface, Close function, and error
+func newDatabase(username, password, database, address,
+	port string) (*Storage, func() error, error) {
+	var err error
+	var db *gorm.DB
+	//connect to the database if the correct information is provided
+	if address != "" && port != "" {
+		// Create the database connection
+		connectString := fmt.Sprintf(
+			"host=%s port=%s user=%s dbname=%s sslmode=disable",
+			address, port, username, database)
+		// Handle empty database password
+		if len(password) > 0 {
+			connectString += fmt.Sprintf(" password=%s", password)
 		}
+		db, err = gorm.Open("postgres", connectString)
 	}
 
-	// Return the database-backed Database interface
-	globals.Log.INFO.Println("Using database backend for User Discovery!")
-	return &DatabaseImpl{
-		db: db,
-	}
-}
+	// Return the map-backend interface
+	// in the event there is a database error or information is not provided
+	if (address == "" || port == "") || err != nil {
 
-// Create the database schema
-func createSchema(db *pg.DB) error {
-	for _, model := range []interface{}{&User{}} {
-		err := db.CreateTable(model, &orm.CreateTableOptions{
-			// Ignore create table if already exists?
-			IfNotExists: true,
-			// Create temporary table?
-			Temp: false,
-			// FKConstraints causes CreateTable to create foreign key constraints
-			// for has one relations. ON DELETE hook can be added using tag
-			// `sql:"on_delete:RESTRICT"` on foreign key field.
-			FKConstraints: false,
-			// Replaces PostgreSQL data type `text` with `varchar(n)`
-			// Varchar: 255
-		})
 		if err != nil {
-			// Return error if one comes up
-			return err
+			jww.WARN.Printf("Unable to initialize database backend: %+v", err)
+		} else {
+			jww.WARN.Printf("Database backend connection information not provided")
+		}
+
+		defer jww.INFO.Println("Map backend initialized successfully!")
+
+		mapImpl := &MapImpl{
+			users:               map[id.ID]*User{},
+			facts:               map[factId]*Fact{},
+			twilioVerifications: map[string]*TwilioVerification{},
+		}
+
+		return &Storage{mapImpl}, func() error { return nil }, nil
+	}
+
+	// Initialize the database logger
+	db.SetLogger(jww.TRACE)
+	db.LogMode(true)
+
+	// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
+	db.DB().SetMaxIdleConns(10)
+	// SetMaxOpenConns sets the maximum number of open connections to the database.
+	db.DB().SetMaxOpenConns(100)
+	// SetConnMaxLifetime sets the maximum amount of time a connection may be reused.
+	db.DB().SetConnMaxLifetime(24 * time.Hour)
+
+	// Initialize the database schema
+	// WARNING: Order is important. Do not change without database testing
+	models := []interface{}{User{}, Fact{}, TwilioVerification{}}
+	for _, model := range models {
+		err = db.AutoMigrate(model).Error
+		if err != nil {
+			return nil, func() error { return nil }, err
 		}
 	}
-	// No error, return nil
-	return nil
+
+	jww.INFO.Println("Database backend initialized successfully!")
+	return &Storage{&DatabaseImpl{db: db}}, db.Close, nil
 }

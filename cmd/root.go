@@ -1,119 +1,191 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
-
-// Package cmd initializes the CLI and config parsers as well as the logger.
 package cmd
 
 import (
 	"fmt"
-	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"gitlab.com/elixxir/client/api"
-	"gitlab.com/elixxir/client/globals"
+	"gitlab.com/elixxir/client/interfaces/params"
+	"gitlab.com/elixxir/client/single"
 	"gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/primitives/utils"
+	"gitlab.com/elixxir/user-discovery-bot/cmix"
+	"gitlab.com/elixxir/user-discovery-bot/io"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"gitlab.com/elixxir/user-discovery-bot/udb"
+	"gitlab.com/elixxir/user-discovery-bot/twilio"
+	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/crypto/tls"
+	"gitlab.com/xx_network/primitives/id"
+	"gitlab.com/xx_network/primitives/ndf"
+	"gitlab.com/xx_network/primitives/utils"
 	"os"
+	"strings"
+	"time"
 )
 
-var cfgFile string
-var logLevel uint // 0 = info, 1 = debug, >1 = trace
-var noTLS bool
+var (
+	cfgFile, logPath                string
+	certPath, keyPath, permCertPath string
+	permAddress                     string
+	logLevel                        uint // 0 = info, 1 = debug, >1 = trace
+	validConfig                     bool
+	devMode                         bool
+	sessionPass                     string
+)
 
-// RootCmd represents the base command when called without any subcommands
-var RootCmd = &cobra.Command{
-	Use:   "user-discovery-bot",
-	Short: "Runs a user discovery bot for cMix",
-	Long:  `This bot provides user lookup and search functions on cMix`,
+// RootCmd represents the base command when called without any sub-commands
+var rootCmd = &cobra.Command{
+	Use:   "UDB",
+	Short: "Runs the cMix UDB server.",
+	Long:  "The cMix UDB server handles user and fact registration for the network.",
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		sess := viper.GetString("sessionfile")
-		if sess == "" {
-			sess = "udb-session.blob"
+		initConfig()
+		initLog()
+		p := InitParams(viper.GetViper())
+		storage, _, err := storage.NewStorage(p.Database)
+
+		var twilioManager *twilio.Manager
+		devMode = viper.GetBool("devMode")
+		if devMode {
+			twilioManager = twilio.NewMockManager(storage)
+		} else {
+			twilioManager = twilio.NewManager(p.Twilio, storage)
 		}
 
-		udb.BannedUsernameList = *udb.InitBlackList(viper.GetString("blacklistedNamesFilePath"))
-
-		// Set up database connection
-		storage.UserDiscoveryDb = storage.NewDatabase(
-			viper.GetString("dbUsername"),
-			viper.GetString("dbPassword"),
-			viper.GetString("dbName"),
-			viper.GetString("dbAddress"),
-		)
-
-		// Import the network definition file
-		ndfBytes, err := utils.ReadFile(viper.GetString("ndfPath"))
+		cert, err := tls.LoadCertificate(string(p.PermCert))
 		if err != nil {
-			globals.Log.FATAL.Panicf("Could not read network definition file: %v", err)
+			jww.FATAL.Fatalf("Failed to load permissioning cert to pem: %+v", err)
 		}
-		ndfJSON := api.VerifyNDF(string(ndfBytes), "")
+		permCert, err := tls.ExtractPublicKey(cert)
 
-		err = StartBot(sess, ndfJSON)
+		// Set up manager with the ability to contact permissioning
+		manager := io.NewManager(p.IO, &id.UDB, permCert, twilioManager, storage)
+		hostParams := connect.GetDefaultHostParams()
+		hostParams.AuthEnabled = false
+		permHost, err := manager.Comms.AddHost(&id.Permissioning,
+			viper.GetString("permAddress"), p.PermCert, hostParams)
 		if err != nil {
-			globals.Log.FATAL.Panicf("Could not start bot: %+v", err)
+			jww.FATAL.Panicf("Unable to add permissioning host: %+v", err)
 		}
-		// Block forever as a keepalive
+
+		// Obtain the NDF from permissioning
+		returnedNdf, err := manager.Comms.RequestNdf(permHost)
+		// Keep going until we get a grpc error or we get an ndf
+		for err != nil {
+			// If there is an unexpected error
+			if !strings.Contains(err.Error(), ndf.NO_NDF) {
+				// If it is not an issue with no ndf, return the error up the stack
+				jww.FATAL.Panicf("Failed to get NDF from permissioning: %v", err)
+			}
+
+			// If the error is that the permissioning server is not ready, ask again
+			jww.WARN.Println("Failed to get an ndf, possibly not ready yet. Retying now...")
+			time.Sleep(250 * time.Millisecond)
+			returnedNdf, err = manager.Comms.RequestNdf(permHost)
+		}
+
+		// Pass NDF directly into client library
+		client, err := api.LoginWithNewBaseNDF_UNSAFE(p.SessionPath, []byte(sessionPass), string(returnedNdf.GetNdf()), params.GetDefaultNetwork())
+		if err != nil {
+			jww.FATAL.Fatalf("Failed to create client: %+v", err)
+		}
+
+		_, err = client.StartNetworkFollower()
+		if err != nil {
+			jww.FATAL.Fatal(err)
+		}
+
+		m := cmix.NewManager(single.NewManager(client), storage)
+		client.AddService(m.Start)
+
+		// Wait forever
 		select {}
 	},
 }
 
-// Execute adds all child commands to the root command and sets flags
-// appropriately.  This is called by main.main(). It only needs to
-// happen once to the RootCmd.
 func Execute() {
-	if err := RootCmd.Execute(); err != nil {
-		udb.Log.ERROR.Println(err)
+	if err := rootCmd.Execute(); err != nil {
+		jww.ERROR.Println(err)
 		os.Exit(1)
 	}
 }
 
-// init is the initialization function for Cobra which defines commands
-// and flags.
 func init() {
-	udb.Log.DEBUG.Print("Printing log from init")
-	// NOTE: The point of init() is to be declarative.
-	// There is one init in each sub command. Do not put variable declarations
-	// here, and ensure all the Flags are of the *P variety, unless there's a
-	// very good reason not to have them as local params to sub command."
-	cobra.OnInitialize(initConfig, initLog)
+	rootCmd.Flags().StringVarP(&cfgFile, "config", "c", "",
+		"Path to load the UDB configuration file from. If not set, this "+
+			"file must be named udb.yaml and must be located in "+
+			"~/.xxnetwork/, /opt/xxnetwork, or /etc/xxnetwork.")
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-	RootCmd.Flags().StringVarP(&cfgFile, "config", "", "",
-		"config file (default is $PWD/udb.yaml)")
-	RootCmd.Flags().UintVarP(&logLevel, "logLevel", "l", 1,
-		"Level of debugging to display. 0 = info, 1 = debug, >1 = trace")
-	RootCmd.Flags().BoolVarP(&noTLS, "noTLS", "", false,
-		"Set to ignore TLS")
+	rootCmd.Flags().IntP("port", "p", -1,
+		"Port for UDB to listen on. UDB must be the only listener "+
+			"on this port. Required field.")
+	err := viper.BindPFlag("port", rootCmd.Flags().Lookup("port"))
+	handleBindingError(err, "port")
+
+	rootCmd.Flags().UintVarP(&logLevel, "logLevel", "l", 0,
+		"Level of debugging to print (0 = info, 1 = debug, >1 = trace).")
+	err = viper.BindPFlag("logLevel", rootCmd.Flags().Lookup("logLevel"))
+	handleBindingError(err, "logLevel")
+
+	rootCmd.Flags().StringVar(&logPath, "log", "./udb-logs/udb.log",
+		"Path where log file will be saved.")
+	err = viper.BindPFlag("log", rootCmd.Flags().Lookup("log"))
+	handleBindingError(err, "log")
+
+	rootCmd.Flags().StringVar(&certPath, "certPath", "",
+		"Path to the TLS certificate for UDB. Expects PEM format. Required field.")
+	err = viper.BindPFlag("certPath", rootCmd.Flags().Lookup("certPath"))
+	handleBindingError(err, "certPath")
+
+	rootCmd.Flags().StringVar(&keyPath, "keyPath", "",
+		"Path to the private key associated with UDB TLS "+
+			"certificate. Required field.")
+	err = viper.BindPFlag("keyPath", rootCmd.Flags().Lookup("keyPath"))
+	handleBindingError(err, "keyPath")
+
+	rootCmd.Flags().StringVar(&permCertPath, "permCertPath", "",
+		"Path to the TLS certificate for Permissioning server. Expects PEM "+
+			"format. Required field.")
+	err = viper.BindPFlag("permCertPath", rootCmd.Flags().Lookup("permCertPath"))
+	handleBindingError(err, "permCertPath")
+
+	rootCmd.Flags().StringVar(&permAddress, "permAddress", "",
+		"Public address of the Permissioning server. Required field.")
+	err = viper.BindPFlag("permCertPath", rootCmd.Flags().Lookup("permCertPath"))
+	handleBindingError(err, "permCertPath")
+
+	rootCmd.Flags().StringVar(&sessionPass, "sessionPass", "", "Password for session files")
+	err = viper.BindPFlag("sessionPass", rootCmd.Flags().Lookup("sessionPass"))
+	handleBindingError(err, "sessionPass")
+
+	rootCmd.Flags().BoolVarP(&devMode, "devMode", "", false, "Developer run mode")
+	err = viper.BindPFlag("devMode", rootCmd.Flags().Lookup("devMode"))
+	handleBindingError(err, "devMode")
+}
+
+// Handle flag binding errors
+func handleBindingError(err error, flag string) {
+	if err != nil {
+		jww.FATAL.Panicf("Error on binding flag \"%s\":%+v", flag, err)
+	}
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
+	validConfig = true
+	var err error
 	if cfgFile == "" {
-		// Default search paths
-		var searchDirs []string
-		searchDirs = append(searchDirs, "./") // $PWD
-		// $HOME
-		home, _ := homedir.Dir()
-		searchDirs = append(searchDirs, home+"/.elixxir/")
-		// /etc/elixxir
-		searchDirs = append(searchDirs, "/etc/elixxir")
-		jww.DEBUG.Printf("Configuration search directories: %v", searchDirs)
-
-		for i := range searchDirs {
-			cfgFile = searchDirs[i] + "udb.yaml"
-			_, err := os.Stat(cfgFile)
-			if !os.IsNotExist(err) {
-				break
-			}
+		cfgFile, err = utils.SearchDefaultLocations("udb.yaml", "xxnetwork")
+		if err != nil {
+			validConfig = false
+			jww.FATAL.Panicf("Failed to find config file: %+v", err)
+		}
+	} else {
+		cfgFile, err = utils.ExpandPath(cfgFile)
+		if err != nil {
+			validConfig = false
+			jww.FATAL.Panicf("Failed to expand config file path: %+v", err)
 		}
 	}
 	viper.SetConfigFile(cfgFile)
@@ -122,8 +194,8 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err != nil {
 		fmt.Printf("Unable to read config file (%s): %+v", cfgFile, err.Error())
+		validConfig = false
 	}
-
 }
 
 // initLog initializes logging thresholds and the log path.
@@ -133,18 +205,15 @@ func initLog() {
 	// Check the level of logs to display
 	if vipLogLevel > 1 {
 		// Set the GRPC log level
-		if vipLogLevel > 1 {
-			err := os.Setenv("GRPC_GO_LOG_SEVERITY_LEVEL", "info")
-			if err != nil {
-				jww.ERROR.Printf("Could not set GRPC_GO_LOG_SEVERITY_LEVEL: %+v", err)
-			}
-
-			err = os.Setenv("GRPC_GO_LOG_VERBOSITY_LEVEL", "99")
-			if err != nil {
-				jww.ERROR.Printf("Could not set GRPC_GO_LOG_VERBOSITY_LEVEL: %+v", err)
-			}
+		err := os.Setenv("GRPC_GO_LOG_SEVERITY_LEVEL", "info")
+		if err != nil {
+			jww.ERROR.Printf("Could not set GRPC_GO_LOG_SEVERITY_LEVEL: %+v", err)
 		}
 
+		err = os.Setenv("GRPC_GO_LOG_VERBOSITY_LEVEL", "99")
+		if err != nil {
+			jww.ERROR.Printf("Could not set GRPC_GO_LOG_VERBOSITY_LEVEL: %+v", err)
+		}
 		// Turn on trace logs
 		jww.SetLogThreshold(jww.LevelTrace)
 		jww.SetStdoutThreshold(jww.LevelTrace)
@@ -160,14 +229,14 @@ func initLog() {
 		jww.SetStdoutThreshold(jww.LevelInfo)
 	}
 
-	if viper.Get("logPath") != nil {
-		// Create log file, overwrites if existing
-		logPath := viper.GetString("logPath")
-		logFile, err := os.Create(logPath)
-		if err != nil {
-			udb.Log.WARN.Println("Invalid or missing log path, default path used.")
-		} else {
-			udb.Log.SetLogOutput(logFile)
-		}
+	logPath = viper.GetString("log")
+
+	logFile, err := os.OpenFile(logPath,
+		os.O_CREATE|os.O_WRONLY|os.O_APPEND,
+		0644)
+	if err != nil {
+		fmt.Printf("Could not open log file %s!\n", logPath)
+	} else {
+		jww.SetLogOutput(logFile)
 	}
 }

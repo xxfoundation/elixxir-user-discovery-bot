@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 // Handles command-line version functionality
 
@@ -10,27 +11,28 @@ package cmd
 
 import (
 	"fmt"
+
 	"github.com/spf13/cobra"
-	"gitlab.com/elixxir/primitives/utils"
+	"gitlab.com/xx_network/primitives/utils"
 )
 
 // Change this value to set the version for this build
-const currentVersion = "1.1.0"
+const currentVersion = "2.0.0"
 
 func printVersion() {
-	fmt.Printf("Elixxir User Discovery Bot v%s -- %s\n\n", SEMVER, GITVERSION)
+	fmt.Printf("xx network User Discovery v%s -- %s\n\n", SEMVER, GITVERSION)
 	fmt.Printf("Dependencies:\n\n%s\n", DEPENDENCIES)
 }
 
 func init() {
-	RootCmd.AddCommand(versionCmd)
-	RootCmd.AddCommand(generateCmd)
+	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(generateCmd)
 }
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Print the version and dependency information for the Elixxir binary",
-	Long:  `Print the version and dependency information for the Elixxir binary`,
+	Short: "Print the version and dependency information for the xx network binary",
+	Long:  `Print the version and dependency information for the xx network binary`,
 	Run: func(cmd *cobra.Command, args []string) {
 		printVersion()
 	},
@@ -38,8 +40,8 @@ var versionCmd = &cobra.Command{
 
 var generateCmd = &cobra.Command{
 	Use:   "generate",
-	Short: "Generates version and dependency information for the Elixxir binary",
-	Long:  `Generates version and dependency information for the Elixxir binary`,
+	Short: "Generates version and dependency information for the xx network binary",
+	Long:  `Generates version and dependency information for the xx network binary`,
 	Run: func(cmd *cobra.Command, args []string) {
 		utils.GenerateVersionFile(currentVersion)
 	},

@@ -3,28 +3,28 @@ module gitlab.com/elixxir/user-discovery-bot
 go 1.13
 
 require (
-	github.com/go-pg/pg v8.0.6+incompatible
-	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/mattn/go-shellwords v1.0.10
-	github.com/mitchellh/go-homedir v1.1.0
-	github.com/mitchellh/mapstructure v1.3.3 // indirect
-	github.com/onsi/ginkgo v1.12.0 // indirect
-	github.com/onsi/gomega v1.10.0 // indirect
-	github.com/pelletier/go-toml v1.8.0 // indirect
+	github.com/golang/protobuf v1.4.3
+	github.com/jinzhu/gorm v1.9.16
+	github.com/lib/pq v1.9.0 // indirect
+	github.com/mitchellh/mapstructure v1.4.1 // indirect
+	github.com/nyaruka/phonenumbers v1.0.66 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/smartystreets/assertions v1.1.0 // indirect
-	github.com/spf13/afero v1.3.2 // indirect
-	github.com/spf13/cobra v1.0.0
+	github.com/spf13/cobra v1.1.3
 	github.com/spf13/jwalterweatherman v1.1.0
-	github.com/spf13/viper v1.7.0
-	gitlab.com/elixxir/client v1.2.1-0.20200730222826-df9c2c68f271
-	gitlab.com/elixxir/comms v0.0.0-20200730220537-60dbe58afe94
-	gitlab.com/elixxir/crypto v0.0.0-20200707005343-97f868cbd930
-	gitlab.com/elixxir/primitives v0.0.0-20200706165052-9fe7a4fb99a3
-	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de // indirect
-	golang.org/x/sys v0.0.0-20200728102440-3e129f6d46b1 // indirect
-	google.golang.org/genproto v0.0.0-20200730144737-007c33dbd381 // indirect
-	google.golang.org/grpc v1.31.0 // indirect
-	gopkg.in/ini.v1 v1.57.0 // indirect
-	mellium.im/sasl v0.2.1 // indirect
+	github.com/spf13/viper v1.7.1
+	gitlab.com/elixxir/client v1.5.1-0.20210311184849-e3829c18d76f
+	gitlab.com/elixxir/comms v0.0.4-0.20210311180506-28ae742c5e35
+	gitlab.com/elixxir/crypto v0.0.7-0.20210309193114-8a6225c667e2
+	gitlab.com/elixxir/primitives v0.0.3-0.20210309193003-ef42ebb4800b
+	gitlab.com/xx_network/comms v0.0.4-0.20210309192940-6b7fb39b4d01
+	gitlab.com/xx_network/crypto v0.0.5-0.20210309192854-cf32117afb96
+	gitlab.com/xx_network/primitives v0.0.4-0.20210309173740-eb8cd411334a
+	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83 // indirect
+	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110 // indirect
+	golang.org/x/sys v0.0.0-20210309074719-68d13333faf2 // indirect
+	golang.org/x/text v0.3.5 // indirect
+	google.golang.org/genproto v0.0.0-20210311153111-e2979279ddde // indirect
+	google.golang.org/grpc v1.36.0 // indirect
 )
+
+replace google.golang.org/grpc => github.com/grpc/grpc-go v1.27.1
