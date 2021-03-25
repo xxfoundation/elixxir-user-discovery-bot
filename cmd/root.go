@@ -47,11 +47,9 @@ var rootCmd = &cobra.Command{
 
 		var twilioManager *twilio.Manager
 		devMode = viper.GetBool("devMode")
-		if devMode {
-			twilioManager = twilio.NewMockManager(storage)
-		} else {
-			twilioManager = twilio.NewManager(p.Twilio, storage)
-		}
+		jww.Info.Println("forcing mock twilio")
+		twilioManager = twilio.NewMockManager(storage)
+
 
 		cert, err := tls.LoadCertificate(string(p.PermCert))
 		if err != nil {
