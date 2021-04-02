@@ -73,14 +73,3 @@ build:
   artifacts:
     paths:
      - release/
-
-tag:
-    stage: tag
-    only:
-        - master
-    image: $DOCKER_IMAGE
-    script:
-        - git remote add origin_tags git@gitlab.com:elixxir/user-discovery-bot.git || true
-        - git remote set-url origin_tags git@gitlab.com:elixxir/user-discovery-bot.git || true
-        - git tag $(./release/udb.linux64 version | grep "Elixxir User Discovery Bot v"| cut -d ' ' -f5) -f
-        - git push origin_tags -f --tags
