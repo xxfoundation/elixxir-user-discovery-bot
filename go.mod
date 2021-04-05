@@ -9,23 +9,22 @@ require (
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/nyaruka/phonenumbers v1.0.68 // indirect
+	github.com/pelletier/go-toml v1.9.0 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/spf13/afero v1.5.1
+	github.com/spf13/afero v1.6.0
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.7.1
-	gitlab.com/elixxir/client v1.5.1-0.20210402155653-ef72f4a44919
-	gitlab.com/elixxir/comms v0.0.4-0.20210401210158-6053ad2e224c
-	gitlab.com/elixxir/crypto v0.0.7-0.20210401210040-b7f1da24ef13
-	gitlab.com/elixxir/primitives v0.0.3-0.20210401175645-9b7b92f74ec4
-	gitlab.com/xx_network/comms v0.0.4-0.20210401160731-7b8890cdd8ad
-	gitlab.com/xx_network/crypto v0.0.5-0.20210401160648-4f06cace9123
-	gitlab.com/xx_network/primitives v0.0.4-0.20210331161816-ed23858bdb93
-	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2 // indirect
-	golang.org/x/net v0.0.0-20210331212208-0fccb6fa2b5c // indirect
-	golang.org/x/sys v0.0.0-20210402192133-700132347e07 // indirect
+	gitlab.com/elixxir/client v1.5.1-0.20210405225329-2b795b4e6296
+	gitlab.com/elixxir/comms v0.0.4-0.20210405224735-cff3ab4d7d66
+	gitlab.com/elixxir/crypto v0.0.7-0.20210405224356-e2748985102a
+	gitlab.com/elixxir/primitives v0.0.3-0.20210405224302-03092a268566
+	gitlab.com/xx_network/comms v0.0.4-0.20210405224241-5447394f79d7
+	gitlab.com/xx_network/crypto v0.0.5-0.20210405224157-2b1f387b42c1
+	gitlab.com/xx_network/primitives v0.0.4-0.20210402222416-37c1c4d3fac4
+	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
 	golang.org/x/text v0.3.6 // indirect
-	google.golang.org/genproto v0.0.0-20210402141018-6c239bbf2bb1 // indirect
+	google.golang.org/genproto v0.0.0-20210405174219-a39eb2f71cb9 // indirect
 )
 
 replace google.golang.org/grpc => github.com/grpc/grpc-go v1.27.1
