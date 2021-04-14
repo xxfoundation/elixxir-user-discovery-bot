@@ -20,12 +20,12 @@ build:
 
 update_release:
 	GOFLAGS="" go get gitlab.com/elixxir/primitives@release
-	GOFLAGS="" go get gitlab.com/xx_network/primitives@release
+	GOFLAGS="" go get gitlab.com/xx_network/primitives@"hotfix/filteredUpdates"
 	GOFLAGS="" go get gitlab.com/elixxir/crypto@release
-	GOFLAGS="" go get gitlab.com/xx_network/crypto@release
-	GOFLAGS="" go get gitlab.com/elixxir/comms@release
-	GOFLAGS="" go get gitlab.com/xx_network/comms@release
-	GOFLAGS="" go get gitlab.com/elixxir/client@release
+	GOFLAGS="" go get gitlab.com/xx_network/crypto@"hotfix/filteredUpdates"
+	GOFLAGS="" go get gitlab.com/elixxir/comms@"hotfix/filteredUpdates"
+	GOFLAGS="" go get gitlab.com/xx_network/comms@"hotfix/filteredUpdates"
+	GOFLAGS="" go get gitlab.com/elixxir/client@"hotfix/filteredUpdates"
 
 update_master:
 	GOFLAGS="" go get -u gitlab.com/elixxir/primitives@master
