@@ -304,6 +304,8 @@ gitlab.com/elixxir/client v1.5.1-0.20210413160910-60bd631b7b64 h1:V7mA25eFn8VSSH
 gitlab.com/elixxir/client v1.5.1-0.20210413160910-60bd631b7b64/go.mod h1:kC8zjlN82Xi+TvD/VKC4+LHxiDrTYPtivilqF9R8jLE=
 gitlab.com/elixxir/client v1.5.1-0.20210427005915-c57544aa7d4d h1:UeIiIcVC/9yY0s4+yKMF6HZX3qYe+e4JxWglcXdv57E=
 gitlab.com/elixxir/client v1.5.1-0.20210427005915-c57544aa7d4d/go.mod h1:VpXI5oKHvfwoMjPPb6MvtyniDRIumL6MGLu6ohHKtWM=
+gitlab.com/elixxir/client v1.5.1-0.20210427180633-eb4fe9311562 h1:hKkED1V2wJwdmWIGo1q5r2fJuEjW8PvWqFjK+HrDb5Q=
+gitlab.com/elixxir/client v1.5.1-0.20210427180633-eb4fe9311562/go.mod h1:VpXI5oKHvfwoMjPPb6MvtyniDRIumL6MGLu6ohHKtWM=
 gitlab.com/elixxir/comms v0.0.4-0.20210405224735-cff3ab4d7d66 h1:i9fg2U9pdiJZkKhT7FEipABtN75SjtjJs8S+z4xw40k=
 gitlab.com/elixxir/comms v0.0.4-0.20210405224735-cff3ab4d7d66/go.mod h1:f2LlGnYbYW4VF8h/YVhcZNN5odPbCZO0vQeDIKbo8pM=
 gitlab.com/elixxir/comms v0.0.4-0.20210407162937-a2d7ebd9cacd h1:g14XDx0fcLld8cbiACaKjW2ijvRjXOUqCoAh9P/YT6I=
@@ -583,6 +585,8 @@ google.golang.org/genproto v0.0.0-20210413151531-c14fb6ef47c3 h1:K+7Ig5hjiLVA/i1
 google.golang.org/genproto v0.0.0-20210413151531-c14fb6ef47c3/go.mod h1:P3QM42oQyzQSnHPnZ/vqoCdDmzH28fzWByN9asMeM8A=
 google.golang.org/genproto v0.0.0-20210426193834-eac7f76ac494 h1:KMgpo2lWy1vfrYjtxPAzR0aNWeAR1UdQykt6sj/hpBY=
 google.golang.org/genproto v0.0.0-20210426193834-eac7f76ac494/go.mod h1:P3QM42oQyzQSnHPnZ/vqoCdDmzH28fzWByN9asMeM8A=
+google.golang.org/genproto v0.0.0-20210427215850-f767ed18ee4d h1:XkK62R+tLAM4pyhJdBEvtb5B/hM1uTxsVIOjJm6wras=
+google.golang.org/genproto v0.0.0-20210427215850-f767ed18ee4d/go.mod h1:P3QM42oQyzQSnHPnZ/vqoCdDmzH28fzWByN9asMeM8A=
 google.golang.org/protobuf v0.0.0-20200109180630-ec00e32a8dfd/go.mod h1:DFci5gLYBciE7Vtevhsrf46CRTquxDuWsQurQQe4oz8=
 google.golang.org/protobuf v0.0.0-20200221191635-4d8936d0db64/go.mod h1:kwYJMbMJ01Woi6D6+Kah6886xMZcty6N08ah7+eCXa0=
 google.golang.org/protobuf v0.0.0-20200228230310-ab0ca4ff8a60/go.mod h1:cfTl7dwQJ+fmap5saPgwCLgHXTUD7jkjRqWcaiX5VyM=

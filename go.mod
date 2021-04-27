@@ -12,10 +12,11 @@ require (
 	github.com/nyaruka/phonenumbers v1.0.68 // indirect
 	github.com/pelletier/go-toml v1.9.0 // indirect
 	github.com/pkg/errors v0.9.1
+	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.7.1
-	gitlab.com/elixxir/client v1.5.1-0.20210427005915-c57544aa7d4d
+	gitlab.com/elixxir/client v1.5.1-0.20210427180633-eb4fe9311562
 	gitlab.com/elixxir/comms v0.0.4-0.20210427005410-7ae183abda2a
 	gitlab.com/elixxir/crypto v0.0.7-0.20210427005255-4fe1bcf69c5a
 	gitlab.com/elixxir/primitives v0.0.3-0.20210427004615-c68ecf15fcf3
@@ -25,7 +26,7 @@ require (
 	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect
 	golang.org/x/net v0.0.0-20210423184538-5f58ad60dda6 // indirect
 	golang.org/x/sys v0.0.0-20210426230700-d19ff857e887 // indirect
-	google.golang.org/genproto v0.0.0-20210426193834-eac7f76ac494 // indirect
+	google.golang.org/genproto v0.0.0-20210427215850-f767ed18ee4d // indirect
 	google.golang.org/grpc v1.37.0 // indirect
 )
 
