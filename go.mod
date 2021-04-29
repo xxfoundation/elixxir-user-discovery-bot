@@ -3,20 +3,17 @@ module gitlab.com/elixxir/user-discovery-bot
 go 1.13
 
 require (
-	github.com/aws/aws-lambda-go v1.8.1 // indirect
 	github.com/golang/protobuf v1.5.2
 	github.com/jinzhu/gorm v1.9.16
 	github.com/lib/pq v1.9.0 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
-	github.com/nyaruka/phonenumbers v1.0.68 // indirect
 	github.com/pelletier/go-toml v1.9.0 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.7.1
-	gitlab.com/elixxir/client v1.5.1-0.20210427180633-eb4fe9311562
+	gitlab.com/elixxir/client v1.5.1-0.20210428000013-f60fcac53811
 	gitlab.com/elixxir/comms v0.0.4-0.20210427005410-7ae183abda2a
 	gitlab.com/elixxir/crypto v0.0.7-0.20210427005255-4fe1bcf69c5a
 	gitlab.com/elixxir/primitives v0.0.3-0.20210427004615-c68ecf15fcf3
