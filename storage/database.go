@@ -62,6 +62,8 @@ type User struct {
 	DhPub     []byte `gorm:"NOT NULL"`
 	Salt      []byte `gorm:"NOT NULL"`
 	Signature []byte `gorm:"NOT NULL"`
+	// Time in which user registered with the network (ie permisisoning)
+	RegistrationTimestamp time.Time `gorm:"NOT NULL"` // fixme: gorm key?
 	Facts     []Fact `gorm:"foreignkey:UserId;association_foreignkey:Id"`
 }
 

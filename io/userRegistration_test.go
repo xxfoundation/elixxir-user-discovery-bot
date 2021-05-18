@@ -13,6 +13,7 @@ import (
 	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/elixxir/crypto/factID"
 	"gitlab.com/elixxir/crypto/hash"
+	"gitlab.com/elixxir/crypto/registration"
 	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
@@ -115,11 +116,18 @@ func TestRegisterUser(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
+	testTime, err := time.Parse(time.RFC3339,
+		"2012-12-21T22:08:41+00:00")
+	if err != nil {
+		t.Fatalf("Could not parse precanned time: %v", err.Error())
+	}
+
 	// Set an invalid identity signature, check that error occurred
-	registerMsg, err := buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err := buildUserRegistrationMessage(clientId, clientKey, testTime, t)
 	if err != nil {
 		t.FailNow()
 	}
+
 	_, err = registerUser(registerMsg, cert, store, auth)
 	if err != nil {
 		t.Errorf("Failed happy path: %v", err)
@@ -156,6 +164,7 @@ func TestRegisterUser(t *testing.T) {
 		Salt:      registerMsg.IdentityRegistration.Salt,
 		Signature: registerMsg.PermissioningSignature,
 		Facts:     []storage.Fact{f},
+		RegistrationTimestamp: testTime,
 	}
 
 	// Compare the retrieved user and the expected user
@@ -195,8 +204,14 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
+	testTime, err := time.Parse(time.RFC3339,
+		"2012-12-21T22:08:41+00:00")
+	if err != nil {
+		t.Fatalf("Could not parse precanned time: %v", err.Error())
+	}
+
 	// Set an invalid identity signature, check that error occurred
-	registerMsg, err := buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err := buildUserRegistrationMessage(clientId, clientKey, testTime, t)
 	if err != nil {
 		t.FailNow()
 	}
@@ -207,7 +222,7 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 	}
 
 	// Set invalid fact registration signature, check that error occurred
-	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, testTime, t)
 	if err != nil {
 		t.FailNow()
 	}
@@ -218,7 +233,7 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 	}
 
 	// Set invalid permissioning signature, check that error occurred
-	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, testTime, t)
 	if err != nil {
 		t.FailNow()
 	}
@@ -256,8 +271,13 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
+	testTime, err := time.Parse(time.RFC3339,
+		"2012-12-21T22:08:41+00:00")
+	if err != nil {
+		t.Fatalf("Could not parse precanned time: %v", err.Error())
+	}
 	// Set an invalid message, check that error occurred
-	registerMsg, err := buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err := buildUserRegistrationMessage(clientId, clientKey, testTime, t)
 	if err != nil {
 		t.FailNow()
 	}
@@ -268,7 +288,7 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 	}
 
 	// Set invalid fact registration, check that error occurred
-	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, testTime, t)
 	if err != nil {
 		t.FailNow()
 	}
@@ -279,7 +299,7 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 	}
 
 	// Set invalid fact, check that error occurred
-	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, testTime, t)
 	if err != nil {
 		t.FailNow()
 	}
@@ -290,7 +310,7 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 	}
 
 	// Set invalid identity registration, check that error occurred
-	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, testTime, t)
 	if err != nil {
 		t.FailNow()
 	}
@@ -318,12 +338,12 @@ func initClientFields(t *testing.T) (*id.ID, *rsa.PrivateKey) {
 
 // Helper function which generates a user registration message
 func buildUserRegistrationMessage(clientId *id.ID, clientKey *rsa.PrivateKey,
-	t *testing.T) (*pb.UDBUserRegistration, error) {
+	registrationTimestamp time.Time, t *testing.T) (*pb.UDBUserRegistration, error) {
 	// Pull keys and ID out of client
 	clientPubKeyPem := rsa.CreatePublicKeyPem(clientKey.GetPublic())
 
 	// Generate permissioning signature, identity and fact messages
-	permSig := generatePermissioningSignature(clientPubKeyPem, t)
+	permSig := generatePermissioningSignature(clientPubKeyPem, registrationTimestamp, t)
 	requestedUsername := "newUser123"
 	identity, identitySig := buildIdentityMsg(requestedUsername, clientId, clientKey)
 	frs, err := buildFactMessage(requestedUsername, clientId, clientKey)
@@ -339,6 +359,7 @@ func buildUserRegistrationMessage(clientId *id.ID, clientKey *rsa.PrivateKey,
 		IdentitySignature:      identitySig,
 		Frs:                    frs,
 		UID:                    clientId.Bytes(),
+		Timestamp: registrationTimestamp.UnixNano(),
 	}
 
 	return registerMsg, nil
@@ -387,7 +408,7 @@ func buildFactMessage(username string, clientId *id.ID, clientKey *rsa.PrivateKe
 }
 
 // Helper function which creates a permissioning signature for a client
-func generatePermissioningSignature(clientPubKey []byte, t *testing.T) []byte {
+func generatePermissioningSignature(clientPubKey []byte, regTimestamp time.Time, t *testing.T) []byte {
 	// Pull the key which matches cert in global ndf (see where def is initialized)
 	privKeyPem, err := utils.ReadFile(testkeys.GetGatewayKeyPath())
 	if err != nil {
@@ -400,18 +421,8 @@ func generatePermissioningSignature(clientPubKey []byte, t *testing.T) []byte {
 		t.Errorf("Could not get test key: %v", err)
 	}
 
-	// Construct hash
-	h, err := hash.NewCMixHash()
-	if err != nil {
-		t.Errorf("Could make hash: %v", err)
-	}
-
-	// Hash public key
-	h.Write(clientPubKey)
-	hashed := h.Sum(nil)
-
 	// Construct a permissioning signature
-	permSig, err := rsa.Sign(rand.Reader, permPrivKey, hash.CMixHash, hashed, nil)
+	permSig, err := registration.SignWithTimestamp(rand.Reader, permPrivKey, regTimestamp.UnixNano(), string(clientPubKey))
 	if err != nil {
 		t.Errorf("Could not get sign test data: %v", err)
 	}

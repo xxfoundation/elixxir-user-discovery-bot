@@ -11,6 +11,7 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/factID"
 	"gitlab.com/elixxir/crypto/hash"
+	"gitlab.com/elixxir/crypto/registration"
 	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/xx_network/comms/connect"
@@ -51,17 +52,8 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 			"Please try again", username)
 	}
 
-	// Hash the rsa public key, what permissioning signature was signed off of
-	h, err := hash.NewCMixHash()
-	if err != nil {
-		return &messages.Ack{}, errors.Errorf("Failed to create cmix hash: %+v", err)
-	}
-	h.Write([]byte(msg.RSAPublicPem))
-	hashedRsaKey := h.Sum(nil)
-
 	// Verify the Permissioning signature provided
-	err = rsa.Verify(permPublicKey, hash.CMixHash, hashedRsaKey,
-		msg.PermissioningSignature, nil)
+	err = registration.VerifyWithTimestamp(permPublicKey, msg.Timestamp, msg.RSAPublicPem, msg.PermissioningSignature)
 	if err != nil {
 		return &messages.Ack{}, errors.Errorf(
 			"Could not verify permissioning signature. "+
@@ -111,6 +103,7 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 		DhPub:     msg.IdentityRegistration.DhPubKey,
 		Salt:      msg.IdentityRegistration.Salt,
 		Signature: msg.PermissioningSignature,
+		RegistrationTimestamp: time.Unix(0, msg.Timestamp),
 		Facts:     []storage.Fact{f},
 	}
 
