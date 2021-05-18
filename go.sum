@@ -320,8 +320,12 @@ gitlab.com/elixxir/client v1.5.1-0.20210510224843-34f687e48f8c h1:aC0WNK0dG5llLp
 gitlab.com/elixxir/client v1.5.1-0.20210510224843-34f687e48f8c/go.mod h1:Xa4I/Wqw2Kp+onlEOgjXDq25ZOXic8RgSO14h+pSkHw=
 gitlab.com/elixxir/client v1.5.1-0.20210511204415-c20d53db002b h1:ltMpfFi7g2NjjhQn08Z5L5N10pTO58Bl+a52tT3NvOc=
 gitlab.com/elixxir/client v1.5.1-0.20210511204415-c20d53db002b/go.mod h1:Xa4I/Wqw2Kp+onlEOgjXDq25ZOXic8RgSO14h+pSkHw=
+gitlab.com/elixxir/client v1.5.1-0.20210517210954-98bc766e458c h1:9TVHdscGNsujJtpyQ+XWNrM/77rrLWlI1XjH2KrAPK4=
+gitlab.com/elixxir/client v1.5.1-0.20210517210954-98bc766e458c/go.mod h1:cigt3B6vQZo6nXSq5gwGEW9Rlh6+Nd6RKS8hWslgOb0=
 gitlab.com/elixxir/client v1.5.1-0.20210517211947-0475428e5255 h1:DFg4YOwf81yuRfNKHM7oksbni0GGIa9Yu51QP++18w8=
 gitlab.com/elixxir/client v1.5.1-0.20210517211947-0475428e5255/go.mod h1:pTdSyK2CiYGFSMAw7jDmJOgjondXXTYgIYch1Aa3AYs=
+gitlab.com/elixxir/client v1.5.1-0.20210518162201-cb1019c99292 h1:3qe+oopgTZr1vdPvHFK1YusiQVRgu/3ScIfxEd96SkM=
+gitlab.com/elixxir/client v1.5.1-0.20210518162201-cb1019c99292/go.mod h1:zbBmNa9wvEs+KMfjToye1QDuqYC51Od8wsxuGqBMkk0=
 gitlab.com/elixxir/comms v0.0.0-20200707210150-b8ebd0951d23/go.mod h1:OsWMZ1O/R9fOkm+PoHnR3rkXfFtipGoPs73FuKuurHY=
 gitlab.com/elixxir/comms v0.0.0-20200917221445-8a509560122a/go.mod h1:L2Va13j2AbQkpkveOQmNzrQD37uI5NKeBhYH+LWMOx0=
 gitlab.com/elixxir/comms v0.0.3/go.mod h1:5p7oz4yFrK037rPap6ooaWrloJrzuVZ4jnzOdvgyqnU=
@@ -341,8 +345,12 @@ gitlab.com/elixxir/comms v0.0.4-0.20210506225017-37485f5ba063 h1:9A2FT1IDzb9E0Ha
 gitlab.com/elixxir/comms v0.0.4-0.20210506225017-37485f5ba063/go.mod h1:KHV+lNKhcsXoor1KQizUHhCuHugnquldrAR8UU5PNKU=
 gitlab.com/elixxir/comms v0.0.4-0.20210510215231-525cc566ee11 h1:yetSThrWUS5wFxCYXxSfLbeqU++KwdsSkhEO/9VZeMg=
 gitlab.com/elixxir/comms v0.0.4-0.20210510215231-525cc566ee11/go.mod h1:YhYFU6bXA628iJmHKV+Nuzvzh11cJNd5REU6Grb7jAY=
+gitlab.com/elixxir/comms v0.0.4-0.20210517210053-819dc80aa1c9 h1:cX0ANMa1c+JeoTApnd0uaWaHf2B4gNPfYd/8e0wGEwU=
+gitlab.com/elixxir/comms v0.0.4-0.20210517210053-819dc80aa1c9/go.mod h1:OSkqULTkOZCrtqLd8AS6+eJza48Kqj05uflUIpJHPj4=
 gitlab.com/elixxir/comms v0.0.4-0.20210517211849-c6cbb2b9bddd h1:kxccdDU23xxfBeUCZfsJaE0NAL3oaEgnDG0QiLUBBwo=
 gitlab.com/elixxir/comms v0.0.4-0.20210517211849-c6cbb2b9bddd/go.mod h1:1z9NwwUwyLD6t0M39ki+8IEM46F5CR7yg2qjmxIt3Fw=
+gitlab.com/elixxir/comms v0.0.4-0.20210518161840-7267c066aec6 h1:9U+iwxqHEkee0+H/DKC8nxYiDwRYcBa9MZjaqQHSCy0=
+gitlab.com/elixxir/comms v0.0.4-0.20210518161840-7267c066aec6/go.mod h1:REyIHJwFbn+/QY5ODq/irfhvaTd+DP2tCQ5WyRHftwg=
 gitlab.com/elixxir/crypto v0.0.0-20200707005343-97f868cbd930/go.mod h1:LHBAaEf48a0/AjU118rjoworH0LgXifhAqmNX3ZRvME=
 gitlab.com/elixxir/crypto v0.0.0-20200731174640-0503cf80524a/go.mod h1:LHBAaEf48a0/AjU118rjoworH0LgXifhAqmNX3ZRvME=
 gitlab.com/elixxir/crypto v0.0.0-20200804182833-984246dea2c4 h1:28ftZDeYEko7xptCZzeFWS1Iam95dj46TWFVVlKmw6A=
@@ -364,8 +372,11 @@ gitlab.com/elixxir/crypto v0.0.7-0.20210506223047-3196e4301110 h1:4KWUbx1RI5TABB
 gitlab.com/elixxir/crypto v0.0.7-0.20210506223047-3196e4301110/go.mod h1:pbq80k+R7XXvjyWDqanD2eCJi1ClfESdKS0K8NndoLs=
 gitlab.com/elixxir/crypto v0.0.7-0.20210511170437-f96ba33308f5 h1:MdabB2Rk4yd/VutWXzHQXgeC7EpwktH6P60eND8xSpc=
 gitlab.com/elixxir/crypto v0.0.7-0.20210511170437-f96ba33308f5/go.mod h1:pbq80k+R7XXvjyWDqanD2eCJi1ClfESdKS0K8NndoLs=
+gitlab.com/elixxir/crypto v0.0.7-0.20210517205836-5930e34ed931/go.mod h1:k2rXhBcvIasA+nGyPw0Lr/9GuFb26+sdxvyYAFLpDHw=
 gitlab.com/elixxir/crypto v0.0.7-0.20210517212824-4df0efda837f h1:mkkzCAH81FwPMo9Jxwa68D7MN0ogWsLchrLv23EvtfI=
 gitlab.com/elixxir/crypto v0.0.7-0.20210517212824-4df0efda837f/go.mod h1:k2rXhBcvIasA+nGyPw0Lr/9GuFb26+sdxvyYAFLpDHw=
+gitlab.com/elixxir/crypto v0.0.7-0.20210518162248-33c36cbe33e9 h1:191/wp+GnmzKxZMrkzJIynG7a9jJ3PmdfEpvYVrU5cc=
+gitlab.com/elixxir/crypto v0.0.7-0.20210518162248-33c36cbe33e9/go.mod h1:LhpR7qsEprjkhAorBW303XNMmzQsOYKi0zGQ7TYc1iA=
 gitlab.com/elixxir/ekv v0.0.0-20200729182028-159355ea5842/go.mod h1:bXY0kgbV5BHYda4YY5/hiG5bjimGK+R3PYub5yM9C/s=
 gitlab.com/elixxir/ekv v0.1.5 h1:R8M1PA5zRU1HVnTyrtwybdABh7gUJSCvt1JZwUSeTzk=
 gitlab.com/elixxir/ekv v0.1.5/go.mod h1:e6WPUt97taFZe5PFLPb1Dupk7tqmDCTQu1kkstqJvw4=
