@@ -16,13 +16,13 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/ugorji/go v1.1.4 // indirect
 	github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77 // indirect
-	gitlab.com/elixxir/client v1.5.1-0.20210521210522-4e3bc686a783
-	gitlab.com/elixxir/comms v0.0.4-0.20210521205603-a6a49d762f62
-	gitlab.com/elixxir/crypto v0.0.7-0.20210521205349-cb0c5cdd44e3
-	gitlab.com/elixxir/primitives v0.0.3-0.20210521205228-746e9ff840fb
-	gitlab.com/xx_network/comms v0.0.4-0.20210521205156-5dbbf700c6c7
-	gitlab.com/xx_network/crypto v0.0.5-0.20210521205053-9423260a7c0f
-	gitlab.com/xx_network/primitives v0.0.4-0.20210521183842-3b12812ac984
+	gitlab.com/elixxir/client v1.5.1-0.20210526004044-86250cb2acc2
+	gitlab.com/elixxir/comms v0.0.4-0.20210526002834-a1bcf83670ce
+	gitlab.com/elixxir/crypto v0.0.7-0.20210526002540-1fb51df5b4b2
+	gitlab.com/elixxir/primitives v0.0.3-0.20210526002350-b9c947fec050
+	gitlab.com/xx_network/comms v0.0.4-0.20210526002311-2b5a66af0eac
+	gitlab.com/xx_network/crypto v0.0.5-0.20210526002149-9c08ccb202be
+	gitlab.com/xx_network/primitives v0.0.4-0.20210525232109-3f99a04adcfd
 	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect
 	golang.org/x/net v0.0.0-20210423184538-5f58ad60dda6 // indirect
 	golang.org/x/sys v0.0.0-20210426230700-d19ff857e887 // indirect
