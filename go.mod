@@ -16,19 +16,17 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/ugorji/go v1.1.4 // indirect
 	github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77 // indirect
-	gitlab.com/elixxir/client v1.5.1-0.20210528023625-874fee63feec
-	gitlab.com/elixxir/comms v0.0.4-0.20210528021638-d41269ba844e
+	gitlab.com/elixxir/client v1.5.1-0.20210528195552-e592f7bc6f14
+	gitlab.com/elixxir/comms v0.0.4-0.20210528193933-98d0d18be637
 	gitlab.com/elixxir/crypto v0.0.7-0.20210526002540-1fb51df5b4b2
 	gitlab.com/elixxir/primitives v0.0.3-0.20210526002350-b9c947fec050
-	gitlab.com/xx_network/comms v0.0.4-0.20210528015510-2b219e8fdfc7
+	gitlab.com/xx_network/comms v0.0.4-0.20210528192421-5931f64cbdc9
 	gitlab.com/xx_network/crypto v0.0.5-0.20210526002149-9c08ccb202be
 	gitlab.com/xx_network/primitives v0.0.4-0.20210525232109-3f99a04adcfd
 	gitlab.com/xx_network/ring v0.0.3-0.20210527191221-ce3f170aabd5 // indirect
 	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect
-	golang.org/x/net v0.0.0-20210423184538-5f58ad60dda6 // indirect
 	golang.org/x/sys v0.0.0-20210426230700-d19ff857e887 // indirect
 	google.golang.org/genproto v0.0.0-20210427215850-f767ed18ee4d // indirect
-	google.golang.org/grpc v1.37.0 // indirect
 )
 
 replace google.golang.org/grpc => github.com/grpc/grpc-go v1.27.1
