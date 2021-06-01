@@ -28,5 +28,3 @@ require (
 	golang.org/x/sys v0.0.0-20210426230700-d19ff857e887 // indirect
 	google.golang.org/genproto v0.0.0-20210427215850-f767ed18ee4d // indirect
 )
-
-replace google.golang.org/grpc => github.com/grpc/grpc-go v1.27.1
