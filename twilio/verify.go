@@ -70,7 +70,7 @@ func (v *verifier) VerificationCheck(code int, to string) (bool, error) {
 	checkUrl := fmt.Sprintf(VERIFICATION_CHECK_URL, v.p.VerificationSid)
 	payload := url.Values{}
 	payload.Set(PAYLOAD_TO, to)
-	payload.Set(PAYLOAD_CHAN, strconv.Itoa(code))
+	payload.Set(PAYLOAD_CODE, strconv.Itoa(code))
 
 	data, err := v.twilioRequest(payload, checkUrl)
 	if err != nil {
