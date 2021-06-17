@@ -118,7 +118,7 @@ func confirmFact(request *pb.FactConfirmRequest, verifier *twilio.Manager, store
 	}
 
 	// Return an error if the request is nil
-	if request == nil {
+	if request == nil || request.ConfirmationID == "" {
 		return &messages.Ack{}, errors.New(invalidFactConfirmRequestError)
 	}
 
