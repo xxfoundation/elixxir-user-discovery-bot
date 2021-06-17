@@ -68,13 +68,13 @@ func registerFact(request *pb.FactRegisterRequest, verifier *twilio.Manager, sto
 	// Marshal user ID
 	userID, err := id.Unmarshal(request.UID)
 	if err != nil {
-		return &pb.FactRegisterResponse{}, errors.New(invalidUserIdError)
+		return &pb.FactRegisterResponse{}, errors.WithMessage(err, invalidUserIdError)
 	}
 
 	// Return an error if the fact's user is not registered
 	user, err := store.GetUser(request.UID)
 	if err != nil {
-		return &pb.FactRegisterResponse{}, errors.Errorf(getUserFailureError+": %+v", err)
+		return &pb.FactRegisterResponse{}, errors.WithMessage(err, getUserFailureError)
 	} else if user == nil {
 		return &pb.FactRegisterResponse{}, errors.Errorf(noUserError,
 			userID)
@@ -83,20 +83,20 @@ func registerFact(request *pb.FactRegisterRequest, verifier *twilio.Manager, sto
 	// Parse the client's public key
 	clientPubKey, err := rsa.LoadPublicKeyFromPem([]byte(user.RsaPub))
 	if err != nil {
-		return &pb.FactRegisterResponse{}, errors.New(invalidUserKeyError)
+		return &pb.FactRegisterResponse{}, errors.WithMessage(err, invalidUserKeyError)
 	}
 
 	// Return an error if the fact signature cannot be verified
 	err = rsa.Verify(clientPubKey, hash.CMixHash, hashedFact, request.FactSig, nil)
 	if err != nil {
-		return &pb.FactRegisterResponse{}, errors.New(invalidFactSigError)
+		return &pb.FactRegisterResponse{}, errors.WithMessage(err, invalidFactSigError)
 	}
 
 	// Register fact with Twilio to get confirmation ID
 	confirmationID, err := verifier.RegisterFact(userID, request.Fact.Fact,
 		uint8(request.Fact.FactType), request.FactSig)
 	if err != nil {
-		return &pb.FactRegisterResponse{}, errors.New(twilioRegFailureError)
+		return &pb.FactRegisterResponse{}, errors.WithMessage(err, twilioRegFailureError)
 	}
 
 	// Create response

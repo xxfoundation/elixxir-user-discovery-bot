@@ -115,6 +115,6 @@ func (v *verifier) twilioRequest(payload url.Values, url string) (map[string]int
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}
-		return nil, errors.Errorf("error: request failed with status %d: %+v", resp.StatusCode, resp.Status)
+		return nil, errors.Errorf("error: request failed with status %d (%+v): %+v", resp.StatusCode, resp.Status, data)
 	}
 }
