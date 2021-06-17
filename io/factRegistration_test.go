@@ -121,7 +121,7 @@ func TestRegisterFact_BadSigError(t *testing.T) {
 	request.FactSig = []byte("Bad signature")
 
 	response, err := registerFact(request, twilio.NewMockManager(store), store, auth)
-	if err == nil || err.Error() != invalidFactSigError {
+	if err == nil || !strings.Contains(err.Error(), invalidFactSigError) {
 		t.Errorf("registerFact() did not produce an error for invalid signature."+
 			"\n\texpected: %v\n\treceived: %v", invalidFactSigError, err)
 	}
