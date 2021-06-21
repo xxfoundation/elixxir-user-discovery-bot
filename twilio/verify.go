@@ -23,6 +23,7 @@ import (
 const VERIFICATION_URL = "https://verify.twilio.com/v2/Services/%s/Verifications"
 const VERIFICATION_CHECK_URL = "https://verify.twilio.com/v2/Services/%s/VerificationCheck"
 const PAYLOAD_TO = "To"
+const PAYLOAD_SID = "VerificationSid"
 const PAYLOAD_CODE = "Code"
 const PAYLOAD_CHAN = "Channel"
 
@@ -69,7 +70,7 @@ func (v *verifier) Verification(to, channel string) (string, error) {
 func (v *verifier) VerificationCheck(code int, to string) (bool, error) {
 	checkUrl := fmt.Sprintf(VERIFICATION_CHECK_URL, v.p.VerificationSid)
 	payload := url.Values{}
-	payload.Set(PAYLOAD_TO, to)
+	payload.Set(PAYLOAD_SID, to)
 	payload.Set(PAYLOAD_CODE, strconv.Itoa(code))
 
 	data, err := v.twilioRequest(payload, checkUrl)
