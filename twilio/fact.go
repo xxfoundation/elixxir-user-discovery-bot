@@ -10,6 +10,7 @@ package twilio
 
 import (
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/crypto/factID"
 	fact2 "gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/xx_network/primitives/id"
@@ -19,7 +20,9 @@ import (
 func (m *Manager) RegisterFact(uid *id.ID, fact string, factType uint8, signature []byte) (string, error) {
 	verifyId, err := m.verifier.Verification(fact, Channel(factType).String())
 	if err != nil {
-		return "", errors.WithStack(err)
+		err = errors.WithMessage(err, "Twilio verification init failed")
+		jww.ERROR.Println(err)
+		return "", err
 	}
 	f, err := fact2.NewFact(fact2.FactType(factType), fact)
 	if err != nil {

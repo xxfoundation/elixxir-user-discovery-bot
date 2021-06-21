@@ -23,6 +23,7 @@ import (
 const VERIFICATION_URL = "https://verify.twilio.com/v2/Services/%s/Verifications"
 const VERIFICATION_CHECK_URL = "https://verify.twilio.com/v2/Services/%s/VerificationCheck"
 const PAYLOAD_TO = "To"
+const PAYLOAD_SID = "VerificationSid"
 const PAYLOAD_CODE = "Code"
 const PAYLOAD_CHAN = "Channel"
 
@@ -69,8 +70,8 @@ func (v *verifier) Verification(to, channel string) (string, error) {
 func (v *verifier) VerificationCheck(code int, to string) (bool, error) {
 	checkUrl := fmt.Sprintf(VERIFICATION_CHECK_URL, v.p.VerificationSid)
 	payload := url.Values{}
-	payload.Set(PAYLOAD_TO, to)
-	payload.Set(PAYLOAD_CHAN, strconv.Itoa(code))
+	payload.Set(PAYLOAD_SID, to)
+	payload.Set(PAYLOAD_CODE, strconv.Itoa(code))
 
 	data, err := v.twilioRequest(payload, checkUrl)
 	if err != nil {
@@ -115,6 +116,6 @@ func (v *verifier) twilioRequest(payload url.Values, url string) (map[string]int
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}
-		return nil, errors.Errorf("error: request failed with status %d: %+v", resp.StatusCode, resp.Status)
+		return nil, errors.Errorf("error: request failed with status %d (%+v): %+v", resp.StatusCode, resp.Status, data)
 	}
 }
