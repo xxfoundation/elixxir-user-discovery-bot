@@ -14,7 +14,7 @@ func TestRegisterFact(t *testing.T) {
 		verifier: newMockVerifier(),
 	}
 	uid := id.NewIdFromString("zezima", id.User, t)
-	_, err := m.RegisterFact(uid, "water is wet", 0, []byte("hancock"))
+	_, err := m.RegisterFact(uid, "7813151633US", 2, []byte("hancock"))
 	if err != nil {
 		t.Errorf("Failed to register fact: %+v", err)
 	}

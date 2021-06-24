@@ -39,11 +39,10 @@ type Channel int
 const (
 	SMS Channel = iota
 	Email
-	Voice
 )
 
 func (c Channel) String() string {
-	return [...]string{"sms", "email", "call"}[c]
+	return [...]string{"sms", "email"}[c]
 }
 
 type verifier struct {
@@ -52,6 +51,7 @@ type verifier struct {
 
 // Posts to the verification endpoint of twilio, returns confirmation id
 func (v *verifier) Verification(to, channel string) (string, error) {
+	jww.INFO.Printf("Attempting to verify %s via %s", to, channel)
 	verificationURL := fmt.Sprintf(VERIFICATION_URL, v.p.VerificationSid)
 	payload := url.Values{}
 	payload.Set(PAYLOAD_TO, to)
@@ -61,6 +61,7 @@ func (v *verifier) Verification(to, channel string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	jww.INFO.Printf("Response data: %+v", data)
 	sid := fmt.Sprint(data["sid"])
 
 	return sid, err
