@@ -23,6 +23,8 @@ func (m *Manager) searchCallback(payload []byte, c single.Contact) {
 
 	response := m.handleSearch(searchMsg, c)
 
+	jww.INFO.Printf("Search for %+v completed & found %+v", searchMsg.Fact, response.Contacts)
+
 	marshaledResponse, err := proto.Marshal(response)
 	if err != nil {
 		jww.ERROR.Printf("Failed to marshal request to search request from "+
@@ -77,6 +79,10 @@ func (m *Manager) handleSearch(msg *ud.SearchSend, c single.Contact) *ud.SearchR
 			PubKey:    u.DhPub,
 			TrigFacts: uFacts,
 		})
+	}
+
+	if len(response.Contacts) == 0 {
+		response.Error = "NO RESULTS FOUND"
 	}
 
 	return response
