@@ -11,6 +11,7 @@ package twilio
 import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
+	"github.com/ttacon/libphonenumber"
 	"gitlab.com/elixxir/crypto/factID"
 	fact2 "gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/xx_network/primitives/id"
@@ -18,7 +19,27 @@ import (
 
 // RegisterFact submits a fact for verification
 func (m *Manager) RegisterFact(uid *id.ID, fact string, factType uint8, signature []byte) (string, error) {
-	verifyId, err := m.verifier.Verification(fact, Channel(factType).String())
+	var to string
+	var channel string
+	if fact2.FactType(factType) == fact2.Phone {
+		l := len(fact)
+		number := fact[:l-2]
+		countryCode := fact[l-2:]
+		num, err := libphonenumber.Parse(number, countryCode)
+		if err != nil {
+			return "", err
+		}
+		// Phone numbers sent to twilio must be in e.164 format
+		to = libphonenumber.Format(num, libphonenumber.E164)
+		channel = SMS.String()
+	} else {
+		to = fact
+		channel = Email.String()
+
+	}
+	verifyId, err := m.verifier.Verification(to, channel)
+	jww.INFO.Printf("Sent verification & received %s", verifyId)
+
 	if err != nil {
 		err = errors.WithMessage(err, "Twilio verification init failed")
 		jww.ERROR.Println(err)

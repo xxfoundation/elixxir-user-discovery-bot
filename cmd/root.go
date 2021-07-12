@@ -48,6 +48,7 @@ var rootCmd = &cobra.Command{
 		var twilioManager *twilio.Manager
 		devMode = viper.GetBool("devMode")
 		if devMode {
+			jww.WARN.Println("Twilio not configured; running with mock configuration")
 			twilioManager = twilio.NewMockManager(storage)
 		} else {
 			twilioManager = twilio.NewManager(p.Twilio, storage)
