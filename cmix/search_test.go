@@ -113,8 +113,8 @@ func TestManager_handleSearch(t *testing.T) {
 	}
 
 	resp = m.handleSearch(&ud.SearchSend{Fact: []*ud.HashFact{{Hash: fid, Type: int32(fact.Nickname)}}}, c)
-	if resp.Error != "" {
-		t.Errorf("Failed to handle search: %+v", resp.Error)
+	if resp.Error == "" {
+		t.Errorf("Search should have returned error")
 	}
 	if len(resp.Contacts) != 0 {
 		t.Errorf("Should not be able to search with nickname")
