@@ -128,7 +128,7 @@ func (db *DatabaseImpl) MarkTwilioFactVerified(confirmationId string) error {
 // Search for users by facts
 func (db *DatabaseImpl) Search(factHashes [][]byte) ([]*User, error) {
 	var facts []*Fact
-	err := db.db.Where("hash in (?)", factHashes).Find(&facts).Error
+	err := db.db.Where("hash in (?) and verified", factHashes).Find(&facts).Error
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func (db *DatabaseImpl) Search(factHashes [][]byte) ([]*User, error) {
 			continue
 		}
 		u := &User{}
-		err = db.db.Take(u, "id = ?", f.UserId).Error
+		err = db.db.Preload("Facts").Take(u, "id = ?", f.UserId).Error
 		if err != nil {
 			return nil, err
 		}
