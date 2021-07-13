@@ -66,7 +66,7 @@ func (db *DatabaseImpl) InsertFact(fact *Fact) error {
 
 // Retreive a fact by confirmation ID
 func (db *DatabaseImpl) MarkFactVerified(factHash []byte) error {
-	return db.db.Model(&Fact{}).Where("hash = ?", factHash).UpdateColumn("verified", "true").Error
+	return db.db.Model(&Fact{}).Where("hash = ?", factHash).UpdateColumn("verified", true).Error
 }
 
 // Delete a fact by confirmation ID
@@ -133,23 +133,27 @@ func (db *DatabaseImpl) Search(factHashes [][]byte) ([]*User, error) {
 		return nil, err
 	}
 
-	var found map[id.ID]bool
-	found = make(map[id.ID]bool)
-	var users []*User
+	var found map[id.ID][]Fact
+	found = make(map[id.ID][]Fact)
 	for _, f := range facts {
 		uid, err := id.Unmarshal(f.UserId)
 		if err != nil {
 			return nil, errors.WithMessage(err, "failed to unmarshal uid")
 		}
-		if _, ok := found[*uid]; ok {
-			continue
+		if fl, ok := found[*uid]; ok {
+			found[*uid] = append(fl, *f)
+		} else {
+			found[*uid] = []Fact{*f}
 		}
+	}
+	var users []*User
+	for uid, fl := range found {
 		u := &User{}
-		err = db.db.Preload("Facts").Take(u, "id = ?", f.UserId).Error
+		err = db.db.Take(u, "id = ?", uid.Marshal()).Error
 		if err != nil {
 			return nil, err
 		}
-		found[*uid] = true
+		u.Facts = fl
 		users = append(users, u)
 	}
 

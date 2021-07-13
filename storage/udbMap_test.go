@@ -48,7 +48,7 @@ func TestDatabaseImpl(t *testing.T) {
 		Fact:      "zezima",
 		Type:      uint8(Username),
 		Signature: []byte("factsig"),
-		Verified:  true,
+		Verified:  false,
 	})
 	if err != nil {
 		t.Errorf("Failed to insert fact: %+v", err)
