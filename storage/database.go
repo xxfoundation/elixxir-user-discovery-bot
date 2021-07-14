@@ -64,7 +64,7 @@ type User struct {
 	Signature []byte `gorm:"NOT NULL"`
 	// Time in which user registered with the network (ie permisisoning)
 	RegistrationTimestamp time.Time `gorm:"NOT NULL"` // fixme: gorm key?
-	Facts     []Fact `gorm:"foreignkey:UserId;association_foreignkey:Id"`
+	Facts                 []Fact    `gorm:"foreignkey:UserId;association_foreignkey:Id"`
 }
 
 // Fact type enum
@@ -95,7 +95,7 @@ type Fact struct {
 // Struct defining twilio_verifications table
 type TwilioVerification struct {
 	ConfirmationId string `gorm:"primary_key"`
-	FactHash       []byte `gorm:"NOT NULL;type:bytea REFERENCES facts(Hash)"`
+	FactHash       []byte `gorm:"unique;NOT NULL;type:bytea REFERENCES facts(Hash)"`
 }
 
 func NewTestDB(t *testing.T) *Storage {

@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// // Hidden function for one-time unit testing database implementation
+//// Hidden function for one-time unit testing database implementation
 //func TestDatabaseImpl(t *testing.T) {
 //
 //	jwalterweatherman.SetLogThreshold(jwalterweatherman.LevelTrace)

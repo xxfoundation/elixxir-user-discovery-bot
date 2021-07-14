@@ -9,6 +9,7 @@
 package storage
 
 import (
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
@@ -85,6 +86,7 @@ func (db *DatabaseImpl) InsertFactTwilio(userID, factHash, signature []byte, fac
 		Type:      uint8(factType),
 		Signature: signature,
 		Verified:  false,
+		Timestamp: time.Now(),
 	}
 
 	tv := &TwilioVerification{
@@ -94,10 +96,11 @@ func (db *DatabaseImpl) InsertFactTwilio(userID, factHash, signature []byte, fac
 
 	tf := func(tx *gorm.DB) error {
 		var err error
-		if err = tx.Create(f).Error; err != nil {
+		if err = tx.Set("gorm:insert_option", "ON CONFLICT (hash) DO UPDATE SET timestamp = NOW()").Create(f).Error; err != nil {
 			return err
 		}
-		if err = tx.Create(tv).Error; err != nil {
+
+		if err = tx.Set("gorm:insert_option", fmt.Sprintf("ON CONFLICT (fact_hash) DO UPDATE SET confirmation_id = '%+v'", confirmationID)).Create(tv).Error; err != nil {
 			return err
 		}
 		return nil
