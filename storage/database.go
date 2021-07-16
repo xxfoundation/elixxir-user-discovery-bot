@@ -52,6 +52,7 @@ type MapImpl struct {
 	users               map[id.ID]*User
 	facts               map[factId]*Fact
 	twilioVerifications map[string]*TwilioVerification
+	fhToVerification    map[factId]*TwilioVerification
 	sync.RWMutex
 }
 
@@ -144,6 +145,7 @@ func newDatabase(username, password, database, address,
 			users:               map[id.ID]*User{},
 			facts:               map[factId]*Fact{},
 			twilioVerifications: map[string]*TwilioVerification{},
+			fhToVerification:    map[factId]*TwilioVerification{},
 		}
 
 		return &Storage{mapImpl}, func() error { return nil }, nil

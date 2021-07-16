@@ -136,27 +136,43 @@ func (db *DatabaseImpl) Search(factHashes [][]byte) ([]*User, error) {
 		return nil, err
 	}
 
-	var found map[id.ID][]Fact
-	found = make(map[id.ID][]Fact)
+	var found = make(map[id.ID][]Fact)
+	var usernames = make(map[id.ID]Fact)
 	for _, f := range facts {
+		// Unmarshal uid for this fact
 		uid, err := id.Unmarshal(f.UserId)
 		if err != nil {
 			return nil, errors.WithMessage(err, "failed to unmarshal uid")
 		}
+
+		// Add user if not hit already, add to list of facts otherwise
 		if fl, ok := found[*uid]; ok {
 			found[*uid] = append(fl, *f)
 		} else {
 			found[*uid] = []Fact{*f}
 		}
+
+		// Username handling
+		if f.Type == uint8(Username) {
+			if _, ok := usernames[*uid]; ok {
+				continue
+			} else {
+				usernames[*uid] = *f
+			}
+		}
 	}
 	var users []*User
 	for uid, fl := range found {
 		u := &User{}
-		err = db.db.Take(u, "id = ?", uid.Marshal()).Error
+		err = db.db.Preload("Facts", "type = 0").Take(u, "id = ?", uid.Marshal()).Error
 		if err != nil {
 			return nil, err
 		}
-		u.Facts = fl
+		if _, ok := usernames[uid]; ok {
+			u.Facts = fl
+		} else {
+			u.Facts = append(u.Facts, fl...)
+		}
 		users = append(users, u)
 	}
 

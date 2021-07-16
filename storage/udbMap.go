@@ -102,6 +102,7 @@ func (m *MapImpl) InsertFactTwilio(userID, factHash, signature []byte, factType 
 	copy(fid[:], factHash)
 	m.facts[fid] = &f
 	m.twilioVerifications[confirmationID] = &tv
+	m.fhToVerification[fid] = &tv
 	return nil
 }
 
@@ -111,6 +112,7 @@ func (m *MapImpl) MarkTwilioFactVerified(confirmationId string) error {
 	copy(fid[:], m.twilioVerifications[confirmationId].FactHash)
 	m.facts[fid].Verified = true
 	delete(m.twilioVerifications, confirmationId)
+	delete(m.fhToVerification, fid)
 	return nil
 }
 
