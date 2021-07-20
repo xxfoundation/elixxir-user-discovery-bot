@@ -49,11 +49,18 @@ func removeFact(msg *pb.FactRemovalRequest, store *storage.Storage, auth *connec
 	// Unmarshal the owner ID
 	uid, err := id.Unmarshal(users[0].Id)
 	if err != nil {
-		jww.ERROR.Print("removeFact internal error Unmarshal", err)
+		jww.ERROR.Print("removeFact internal error unmarshalling found user id", err)
+		return &messages.Ack{}, e
+	}
+	auth.Sender.GetId()
+
+	senderID, err := id.Unmarshal(msg.UID)
+	if err != nil {
+		jww.ERROR.Print("removeFact internal error unmarshalling sender uid", err)
 		return &messages.Ack{}, e
 	}
 	// Check the owner ID matches the sender ID
-	if !auth.Sender.GetId().Cmp(uid) {
+	if !senderID.Cmp(uid) {
 		jww.ERROR.Print("removeFact internal error Auth Sender mismatch")
 		return &messages.Ack{}, errors.New("Removal could not be " +
 			"completed because you do not own this fact.")
