@@ -50,6 +50,7 @@ type factId [32]byte
 // Struct implementing the Database Interface with an underlying Map
 type MapImpl struct {
 	users               map[id.ID]*User
+	usernames           map[id.ID]*Fact
 	facts               map[factId]*Fact
 	twilioVerifications map[string]*TwilioVerification
 	fhToVerification    map[factId]*TwilioVerification
@@ -146,6 +147,7 @@ func newDatabase(username, password, database, address,
 			facts:               map[factId]*Fact{},
 			twilioVerifications: map[string]*TwilioVerification{},
 			fhToVerification:    map[factId]*TwilioVerification{},
+			usernames:           map[id.ID]*Fact{},
 		}
 
 		return &Storage{mapImpl}, func() error { return nil }, nil

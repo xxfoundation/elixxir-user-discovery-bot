@@ -9,8 +9,9 @@
 package storage
 
 import (
-	"errors"
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/xx_network/primitives/id"
 	"time"
 )
@@ -26,6 +27,12 @@ func (m *MapImpl) InsertUser(user *User) error {
 		return err
 	}
 	m.users[*uid] = user
+	for _, f := range user.Facts {
+		err = m.InsertFact(&f)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -57,6 +64,9 @@ func (m *MapImpl) InsertFact(fact *Fact) error {
 	}
 	if _, ok := m.users[*uid]; !ok {
 		return errors.New("error: associated user not found")
+	}
+	if fact.Type == uint8(Username) {
+		m.usernames[*uid] = fact
 	}
 	factid := factId{}
 	copy(factid[:], fact.Hash)
@@ -119,19 +129,50 @@ func (m *MapImpl) MarkTwilioFactVerified(confirmationId string) error {
 // Search for users by fact hashes
 func (m *MapImpl) Search(factHashes [][]byte) ([]*User, error) {
 	users := map[id.ID]*User{}
+	unames := map[id.ID]Fact{}
 	for _, h := range factHashes {
 		fid := factId{}
 		copy(fid[:], h)
 		if f, ok := m.facts[fid]; ok {
 			uid, err := id.Unmarshal(f.UserId)
 			if err != nil {
-				jww.ERROR.Printf("Failed to decode uid %+v: %+v", f.UserId, err)
+				return nil, errors.WithMessagef(err, "Failed to decode uid %+v", f.UserId)
 			}
-			users[*uid] = m.users[*uid]
+			if u, found := users[*uid]; found {
+				u.Facts = append(u.Facts, *f)
+			} else {
+				u, ok := m.users[*uid]
+				if !ok {
+					return nil, errors.New("no user associated with hash, this should not be possible")
+				}
+				users[*uid] = &User{
+					Id:                    u.Id,
+					RsaPub:                u.RsaPub,
+					DhPub:                 u.DhPub,
+					Salt:                  u.Salt,
+					Signature:             u.Signature,
+					RegistrationTimestamp: u.RegistrationTimestamp,
+					Facts:                 []Fact{*f},
+				}
+			}
+			if f.Type == uint8(fact.Username) {
+				unames[*uid] = *f
+			}
 		}
 	}
 	var result []*User
-	for _, u := range users {
+	for i, u := range users {
+		if _, ok := unames[i]; !ok {
+			uid, err := id.Unmarshal(u.Id)
+			if err != nil {
+				return nil, errors.WithMessagef(err, "Failed to decode uid %+v", u.Id)
+			}
+			if uname, ok := m.usernames[*uid]; !ok {
+				jww.WARN.Println("No username associated with user")
+			} else {
+				u.Facts = append(u.Facts, *uname)
+			}
+		}
 		result = append(result, u)
 	}
 	return result, nil

@@ -7,7 +7,6 @@ import (
 	"gitlab.com/elixxir/client/single"
 	"gitlab.com/elixxir/client/ud"
 	"gitlab.com/elixxir/primitives/fact"
-	"gitlab.com/xx_network/primitives/id"
 	"time"
 )
 
@@ -62,9 +61,9 @@ func (m *Manager) handleSearch(msg *ud.SearchSend, c single.Contact) *ud.SearchR
 		return response
 	}
 
+	jww.DEBUG.Printf("Raw search returned %+v", users)
+
 	for _, u := range users {
-		uid, _ := id.Unmarshal(u.Id)
-		jww.DEBUG.Printf("User found in search by %s: %s", c.GetPartner(), uid)
 		var contact = &ud.Contact{
 			UserID: u.Id,
 			PubKey: u.DhPub,
