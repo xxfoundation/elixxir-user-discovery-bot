@@ -45,7 +45,7 @@ var rootCmd = &cobra.Command{
 		p := InitParams(viper.GetViper())
 		storage, _, err := storage.NewStorage(p.Database)
 		if err != nil {
-			jww.FATAL.Fatalf("Failed to initialize storage interface: %+v", err)
+			jww.FATAL.Panicf("Failed to initialize storage interface: %+v", err)
 		}
 
 		_ = storage.StartFactManager(15 * time.Minute)
