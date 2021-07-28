@@ -44,6 +44,11 @@ var rootCmd = &cobra.Command{
 		initLog()
 		p := InitParams(viper.GetViper())
 		storage, _, err := storage.NewStorage(p.Database)
+		if err != nil {
+			jww.FATAL.Panicf("Failed to initialize storage interface: %+v", err)
+		}
+
+		_ = storage.StartFactManager(15 * time.Minute)
 
 		var twilioManager *twilio.Manager
 		devMode = viper.GetBool("devMode")

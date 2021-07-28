@@ -169,7 +169,7 @@ func TestDeleteFact_WrongOwner(t *testing.T) {
 func TestDeleteFact_Happy(t *testing.T) {
 	// Create an input message
 	input_msg := pb.FactRemovalRequest{
-		UID: []byte{0, 1, 2, 3},
+		UID: id.DummyUser.Marshal(),
 		RemovalData: &pb.Fact{
 			Fact:     "Testing",
 			FactType: 0,

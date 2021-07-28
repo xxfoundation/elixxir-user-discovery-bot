@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// Hidden function for one-time unit testing database implementation
+////Hidden function for one-time unit testing database implementation
 //func TestDatabaseImpl(t *testing.T) {
 //
 //	jwalterweatherman.SetLogThreshold(jwalterweatherman.LevelTrace)
@@ -84,10 +84,9 @@ import (
 //	if err != nil {
 //		t.Errorf("Failed to search for users: %+v", err)
 //	}
-//	if len(users) != 1 {
-//		t.Error("Search did not return expected results")
+//	if len(users) != 1 || len(users[0].Facts) != 2 {
+//		t.Errorf("Search did not return expected results: %+v", users[0].Facts)
 //	}
-//
 //
 //	err = db.DeleteFact(factid2)
 //	if err != nil {
