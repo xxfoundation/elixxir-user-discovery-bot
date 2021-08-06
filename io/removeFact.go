@@ -26,7 +26,7 @@ func removeFact(msg *pb.FactRemovalRequest, store *storage.Storage, auth *connec
 	}
 
 	// Ensure client is properly authenticated
-	if !auth.IsAuthenticated || !auth.Sender.IsDynamicHost() {
+	if !auth.IsAuthenticated {
 		return &messages.Ack{}, connect.AuthError(auth.Sender.GetId())
 	}
 

@@ -182,7 +182,7 @@ func TestDeleteFact_Happy(t *testing.T) {
 	if err != nil {
 		t.Fatal("connect.NewHost returned an error: ", err)
 	}
-	h.SetTestDynamic(t)
+
 	input_auth := connect.Auth{
 		IsAuthenticated: true,
 		Sender:          h,
