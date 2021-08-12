@@ -116,6 +116,6 @@ func (s *mockSingleLookup) RespondSingleUse(partner single.Contact, payload []by
 	return nil
 }
 
-func (s *mockSingleLookup) StartProcesses() stoppable.Stoppable {
-	return stoppable.NewSingle("")
+func (s *mockSingleLookup) StartProcesses() (stoppable.Stoppable, error) {
+	return stoppable.NewSingle(""), nil
 }

@@ -11,7 +11,7 @@ import (
 type SingleInterface interface {
 	RegisterCallback(string, single.ReceiveComm)
 	RespondSingleUse(single.Contact, []byte, time.Duration) error
-	StartProcesses() stoppable.Stoppable
+	StartProcesses() (stoppable.Stoppable, error)
 }
 
 // CMIX Handler struct for user discovery
@@ -32,7 +32,7 @@ func NewManager(singleUse *single.Manager, db *storage.Storage) *Manager {
 }
 
 // Start user discovery CMIX handler with a general callback that confirms all authenticated channel requests
-func (m *Manager) Start() stoppable.Stoppable {
+func (m *Manager) Start() (stoppable.Stoppable, error) {
 	// Register the lookup listener
 	m.singleUse.RegisterCallback(ud.LookupTag, m.lookupCallback)
 
