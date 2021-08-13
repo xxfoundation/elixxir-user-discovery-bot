@@ -103,7 +103,6 @@ func TestRegisterUser(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to create fakeHost, %s", err)
 	}
-	fakeHost.SetTestDynamic(t)
 
 	// Construct mock auth object
 	auth := &connect.Auth{
@@ -158,12 +157,12 @@ func TestRegisterUser(t *testing.T) {
 
 	// Create the expected user
 	expectedUser := &storage.User{
-		Id:        registerMsg.UID,
-		RsaPub:    registerMsg.RSAPublicPem,
-		DhPub:     registerMsg.IdentityRegistration.DhPubKey,
-		Salt:      registerMsg.IdentityRegistration.Salt,
-		Signature: registerMsg.PermissioningSignature,
-		Facts:     []storage.Fact{f},
+		Id:                    registerMsg.UID,
+		RsaPub:                registerMsg.RSAPublicPem,
+		DhPub:                 registerMsg.IdentityRegistration.DhPubKey,
+		Salt:                  registerMsg.IdentityRegistration.Salt,
+		Signature:             registerMsg.PermissioningSignature,
+		Facts:                 []storage.Fact{f},
 		RegistrationTimestamp: testTime,
 	}
 
@@ -359,7 +358,7 @@ func buildUserRegistrationMessage(clientId *id.ID, clientKey *rsa.PrivateKey,
 		IdentitySignature:      identitySig,
 		Frs:                    frs,
 		UID:                    clientId.Bytes(),
-		Timestamp: registrationTimestamp.UnixNano(),
+		Timestamp:              registrationTimestamp.UnixNano(),
 	}
 
 	return registerMsg, nil

@@ -37,7 +37,7 @@ func registerFact(request *pb.FactRegisterRequest, verifier *twilio.Manager, sto
 	auth *connect.Auth) (*pb.FactRegisterResponse, error) {
 
 	// Ensure client is properly authenticated
-	if !auth.IsAuthenticated || !auth.Sender.IsDynamicHost() {
+	if !auth.IsAuthenticated {
 		return &pb.FactRegisterResponse{}, connect.AuthError(auth.Sender.GetId())
 	}
 
@@ -113,7 +113,7 @@ func confirmFact(request *pb.FactConfirmRequest, verifier *twilio.Manager, store
 	auth *connect.Auth) (*messages.Ack, error) {
 
 	// Ensure client is properly authenticated
-	if !auth.IsAuthenticated || !auth.Sender.IsDynamicHost() {
+	if !auth.IsAuthenticated {
 		return &messages.Ack{}, connect.AuthError(auth.Sender.GetId())
 	}
 

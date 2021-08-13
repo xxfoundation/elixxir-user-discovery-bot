@@ -33,7 +33,7 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 	}
 
 	// Ensure client is properly authenticated
-	if !auth.IsAuthenticated || !auth.Sender.IsDynamicHost() {
+	if !auth.IsAuthenticated {
 		return &messages.Ack{}, connect.AuthError(auth.Sender.GetId())
 	}
 
@@ -98,13 +98,13 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 
 	// Create the user to insert into the database
 	u := &storage.User{
-		Id:        msg.UID,
-		RsaPub:    msg.RSAPublicPem,
-		DhPub:     msg.IdentityRegistration.DhPubKey,
-		Salt:      msg.IdentityRegistration.Salt,
-		Signature: msg.PermissioningSignature,
+		Id:                    msg.UID,
+		RsaPub:                msg.RSAPublicPem,
+		DhPub:                 msg.IdentityRegistration.DhPubKey,
+		Salt:                  msg.IdentityRegistration.Salt,
+		Signature:             msg.PermissioningSignature,
 		RegistrationTimestamp: time.Unix(0, msg.Timestamp),
-		Facts:     []storage.Fact{f},
+		Facts:                 []storage.Fact{f},
 	}
 
 	// Insert the user into the database
