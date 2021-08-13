@@ -11,15 +11,15 @@ package io
 
 import (
 	"fmt"
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/comms/udb"
-	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
-	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"gitlab.com/elixxir/user-discovery-bot/twilio"
-	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/comms/messages"
-	"gitlab.com/xx_network/crypto/signature/rsa"
-	"gitlab.com/xx_network/primitives/id"
+	pb "git.xx.network/elixxir/comms/mixmessages"
+	"git.xx.network/elixxir/comms/udb"
+	"git.xx.network/elixxir/user-discovery-bot/interfaces/params"
+	"git.xx.network/elixxir/user-discovery-bot/storage"
+	"git.xx.network/elixxir/user-discovery-bot/twilio"
+	"git.xx.network/xx_network/comms/connect"
+	"git.xx.network/xx_network/comms/messages"
+	"git.xx.network/xx_network/crypto/signature/rsa"
+	"git.xx.network/xx_network/primitives/id"
 )
 
 // The main UserDiscovery instance object

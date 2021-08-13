@@ -10,7 +10,7 @@ package main
 //	"os/exec"
 //	"testing"
 //
-//	"gitlab.com/elixxir/user-discovery-bot/cmd"
+//	"git.xx.network/elixxir/user-discovery-bot/cmd"
 //)
 //
 //// Smoke test for main

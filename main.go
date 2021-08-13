@@ -6,7 +6,7 @@
 
 package main
 
-import "gitlab.com/elixxir/user-discovery-bot/cmd"
+import "git.xx.network/elixxir/user-discovery-bot/cmd"
 
 func main() {
 	cmd.Execute()

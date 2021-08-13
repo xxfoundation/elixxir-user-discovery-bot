@@ -2,12 +2,12 @@ package io
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
-	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"gitlab.com/elixxir/user-discovery-bot/twilio"
-	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/crypto/signature/rsa"
+	pb "git.xx.network/elixxir/comms/mixmessages"
+	"git.xx.network/elixxir/user-discovery-bot/interfaces/params"
+	"git.xx.network/elixxir/user-discovery-bot/storage"
+	"git.xx.network/elixxir/user-discovery-bot/twilio"
+	"git.xx.network/xx_network/comms/connect"
+	"git.xx.network/xx_network/crypto/signature/rsa"
 	"reflect"
 	"strings"
 	"testing"

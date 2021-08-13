@@ -1,10 +1,10 @@
 package io
 
 import (
-	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
-	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"gitlab.com/elixxir/user-discovery-bot/twilio"
-	"gitlab.com/xx_network/primitives/id"
+	"git.xx.network/elixxir/user-discovery-bot/interfaces/params"
+	"git.xx.network/elixxir/user-discovery-bot/storage"
+	"git.xx.network/elixxir/user-discovery-bot/twilio"
+	"git.xx.network/xx_network/primitives/id"
 	"reflect"
 	"testing"
 )

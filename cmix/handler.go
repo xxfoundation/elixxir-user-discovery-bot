@@ -1,10 +1,10 @@
 package cmix
 
 import (
-	"gitlab.com/elixxir/client/single"
-	"gitlab.com/elixxir/client/stoppable"
-	"gitlab.com/elixxir/client/ud"
-	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"git.xx.network/elixxir/client/single"
+	"git.xx.network/elixxir/client/stoppable"
+	"git.xx.network/elixxir/client/ud"
+	"git.xx.network/elixxir/user-discovery-bot/storage"
 	"time"
 )
 

@@ -1,7 +1,7 @@
 package twilio
 
 import (
-	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
+	"git.xx.network/elixxir/user-discovery-bot/interfaces/params"
 	"testing"
 )
 

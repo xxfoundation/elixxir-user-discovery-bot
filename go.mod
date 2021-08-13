@@ -1,4 +1,4 @@
-module gitlab.com/elixxir/user-discovery-bot
+module git.xx.network/elixxir/user-discovery-bot
 
 go 1.13
 
@@ -14,13 +14,13 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.7.1
 	github.com/ttacon/libphonenumber v1.2.1
-	gitlab.com/elixxir/client v1.5.1-0.20210813174348-11ba45e5d9c5
-	gitlab.com/elixxir/comms v0.0.4-0.20210813172950-d9be85bbd52d
-	gitlab.com/elixxir/crypto v0.0.7-0.20210803232056-ba3ff44cc618
-	gitlab.com/elixxir/primitives v0.0.3-0.20210803231939-7b924f78eaac
-	gitlab.com/xx_network/comms v0.0.4-0.20210813170223-ab758f0bbec5
-	gitlab.com/xx_network/crypto v0.0.5-0.20210803231814-b18476a2257c
-	gitlab.com/xx_network/primitives v0.0.4-0.20210803222745-e898d5e546e9
+	git.xx.network/elixxir/client v1.5.1-0.20210813174348-11ba45e5d9c5
+	git.xx.network/elixxir/comms v0.0.4-0.20210813172950-d9be85bbd52d
+	git.xx.network/elixxir/crypto v0.0.7-0.20210803232056-ba3ff44cc618
+	git.xx.network/elixxir/primitives v0.0.3-0.20210803231939-7b924f78eaac
+	git.xx.network/xx_network/comms v0.0.4-0.20210813170223-ab758f0bbec5
+	git.xx.network/xx_network/crypto v0.0.5-0.20210803231814-b18476a2257c
+	git.xx.network/xx_network/primitives v0.0.4-0.20210803222745-e898d5e546e9
 	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect
 	golang.org/x/sys v0.0.0-20210426230700-d19ff857e887 // indirect
 	google.golang.org/genproto v0.0.0-20210427215850-f767ed18ee4d // indirect

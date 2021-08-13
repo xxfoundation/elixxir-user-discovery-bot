@@ -9,7 +9,7 @@
 
 package storage
 
-import "gitlab.com/elixxir/user-discovery-bot/interfaces/params"
+import "git.xx.network/elixxir/user-discovery-bot/interfaces/params"
 
 // API for the storage layer
 type Storage struct {

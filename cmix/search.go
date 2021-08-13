@@ -4,9 +4,9 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/client/single"
-	"gitlab.com/elixxir/client/ud"
-	"gitlab.com/elixxir/primitives/fact"
+	"git.xx.network/elixxir/client/single"
+	"git.xx.network/elixxir/client/ud"
+	"git.xx.network/elixxir/primitives/fact"
 	"time"
 )
 

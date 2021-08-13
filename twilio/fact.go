@@ -12,9 +12,9 @@ import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/ttacon/libphonenumber"
-	"gitlab.com/elixxir/crypto/factID"
-	fact2 "gitlab.com/elixxir/primitives/fact"
-	"gitlab.com/xx_network/primitives/id"
+	"git.xx.network/elixxir/crypto/factID"
+	fact2 "git.xx.network/elixxir/primitives/fact"
+	"git.xx.network/xx_network/primitives/id"
 )
 
 // RegisterFact submits a fact for verification

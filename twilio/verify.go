@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
+	"git.xx.network/elixxir/user-discovery-bot/interfaces/params"
 	"net/http"
 	"net/url"
 	"strconv"

@@ -3,8 +3,8 @@ package cmd
 import (
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
-	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
-	"gitlab.com/xx_network/primitives/utils"
+	"git.xx.network/elixxir/user-discovery-bot/interfaces/params"
+	"git.xx.network/xx_network/primitives/utils"
 	"net"
 )
 

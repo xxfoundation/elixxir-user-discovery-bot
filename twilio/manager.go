@@ -9,8 +9,8 @@
 package twilio
 
 import (
-	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
-	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"git.xx.network/elixxir/user-discovery-bot/interfaces/params"
+	"git.xx.network/elixxir/user-discovery-bot/storage"
 )
 
 type Manager struct {

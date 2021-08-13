@@ -1,7 +1,7 @@
 package cmix
 
 import (
-	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"git.xx.network/elixxir/user-discovery-bot/storage"
 	"testing"
 )
 

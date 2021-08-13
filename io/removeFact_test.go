@@ -1,13 +1,13 @@
 package io
 
 import (
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/crypto/factID"
-	"gitlab.com/elixxir/primitives/fact"
-	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
-	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/primitives/id"
+	pb "git.xx.network/elixxir/comms/mixmessages"
+	"git.xx.network/elixxir/crypto/factID"
+	"git.xx.network/elixxir/primitives/fact"
+	"git.xx.network/elixxir/user-discovery-bot/interfaces/params"
+	"git.xx.network/elixxir/user-discovery-bot/storage"
+	"git.xx.network/xx_network/comms/connect"
+	"git.xx.network/xx_network/primitives/id"
 	"testing"
 	"time"
 )

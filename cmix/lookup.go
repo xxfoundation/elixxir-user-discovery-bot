@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/client/single"
-	"gitlab.com/elixxir/client/ud"
-	"gitlab.com/xx_network/primitives/id"
+	"git.xx.network/elixxir/client/single"
+	"git.xx.network/elixxir/client/ud"
+	"git.xx.network/xx_network/primitives/id"
 	"time"
 )
 

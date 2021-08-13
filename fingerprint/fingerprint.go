@@ -8,7 +8,7 @@ package fingerprint
 
 import (
 	"encoding/base64"
-	"gitlab.com/xx_network/crypto/hasher"
+	"git.xx.network/xx_network/crypto/hasher"
 )
 
 // Creates a fingerprint of a public key

@@ -1,8 +1,8 @@
 package twilio
 
 import (
-	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"gitlab.com/xx_network/primitives/id"
+	"git.xx.network/elixxir/user-discovery-bot/storage"
+	"git.xx.network/xx_network/primitives/id"
 	"testing"
 )
 
