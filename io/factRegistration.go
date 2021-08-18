@@ -8,7 +8,6 @@ import (
 	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/twilio"
-	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
@@ -33,13 +32,8 @@ var (
 )
 
 // registerFact is an endpoint that attempts to register a user's fact.
-func registerFact(request *pb.FactRegisterRequest, verifier *twilio.Manager, store *storage.Storage,
-	auth *connect.Auth) (*pb.FactRegisterResponse, error) {
-
-	// Ensure client is properly authenticated
-	if !auth.IsAuthenticated {
-		return &pb.FactRegisterResponse{}, connect.AuthError(auth.Sender.GetId())
-	}
+func registerFact(request *pb.FactRegisterRequest,
+	verifier *twilio.Manager, store *storage.Storage) (*pb.FactRegisterResponse, error) {
 
 	// Return an error if the request is invalid
 	if request == nil || request.Fact == nil {
@@ -109,13 +103,7 @@ func registerFact(request *pb.FactRegisterRequest, verifier *twilio.Manager, sto
 
 // confirmFact verifies the fact via Twilio and sets the fact in the database as
 // confirmed.
-func confirmFact(request *pb.FactConfirmRequest, verifier *twilio.Manager, store *storage.Storage,
-	auth *connect.Auth) (*messages.Ack, error) {
-
-	// Ensure client is properly authenticated
-	if !auth.IsAuthenticated {
-		return &messages.Ack{}, connect.AuthError(auth.Sender.GetId())
-	}
+func confirmFact(request *pb.FactConfirmRequest, verifier *twilio.Manager) (*messages.Ack, error) {
 
 	// Return an error if the request is nil
 	if request == nil || request.ConfirmationID == "" {

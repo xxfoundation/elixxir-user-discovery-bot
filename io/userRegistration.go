@@ -3,6 +3,7 @@
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
+
 package io
 
 import (
@@ -14,7 +15,6 @@ import (
 	"gitlab.com/elixxir/crypto/registration"
 	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
@@ -23,18 +23,13 @@ import (
 
 // Endpoint which handles a users attempt to register
 func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
-	store *storage.Storage, auth *connect.Auth) (*messages.Ack, error) {
+	store *storage.Storage) (*messages.Ack, error) {
 
 	// Nil checks
 	if msg == nil || msg.Frs == nil || msg.Frs.Fact == nil ||
 		msg.IdentityRegistration == nil {
 		return &messages.Ack{}, errors.New("Unable to parse required " +
 			"fields in registration message")
-	}
-
-	// Ensure client is properly authenticated
-	if !auth.IsAuthenticated {
-		return &messages.Ack{}, connect.AuthError(auth.Sender.GetId())
 	}
 
 	// Parse the username and UserID
