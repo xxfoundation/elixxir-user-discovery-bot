@@ -280,6 +280,10 @@ gitlab.com/elixxir/bloomfilter v0.0.0-20200930191214-10e9ac31b228 h1:Gi6rj4mAlK0
 gitlab.com/elixxir/bloomfilter v0.0.0-20200930191214-10e9ac31b228/go.mod h1:H6jztdm0k+wEV2QGK/KYA+MY9nj9Zzatux/qIvDDv3k=
 gitlab.com/elixxir/client v1.5.1-0.20210813174348-11ba45e5d9c5 h1:+fVBUVuH58JwqRXUL1EGNMrTXJpB0oZ0zDIk6+ysW7o=
 gitlab.com/elixxir/client v1.5.1-0.20210813174348-11ba45e5d9c5/go.mod h1:aJYQ57sgBvaonuJ/ejogMYR4aPxSGUZwiMRhYrodmV0=
+gitlab.com/elixxir/client v1.5.1-0.20210817163817-33fd046ac93a h1:7owPkOg2x9kobfco3WHr5H8bIp97R9bWPVuTx8yfGT8=
+gitlab.com/elixxir/client v1.5.1-0.20210817163817-33fd046ac93a/go.mod h1:aJYQ57sgBvaonuJ/ejogMYR4aPxSGUZwiMRhYrodmV0=
+gitlab.com/elixxir/client v1.5.1-0.20210818173210-65fbb8492d4e h1:udiYriQ93ANSgkt5MWyfONEvPr4yxHogO3x9od1zxG0=
+gitlab.com/elixxir/client v1.5.1-0.20210818173210-65fbb8492d4e/go.mod h1:rseQpEsy9McyFrc3N3tZezcHMmYsmnfxZohZ4g6osoU=
 gitlab.com/elixxir/comms v0.0.4-0.20210813172950-d9be85bbd52d h1:88rpXvSS9EXrQ9LyMKJbaWp5/e3PQXFJqmNQGfvwGbk=
 gitlab.com/elixxir/comms v0.0.4-0.20210813172950-d9be85bbd52d/go.mod h1:1fHnPjj5Sv2qfnQplu8+BKlehQy54vtgM7khp5axXMU=
 gitlab.com/elixxir/comms v0.0.4-0.20210818165710-59b7caa0a21b h1:upXcxqq423BtEeJzfQ3j4tJHCyZZEsAKCp9WfczpGl8=
