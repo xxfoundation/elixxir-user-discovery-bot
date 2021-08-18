@@ -103,7 +103,6 @@ func TestRegisterUser(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to create fakeHost, %s", err)
 	}
-	fakeHost.SetTestDynamic(t)
 
 	// Construct mock auth object
 	auth := &connect.Auth{
