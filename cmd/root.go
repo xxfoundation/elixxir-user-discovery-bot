@@ -103,8 +103,10 @@ var rootCmd = &cobra.Command{
 		}
 
 		m := cmix.NewManager(single.NewManager(client), storage)
-		client.AddService(m.Start)
-
+		err = client.AddService(m.Start)
+		if err != nil {
+			jww.FATAL.Panicf("%v", err)
+		}
 		// Wait forever
 		select {}
 	},

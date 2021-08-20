@@ -17,7 +17,6 @@ import (
 	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/crypto/tls"
 	"gitlab.com/xx_network/primitives/id"
@@ -96,20 +95,6 @@ func TestRegisterUser(t *testing.T) {
 	store, _, _ := storage.NewStorage(params.Database{})
 	ndfObj, _ := ndf.Unmarshal(getNDF())
 
-	// Create a mock host
-	p := connect.GetDefaultHostParams()
-	p.MaxRetries = 0
-	fakeHost, err := connect.NewHost(clientId, "", nil, p)
-	if err != nil {
-		t.Errorf("Failed to create fakeHost, %s", err)
-	}
-
-	// Construct mock auth object
-	auth := &connect.Auth{
-		IsAuthenticated: true,
-		Sender:          fakeHost,
-	}
-
 	cert, err := loadPermissioningPubKey(ndfObj.Registration.TlsCertificate)
 	if err != nil {
 		t.Errorf(err.Error())
@@ -127,7 +112,7 @@ func TestRegisterUser(t *testing.T) {
 		t.FailNow()
 	}
 
-	_, err = registerUser(registerMsg, cert, store, auth)
+	_, err = registerUser(registerMsg, cert, store)
 	if err != nil {
 		t.Errorf("Failed happy path: %v", err)
 	}
@@ -185,19 +170,6 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 	store, _, _ := storage.NewStorage(params.Database{})
 	ndfObj, _ := ndf.Unmarshal(getNDF())
 
-	// Create a mock host
-	p := connect.GetDefaultHostParams()
-	p.MaxRetries = 0
-	fakeHost, err := connect.NewHost(clientId, "", nil, p)
-	if err != nil {
-		t.Errorf("Failed to create fakeHost, %s", err)
-	}
-
-	// Construct mock auth object
-	auth := &connect.Auth{
-		IsAuthenticated: true,
-		Sender:          fakeHost,
-	}
 	cert, err := loadPermissioningPubKey(ndfObj.Registration.TlsCertificate)
 	if err != nil {
 		t.Errorf(err.Error())
@@ -215,7 +187,7 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg.IdentitySignature = []byte("invalid")
-	_, err = registerUser(registerMsg, cert, store, auth)
+	_, err = registerUser(registerMsg, cert, store)
 	if err == nil {
 		t.Errorf("Should not be able to verify identity signature: %v", err)
 	}
@@ -226,7 +198,7 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg.Frs.FactSig = []byte("invalid")
-	_, err = registerUser(registerMsg, cert, store, auth)
+	_, err = registerUser(registerMsg, cert, store)
 	if err == nil {
 		t.Errorf("Should not be able to verify fact signature: %v", err)
 	}
@@ -237,7 +209,7 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg.PermissioningSignature = []byte("invalid")
-	_, err = registerUser(registerMsg, cert, store, auth)
+	_, err = registerUser(registerMsg, cert, store)
 	if err == nil {
 		t.Errorf("Should not be able to verify permissioning signature: %v", err)
 	}
@@ -250,20 +222,6 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 	clientId, clientKey := initClientFields(t)
 	store, _, _ := storage.NewStorage(params.Database{})
 	ndfObj, _ := ndf.Unmarshal(getNDF())
-
-	// Create a mock host
-	p := connect.GetDefaultHostParams()
-	p.MaxRetries = 0
-	fakeHost, err := connect.NewHost(clientId, "", nil, p)
-	if err != nil {
-		t.Errorf("Failed to create fakeHost, %s", err)
-	}
-
-	// Construct mock auth object
-	auth := &connect.Auth{
-		IsAuthenticated: true,
-		Sender:          fakeHost,
-	}
 
 	cert, err := loadPermissioningPubKey(ndfObj.Registration.TlsCertificate)
 	if err != nil {
@@ -281,7 +239,7 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg = nil
-	_, err = registerUser(registerMsg, cert, store, auth)
+	_, err = registerUser(registerMsg, cert, store)
 	if err == nil {
 		t.Errorf("Should not be able to handle nil message: %v", err)
 	}
@@ -292,7 +250,7 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg.Frs = nil
-	_, err = registerUser(registerMsg, cert, store, auth)
+	_, err = registerUser(registerMsg, cert, store)
 	if err == nil {
 		t.Errorf("Should not be able to handle nil FactRegistration message: %v", err)
 	}
@@ -303,7 +261,7 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg.Frs.Fact = nil
-	_, err = registerUser(registerMsg, cert, store, auth)
+	_, err = registerUser(registerMsg, cert, store)
 	if err == nil {
 		t.Errorf("Should not be able to handle nil Fact message: %v", err)
 	}
@@ -314,7 +272,7 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg.IdentityRegistration = nil
-	_, err = registerUser(registerMsg, cert, store, auth)
+	_, err = registerUser(registerMsg, cert, store)
 	if err == nil {
 		t.Errorf("Should not be able to handle nil IdentityRegistration message: %v", err)
 	}

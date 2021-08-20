@@ -6,7 +6,6 @@ import (
 	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/primitives/id"
 	"testing"
 	"time"
@@ -14,7 +13,7 @@ import (
 
 // Check that our nil check works
 func TestDeleteFact_NilCheck(t *testing.T) {
-	_, err := removeFact(nil, nil, nil)
+	_, err := removeFact(nil, nil)
 	if err == nil {
 		t.Error("removeFact receiving a nil msg didn't error")
 	}
@@ -23,36 +22,7 @@ func TestDeleteFact_NilCheck(t *testing.T) {
 		UID:         nil,
 		RemovalData: nil,
 	}
-	_, err = removeFact(&badmsg, nil, nil)
-	if err == nil {
-		t.Error("removeFact receiving a nil msg didn't error")
-	}
-}
-
-// Check that our auth check works
-func TestDeleteFact_AuthCheck(t *testing.T) {
-	// Make a FactRemovalRequest to put into the Delete function
-	badmsg := pb.FactRemovalRequest{
-		UID: id.DummyUser.Marshal(),
-		RemovalData: &pb.Fact{
-			Fact:     "Testing",
-			FactType: 0,
-		},
-	}
-
-	// Make a new host for auth
-	h, err := connect.NewHost(&id.DummyUser, "0.0.0.0:0", nil,
-		connect.HostParams{MaxRetries: 0, AuthEnabled: false})
-	if err != nil {
-		t.Error(err)
-	}
-	input_auth := connect.Auth{
-		IsAuthenticated: false,
-		Sender:          h,
-		Reason:          "",
-	}
-
-	_, err = removeFact(&badmsg, nil, &input_auth)
+	_, err = removeFact(&badmsg, nil)
 	if err == nil {
 		t.Error("removeFact receiving a nil msg didn't error")
 	}
@@ -69,25 +39,13 @@ func TestDeleteFact_UsersCheck(t *testing.T) {
 		},
 	}
 
-	// Make a new host for auth
-	h, err := connect.NewHost(&id.DummyUser, "0.0.0.0:0", nil,
-		connect.HostParams{MaxRetries: 0, AuthEnabled: true})
-	if err != nil {
-		t.Error(err)
-	}
-	input_auth := connect.Auth{
-		IsAuthenticated: true,
-		Sender:          h,
-		Reason:          "",
-	}
-
 	// Setup a Storage object
 	store, _, err := storage.NewStorage(params.Database{})
 	if err != nil {
 		t.Fatal("connect.NewHost returned an error: ", err)
 	}
 
-	_, err = removeFact(&badmsg, store, &input_auth)
+	_, err = removeFact(&badmsg, store)
 	if err == nil {
 		t.Error("removeFact receiving a nil msg didn't error")
 	}
@@ -102,18 +60,6 @@ func TestDeleteFact_WrongOwner(t *testing.T) {
 			Fact:     "Testing",
 			FactType: 0,
 		},
-	}
-
-	// Create a new host and an auth object for it
-	h, err := connect.NewHost(&id.DummyUser, "0.0.0.0:0", nil,
-		connect.HostParams{MaxRetries: 0, AuthEnabled: true})
-	if err != nil {
-		t.Fatal("connect.NewHost returned an error: ", err)
-	}
-	input_auth := connect.Auth{
-		IsAuthenticated: true,
-		Sender:          h,
-		Reason:          "",
 	}
 
 	// Setup a Storage object
@@ -159,7 +105,7 @@ func TestDeleteFact_WrongOwner(t *testing.T) {
 	}
 
 	// Attempt to delete our Fact
-	_, err = removeFact(&input_msg, store, &input_auth)
+	_, err = removeFact(&input_msg, store)
 	if err == nil {
 		t.Error("removeFact did not return an error deleting a fact the input user doesn't own")
 	}
@@ -174,19 +120,6 @@ func TestDeleteFact_Happy(t *testing.T) {
 			Fact:     "Testing",
 			FactType: 0,
 		},
-	}
-
-	// Create a new host and an auth object for it
-	h, err := connect.NewHost(&id.DummyUser, "0.0.0.0:0", nil,
-		connect.HostParams{MaxRetries: 0, AuthEnabled: true})
-	if err != nil {
-		t.Fatal("connect.NewHost returned an error: ", err)
-	}
-
-	input_auth := connect.Auth{
-		IsAuthenticated: true,
-		Sender:          h,
-		Reason:          "",
 	}
 
 	// Setup a Storage object
@@ -232,7 +165,7 @@ func TestDeleteFact_Happy(t *testing.T) {
 	}
 
 	// Attempt to delete our Fact
-	_, err = removeFact(&input_msg, store, &input_auth)
+	_, err = removeFact(&input_msg, store)
 	if err != nil {
 		t.Error("removeFact returned an error: ", err)
 	}

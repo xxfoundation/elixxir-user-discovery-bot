@@ -7,13 +7,12 @@ import (
 	"gitlab.com/elixxir/crypto/factID"
 	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/primitives/id"
 )
 
 // Takes in a FactRemovalRequest from a client and deletes the Fact if the client owns it
-func removeFact(msg *pb.FactRemovalRequest, store *storage.Storage, auth *connect.Auth) (*messages.Ack, error) {
+func removeFact(msg *pb.FactRemovalRequest, store *storage.Storage) (*messages.Ack, error) {
 	// Generic copy of the internal error message
 	e := errors.New("Removal could not be " +
 		"completed do to internal error, please try again later")
@@ -23,11 +22,6 @@ func removeFact(msg *pb.FactRemovalRequest, store *storage.Storage, auth *connec
 	if msg == nil || msg.RemovalData == nil || msg.UID == nil {
 		return &messages.Ack{}, errors.New("Unable to parse required " +
 			"fields in registration message")
-	}
-
-	// Ensure client is properly authenticated
-	if !auth.IsAuthenticated {
-		return &messages.Ack{}, connect.AuthError(auth.Sender.GetId())
 	}
 
 	// Generate the hash function and hash the fact
@@ -52,7 +46,6 @@ func removeFact(msg *pb.FactRemovalRequest, store *storage.Storage, auth *connec
 		jww.ERROR.Print("removeFact internal error unmarshalling found user id", err)
 		return &messages.Ack{}, e
 	}
-	auth.Sender.GetId()
 
 	senderID, err := id.Unmarshal(msg.UID)
 	if err != nil {
