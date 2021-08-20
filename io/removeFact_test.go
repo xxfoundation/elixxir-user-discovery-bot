@@ -1,11 +1,14 @@
 package io
 
 import (
+	"crypto/rand"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/factID"
+	"gitlab.com/elixxir/crypto/hash"
 	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
 	"testing"
 	"time"
@@ -113,9 +116,11 @@ func TestDeleteFact_WrongOwner(t *testing.T) {
 
 // Test that the function does work given the right inputs and DB entries
 func TestDeleteFact_Happy(t *testing.T) {
+	clientId, clientKey := initClientFields(t)
+
 	// Create an input message
 	input_msg := pb.FactRemovalRequest{
-		UID: id.DummyUser.Marshal(),
+		UID: clientId.Bytes(),
 		RemovalData: &pb.Fact{
 			Fact:     "Testing",
 			FactType: 0,
@@ -131,8 +136,8 @@ func TestDeleteFact_Happy(t *testing.T) {
 	// Insert a user to assign the Fact to
 	suser_factstorage := new([]storage.Fact)
 	suser := storage.User{
-		Id:        id.DummyUser.Marshal(),
-		RsaPub:    "",
+		Id:        clientId.Bytes(),
+		RsaPub:    string(rsa.CreatePublicKeyPem(clientKey.GetPublic())),
 		DhPub:     nil,
 		Salt:      nil,
 		Signature: nil,
@@ -151,7 +156,7 @@ func TestDeleteFact_Happy(t *testing.T) {
 	}
 	sfact := storage.Fact{
 		Hash:         factID.Fingerprint(f),
-		UserId:       id.DummyUser.Marshal(),
+		UserId:       clientId.Bytes(),
 		Fact:         "Testing",
 		Type:         0,
 		Signature:    nil,
@@ -163,6 +168,10 @@ func TestDeleteFact_Happy(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	// Sign the fact
+	factSig, _ := rsa.Sign(rand.Reader, clientKey, hash.CMixHash, factID.Fingerprint(f), nil)
+	input_msg.FactSig = factSig
 
 	// Attempt to delete our Fact
 	_, err = removeFact(&input_msg, store)
