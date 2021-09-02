@@ -33,6 +33,12 @@ func removeFact(msg *pb.FactRemovalRequest, store *storage.Storage) (*messages.A
 			"fields in registration message")
 	}
 
+	if fact.FactType(msg.RemovalData.FactType) == fact.Username {
+		return &messages.Ack{}, errors.Errorf(
+			"RemoveFact cannot remove usernames, the account " +
+				"must be deleted")
+	}
+
 	// Generate the hash function and hash the fact
 	f, err := fact.NewFact(fact.FactType(msg.RemovalData.FactType), msg.RemovalData.Fact)
 	if err != nil {
