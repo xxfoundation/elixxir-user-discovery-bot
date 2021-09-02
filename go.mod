@@ -15,7 +15,7 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/ttacon/libphonenumber v1.2.1
 	gitlab.com/elixxir/client v1.5.1-0.20210831163052-48e1227b000c
-	gitlab.com/elixxir/comms v0.0.4-0.20210823164208-0e219b367d23
+	gitlab.com/elixxir/comms v0.0.4-0.20210902154348-dce5630ec369
 	gitlab.com/elixxir/crypto v0.0.7-0.20210803232056-ba3ff44cc618
 	gitlab.com/elixxir/primitives v0.0.3-0.20210803231939-7b924f78eaac
 	gitlab.com/xx_network/comms v0.0.4-0.20210813170223-ab758f0bbec5
