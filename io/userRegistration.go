@@ -110,7 +110,7 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 
 	}
 
-	jww.INFO.Printf("User Registered: %s", uid)
+	jww.INFO.Printf("User Registered: %s, %s", uid, f.Fact)
 
 	return &messages.Ack{}, nil
 }

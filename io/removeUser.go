@@ -131,5 +131,7 @@ func removeUser(msg *pb.FactRemovalRequest, store *storage.Storage) (
 		return &messages.Ack{}, err
 	}
 
+	jww.DEBUG.Printf("Deleted user with username %s", f.Fact)
+
 	return &messages.Ack{}, nil
 }
