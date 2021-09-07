@@ -11,7 +11,6 @@ import (
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
-	"strconv"
 )
 
 var (
@@ -110,13 +109,7 @@ func confirmFact(request *pb.FactConfirmRequest, verifier *twilio.Manager) (*mes
 		return &messages.Ack{}, errors.New(invalidFactConfirmRequestError)
 	}
 
-	// Convert fact code to integer
-	code, err := strconv.Atoi(request.Code)
-	if err != nil {
-		return &messages.Ack{}, errors.New(invalidFactCodeError)
-	}
-
-	valid, err := verifier.ConfirmFact(request.ConfirmationID, code)
+	valid, err := verifier.ConfirmFact(request.ConfirmationID, request.Code)
 	if err != nil {
 		return &messages.Ack{}, errors.Errorf(twilioConfirmFailureError+": %+v", err)
 	} else if !valid {

@@ -59,7 +59,7 @@ func (m *Manager) RegisterFact(uid *id.ID, fact string, factType uint8, signatur
 }
 
 // ConfirmFact confirms a code and completes fact verification
-func (m *Manager) ConfirmFact(confirmationID string, code int) (bool, error) {
+func (m *Manager) ConfirmFact(confirmationID string, code string) (bool, error) {
 	// Make call to verification check endpoint with code
 	valid, err := m.verifier.VerificationCheck(code, confirmationID)
 	if err != nil {

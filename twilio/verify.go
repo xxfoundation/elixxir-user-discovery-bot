@@ -30,7 +30,7 @@ const PAYLOAD_CHAN = "Channel"
 // Interface for verification service
 type VerificationService interface {
 	Verification(to, channel string) (string, error)
-	VerificationCheck(code int, to string) (bool, error)
+	VerificationCheck(code string, to string) (bool, error)
 }
 
 // Channels that can be passed into twilio
@@ -68,11 +68,11 @@ func (v *verifier) Verification(to, channel string) (string, error) {
 }
 
 // Posts to the verificationcheck endpoint of twilio, returns verification status (bool)
-func (v *verifier) VerificationCheck(code int, to string) (bool, error) {
+func (v *verifier) VerificationCheck(code string, to string) (bool, error) {
 	checkUrl := fmt.Sprintf(VERIFICATION_CHECK_URL, v.p.VerificationSid)
 	payload := url.Values{}
 	payload.Set(PAYLOAD_SID, to)
-	payload.Set(PAYLOAD_CODE, strconv.Itoa(code))
+	payload.Set(PAYLOAD_CODE, code)
 
 	data, err := v.twilioRequest(payload, checkUrl)
 	if err != nil {

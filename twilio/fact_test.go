@@ -33,7 +33,7 @@ func TestConfirmFact(t *testing.T) {
 		t.Errorf("Failed to register fact: %+v", err)
 	}
 
-	_, err = m.ConfirmFact(confId, 1234)
+	_, err = m.ConfirmFact(confId, "01234")
 	if err != nil {
 		t.Errorf("Failed to confirm fact: %+v", err)
 	}
