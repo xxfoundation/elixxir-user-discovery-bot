@@ -17,6 +17,11 @@ import (
 )
 
 func (m *MapImpl) CheckUser(username string, id *id.ID, rsaPem string) error {
+	for _, f := range m.facts {
+		if f.Type == uint8(Username) && f.Fact == username {
+			return errors.New("Username already exists")
+		}
+	}
 	return nil
 }
 

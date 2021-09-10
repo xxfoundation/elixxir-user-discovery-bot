@@ -38,7 +38,7 @@ func TestDeleteFact_UsersCheck(t *testing.T) {
 		UID: id.DummyUser.Marshal(),
 		RemovalData: &pb.Fact{
 			Fact:     "Testing",
-			FactType: 0,
+			FactType: uint32(fact.Nickname),
 		},
 	}
 
@@ -61,7 +61,7 @@ func TestDeleteFact_WrongOwner(t *testing.T) {
 		UID: []byte{0, 1, 2, 3},
 		RemovalData: &pb.Fact{
 			Fact:     "Testing",
-			FactType: 0,
+			FactType: uint32(fact.Nickname),
 		},
 	}
 
@@ -96,7 +96,7 @@ func TestDeleteFact_WrongOwner(t *testing.T) {
 		Hash:         factID.Fingerprint(f),
 		UserId:       id.NewIdFromUInt(0, id.User, t).Marshal(),
 		Fact:         "Testing",
-		Type:         0,
+		Type:         uint8(fact.Nickname),
 		Signature:    nil,
 		Verified:     false,
 		Timestamp:    time.Time{},
@@ -123,7 +123,7 @@ func TestDeleteFact_Happy(t *testing.T) {
 		UID: clientId.Bytes(),
 		RemovalData: &pb.Fact{
 			Fact:     "Testing",
-			FactType: 0,
+			FactType: uint32(fact.Nickname),
 		},
 	}
 
@@ -158,7 +158,7 @@ func TestDeleteFact_Happy(t *testing.T) {
 		Hash:         factID.Fingerprint(f),
 		UserId:       clientId.Bytes(),
 		Fact:         "Testing",
-		Type:         0,
+		Type:         uint8(fact.Nickname),
 		Signature:    nil,
 		Verified:     false,
 		Timestamp:    time.Time{},

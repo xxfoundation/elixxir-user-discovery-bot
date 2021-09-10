@@ -49,6 +49,10 @@ func newImplementation(m *Manager) *udb.Implementation {
 		return registerUser(registration, m.PermissioningPublicKey, m.Storage)
 	}
 
+	impl.Functions.RemoveUser = func(msg *pb.FactRemovalRequest) (*messages.Ack, error) {
+		return removeUser(msg, m.Storage)
+	}
+
 	impl.Functions.RegisterFact = func(request *pb.FactRegisterRequest) (*pb.FactRegisterResponse, error) {
 		return registerFact(request, m.Twilio, m.Storage)
 	}
