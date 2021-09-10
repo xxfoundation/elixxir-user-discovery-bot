@@ -24,7 +24,7 @@ func TestTwilioVerifier_Verification(t *testing.T) {
 }
 
 func TestTwilioVerifier_VerificationCheck(t *testing.T) {
-	code := 222410
+	code := "022241"
 	ok, err := v.VerificationCheck(code, "+17813151633")
 	if err == nil {
 		t.Errorf("Test verification not enabled: %+v", err)
