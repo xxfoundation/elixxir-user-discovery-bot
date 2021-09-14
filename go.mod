@@ -14,13 +14,13 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.7.1
 	github.com/ttacon/libphonenumber v1.2.1
-	gitlab.com/elixxir/client v1.5.1-0.20210910204806-a2f3c3d2fde7
-	gitlab.com/elixxir/comms v0.0.4-0.20210910194929-f522cfb7ad2a
-	gitlab.com/elixxir/crypto v0.0.7-0.20210910194630-547b06293cc2
-	gitlab.com/elixxir/primitives v0.0.3-0.20210910194457-63e0a6019484
-	gitlab.com/xx_network/comms v0.0.4-0.20210910194423-5fb5125011cd
-	gitlab.com/xx_network/crypto v0.0.5-0.20210910194315-26cb1bbd9c24
-	gitlab.com/xx_network/primitives v0.0.4-0.20210908160520-dd4bb8b93e16
+	gitlab.com/elixxir/client v1.5.1-0.20210914234608-2cf8b5954a43
+	gitlab.com/elixxir/comms v0.0.4-0.20210914232530-b0e625b49552
+	gitlab.com/elixxir/crypto v0.0.7-0.20210914232212-42464d16fff3
+	gitlab.com/elixxir/primitives v0.0.3-0.20210914232041-6edc82b7e58e
+	gitlab.com/xx_network/comms v0.0.4-0.20210914232007-b82fc7baa23c
+	gitlab.com/xx_network/crypto v0.0.5-0.20210914231859-c309efac46c4
+	gitlab.com/xx_network/primitives v0.0.4-0.20210913211733-42dc24dd47df
 	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect
 	golang.org/x/sys v0.0.0-20210426230700-d19ff857e887 // indirect
 	google.golang.org/genproto v0.0.0-20210427215850-f767ed18ee4d // indirect
