@@ -25,7 +25,7 @@ func (v *mockVerifier) Verification(to, channel string) (string, error) {
 	return cid, nil
 }
 
-func (v *mockVerifier) VerificationCheck(code int, to string) (bool, error) {
+func (v *mockVerifier) VerificationCheck(code string, to string) (bool, error) {
 	_, ok := v.Codes[to]
 	if !ok {
 		return false, nil

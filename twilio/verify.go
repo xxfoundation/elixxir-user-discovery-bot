@@ -23,13 +23,14 @@ import (
 const VERIFICATION_URL = "https://verify.twilio.com/v2/Services/%s/Verifications"
 const VERIFICATION_CHECK_URL = "https://verify.twilio.com/v2/Services/%s/VerificationCheck"
 const PAYLOAD_TO = "To"
+const PAYLOAD_SID = "VerificationSid"
 const PAYLOAD_CODE = "Code"
 const PAYLOAD_CHAN = "Channel"
 
 // Interface for verification service
 type VerificationService interface {
 	Verification(to, channel string) (string, error)
-	VerificationCheck(code int, to string) (bool, error)
+	VerificationCheck(code string, to string) (bool, error)
 }
 
 // Channels that can be passed into twilio
@@ -38,11 +39,10 @@ type Channel int
 const (
 	SMS Channel = iota
 	Email
-	Voice
 )
 
 func (c Channel) String() string {
-	return [...]string{"sms", "email", "call"}[c]
+	return [...]string{"sms", "email"}[c]
 }
 
 type verifier struct {
@@ -51,6 +51,7 @@ type verifier struct {
 
 // Posts to the verification endpoint of twilio, returns confirmation id
 func (v *verifier) Verification(to, channel string) (string, error) {
+	jww.INFO.Printf("Attempting to verify %s via %s", to, channel)
 	verificationURL := fmt.Sprintf(VERIFICATION_URL, v.p.VerificationSid)
 	payload := url.Values{}
 	payload.Set(PAYLOAD_TO, to)
@@ -60,17 +61,18 @@ func (v *verifier) Verification(to, channel string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	jww.INFO.Printf("Response data: %+v", data)
 	sid := fmt.Sprint(data["sid"])
 
 	return sid, err
 }
 
 // Posts to the verificationcheck endpoint of twilio, returns verification status (bool)
-func (v *verifier) VerificationCheck(code int, to string) (bool, error) {
+func (v *verifier) VerificationCheck(code string, to string) (bool, error) {
 	checkUrl := fmt.Sprintf(VERIFICATION_CHECK_URL, v.p.VerificationSid)
 	payload := url.Values{}
-	payload.Set(PAYLOAD_TO, to)
-	payload.Set(PAYLOAD_CHAN, strconv.Itoa(code))
+	payload.Set(PAYLOAD_SID, to)
+	payload.Set(PAYLOAD_CODE, code)
 
 	data, err := v.twilioRequest(payload, checkUrl)
 	if err != nil {
@@ -115,6 +117,6 @@ func (v *verifier) twilioRequest(payload url.Values, url string) (map[string]int
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}
-		return nil, errors.Errorf("error: request failed with status %d: %+v", resp.StatusCode, resp.Status)
+		return nil, errors.Errorf("error: request failed with status %d (%+v): %+v", resp.StatusCode, resp.Status, data)
 	}
 }

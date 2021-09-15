@@ -6,7 +6,6 @@ import (
 	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/twilio"
-	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"reflect"
 	"strings"
@@ -18,21 +17,6 @@ func TestRegisterFact(t *testing.T) {
 	// Initialize client and storage
 	clientId, clientKey := initClientFields(t)
 	store, _, err := storage.NewStorage(params.Database{})
-
-	// Create a mock host
-	p := connect.GetDefaultHostParams()
-	p.MaxRetries = 0
-
-	fakeHost, err := connect.NewHost(clientId, "", nil, p)
-	if err != nil {
-		t.Errorf("Failed to create fakeHost, %s", err)
-	}
-
-	// Construct mock auth object
-	auth := &connect.Auth{
-		IsAuthenticated: false,
-		Sender:          fakeHost,
-	}
 
 	err = store.InsertUser(&storage.User{
 		Id:     clientId.Bytes(),
@@ -47,25 +31,16 @@ func TestRegisterFact(t *testing.T) {
 		t.FailNow()
 	}
 
-	// test bad authentication error path
-	_, err = registerFact(request, twilio.NewMockManager(store), store, auth)
-	if err == nil || !strings.Contains(err.Error(), "Failed to authenticate") {
-		t.Errorf("registerFact() did not fail with bad auth %+v", err)
-	}
-
-	auth.IsAuthenticated = true
-	auth.Sender.SetTestDynamic(t)
-
 	// test bad request error path
 	old := request.Fact
 	request.Fact = nil
-	_, err = registerFact(request, twilio.NewMockManager(store), store, auth)
+	_, err = registerFact(request, twilio.NewMockManager(store), store)
 	if err == nil || !strings.Contains(err.Error(), invalidFactRegisterRequestError) {
 		t.Errorf("registerFact() did not fail with bad request, instead got: %+v", err)
 	}
 	request.Fact = old
 
-	response, err := registerFact(request, twilio.NewMockManager(store), store, auth)
+	response, err := registerFact(request, twilio.NewMockManager(store), store)
 	if err != nil {
 		t.Errorf("registerFact() produced an error: %+v", err)
 	}
@@ -90,22 +65,6 @@ func TestRegisterFact_BadSigError(t *testing.T) {
 	clientId, clientKey := initClientFields(t)
 	store, _, err := storage.NewStorage(params.Database{})
 
-	// Create a mock host
-	p := connect.GetDefaultHostParams()
-	p.MaxRetries = 0
-
-	fakeHost, err := connect.NewHost(clientId, "", nil, p)
-	if err != nil {
-		t.Errorf("Failed to create fakeHost, %s", err)
-	}
-	fakeHost.SetTestDynamic(t)
-
-	// Construct mock auth object
-	auth := &connect.Auth{
-		IsAuthenticated: true,
-		Sender:          fakeHost,
-	}
-
 	err = store.InsertUser(&storage.User{
 		Id:     clientId.Bytes(),
 		RsaPub: string(rsa.CreatePublicKeyPem(clientKey.GetPublic())),
@@ -120,8 +79,8 @@ func TestRegisterFact_BadSigError(t *testing.T) {
 	}
 	request.FactSig = []byte("Bad signature")
 
-	response, err := registerFact(request, twilio.NewMockManager(store), store, auth)
-	if err == nil || err.Error() != invalidFactSigError {
+	response, err := registerFact(request, twilio.NewMockManager(store), store)
+	if err == nil || !strings.Contains(err.Error(), invalidFactSigError) {
 		t.Errorf("registerFact() did not produce an error for invalid signature."+
 			"\n\texpected: %v\n\treceived: %v", invalidFactSigError, err)
 	}
@@ -140,21 +99,6 @@ func TestConfirmFact(t *testing.T) {
 	clientId, clientKey := initClientFields(t)
 	store, _, err := storage.NewStorage(params.Database{})
 
-	// Create a mock host
-	p := connect.GetDefaultHostParams()
-	p.MaxRetries = 0
-	fakeHost, err := connect.NewHost(clientId, "", nil, p)
-	if err != nil {
-		t.Errorf("Failed to create fakeHost, %s", err)
-	}
-	fakeHost.SetTestDynamic(t)
-
-	// Construct mock auth object
-	auth := &connect.Auth{
-		IsAuthenticated: true,
-		Sender:          fakeHost,
-	}
-
 	err = store.InsertUser(&storage.User{
 		Id:     clientId.Bytes(),
 		RsaPub: string(rsa.CreatePublicKeyPem(clientKey.GetPublic())),
@@ -167,7 +111,7 @@ func TestConfirmFact(t *testing.T) {
 	if err != nil {
 		t.FailNow()
 	}
-	response, err := registerFact(req, manager, store, auth)
+	response, err := registerFact(req, manager, store)
 	if err != nil {
 		t.Fatalf("registerFact() produced an error: %+v", err)
 	}
@@ -177,7 +121,7 @@ func TestConfirmFact(t *testing.T) {
 		Code:           "420",
 	}
 
-	_, err = confirmFact(request, manager, store, auth)
+	_, err = confirmFact(request, manager)
 	if err != nil {
 		t.Errorf("confirmFact() produced an error: %+v", err)
 	}
@@ -191,21 +135,6 @@ func TestConfirmFact_FailedVerification(t *testing.T) {
 	clientId, clientKey := initClientFields(t)
 	store, _, err := storage.NewStorage(params.Database{})
 
-	// Create a mock host
-	p := connect.GetDefaultHostParams()
-	p.MaxRetries = 0
-	fakeHost, err := connect.NewHost(clientId, "", nil, p)
-	if err != nil {
-		t.Errorf("Failed to create fakeHost, %s", err)
-	}
-	fakeHost.SetTestDynamic(t)
-
-	// Construct mock auth object
-	auth := &connect.Auth{
-		IsAuthenticated: true,
-		Sender:          fakeHost,
-	}
-
 	err = store.InsertUser(&storage.User{
 		Id:     clientId.Bytes(),
 		RsaPub: string(rsa.CreatePublicKeyPem(clientKey.GetPublic())),
@@ -218,7 +147,7 @@ func TestConfirmFact_FailedVerification(t *testing.T) {
 		t.FailNow()
 	}
 	manager := twilio.NewMockManager(store)
-	_, err = registerFact(req, manager, store, auth)
+	_, err = registerFact(req, manager, store)
 	if err != nil {
 		t.Fatalf("registerFact() produced an error: %+v", err)
 	}
@@ -228,7 +157,7 @@ func TestConfirmFact_FailedVerification(t *testing.T) {
 		Code:           "3343",
 	}
 
-	_, err = confirmFact(request, manager, store, auth)
+	_, err = confirmFact(request, manager)
 	if err == nil || err.Error() != twilioVerificationFailureError {
 		t.Errorf("confirmFact() did not produce an error for invalid ConfirmationID and Code."+
 			"\n\texpected: %v\n\treceived: %v", twilioVerificationFailureError, err)

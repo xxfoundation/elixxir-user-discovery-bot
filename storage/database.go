@@ -50,8 +50,10 @@ type factId [32]byte
 // Struct implementing the Database Interface with an underlying Map
 type MapImpl struct {
 	users               map[id.ID]*User
+	usernames           map[id.ID]*Fact
 	facts               map[factId]*Fact
 	twilioVerifications map[string]*TwilioVerification
+	fhToVerification    map[factId]*TwilioVerification
 	sync.RWMutex
 }
 
@@ -62,7 +64,9 @@ type User struct {
 	DhPub     []byte `gorm:"NOT NULL"`
 	Salt      []byte `gorm:"NOT NULL"`
 	Signature []byte `gorm:"NOT NULL"`
-	Facts     []Fact `gorm:"foreignkey:UserId;association_foreignkey:Id"`
+	// Time in which user registered with the network (ie permisisoning)
+	RegistrationTimestamp time.Time `gorm:"NOT NULL"` // fixme: gorm key?
+	Facts                 []Fact    `gorm:"foreignkey:UserId;association_foreignkey:Id"`
 }
 
 // Fact type enum
@@ -93,7 +97,7 @@ type Fact struct {
 // Struct defining twilio_verifications table
 type TwilioVerification struct {
 	ConfirmationId string `gorm:"primary_key"`
-	FactHash       []byte `gorm:"NOT NULL;type:bytea REFERENCES facts(Hash)"`
+	FactHash       []byte `gorm:"unique;NOT NULL;type:bytea REFERENCES facts(Hash)"`
 }
 
 func NewTestDB(t *testing.T) *Storage {
@@ -142,6 +146,8 @@ func newDatabase(username, password, database, address,
 			users:               map[id.ID]*User{},
 			facts:               map[factId]*Fact{},
 			twilioVerifications: map[string]*TwilioVerification{},
+			fhToVerification:    map[factId]*TwilioVerification{},
+			usernames:           map[id.ID]*Fact{},
 		}
 
 		return &Storage{mapImpl}, func() error { return nil }, nil

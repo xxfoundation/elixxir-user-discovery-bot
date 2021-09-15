@@ -8,11 +8,9 @@ import (
 	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/twilio"
-	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
-	"strconv"
 )
 
 var (
@@ -33,13 +31,8 @@ var (
 )
 
 // registerFact is an endpoint that attempts to register a user's fact.
-func registerFact(request *pb.FactRegisterRequest, verifier *twilio.Manager, store *storage.Storage,
-	auth *connect.Auth) (*pb.FactRegisterResponse, error) {
-
-	// Ensure client is properly authenticated
-	if !auth.IsAuthenticated || !auth.Sender.IsDynamicHost() {
-		return &pb.FactRegisterResponse{}, connect.AuthError(auth.Sender.GetId())
-	}
+func registerFact(request *pb.FactRegisterRequest,
+	verifier *twilio.Manager, store *storage.Storage) (*pb.FactRegisterResponse, error) {
 
 	// Return an error if the request is invalid
 	if request == nil || request.Fact == nil {
@@ -68,13 +61,13 @@ func registerFact(request *pb.FactRegisterRequest, verifier *twilio.Manager, sto
 	// Marshal user ID
 	userID, err := id.Unmarshal(request.UID)
 	if err != nil {
-		return &pb.FactRegisterResponse{}, errors.New(invalidUserIdError)
+		return &pb.FactRegisterResponse{}, errors.WithMessage(err, invalidUserIdError)
 	}
 
 	// Return an error if the fact's user is not registered
 	user, err := store.GetUser(request.UID)
 	if err != nil {
-		return &pb.FactRegisterResponse{}, errors.Errorf(getUserFailureError+": %+v", err)
+		return &pb.FactRegisterResponse{}, errors.WithMessage(err, getUserFailureError)
 	} else if user == nil {
 		return &pb.FactRegisterResponse{}, errors.Errorf(noUserError,
 			userID)
@@ -83,20 +76,20 @@ func registerFact(request *pb.FactRegisterRequest, verifier *twilio.Manager, sto
 	// Parse the client's public key
 	clientPubKey, err := rsa.LoadPublicKeyFromPem([]byte(user.RsaPub))
 	if err != nil {
-		return &pb.FactRegisterResponse{}, errors.New(invalidUserKeyError)
+		return &pb.FactRegisterResponse{}, errors.WithMessage(err, invalidUserKeyError)
 	}
 
 	// Return an error if the fact signature cannot be verified
 	err = rsa.Verify(clientPubKey, hash.CMixHash, hashedFact, request.FactSig, nil)
 	if err != nil {
-		return &pb.FactRegisterResponse{}, errors.New(invalidFactSigError)
+		return &pb.FactRegisterResponse{}, errors.WithMessage(err, invalidFactSigError)
 	}
 
 	// Register fact with Twilio to get confirmation ID
 	confirmationID, err := verifier.RegisterFact(userID, request.Fact.Fact,
 		uint8(request.Fact.FactType), request.FactSig)
 	if err != nil {
-		return &pb.FactRegisterResponse{}, errors.New(twilioRegFailureError)
+		return &pb.FactRegisterResponse{}, errors.WithMessage(err, twilioRegFailureError)
 	}
 
 	// Create response
@@ -109,26 +102,14 @@ func registerFact(request *pb.FactRegisterRequest, verifier *twilio.Manager, sto
 
 // confirmFact verifies the fact via Twilio and sets the fact in the database as
 // confirmed.
-func confirmFact(request *pb.FactConfirmRequest, verifier *twilio.Manager, store *storage.Storage,
-	auth *connect.Auth) (*messages.Ack, error) {
-
-	// Ensure client is properly authenticated
-	if !auth.IsAuthenticated || !auth.Sender.IsDynamicHost() {
-		return &messages.Ack{}, connect.AuthError(auth.Sender.GetId())
-	}
+func confirmFact(request *pb.FactConfirmRequest, verifier *twilio.Manager) (*messages.Ack, error) {
 
 	// Return an error if the request is nil
-	if request == nil {
+	if request == nil || request.ConfirmationID == "" {
 		return &messages.Ack{}, errors.New(invalidFactConfirmRequestError)
 	}
 
-	// Convert fact code to integer
-	code, err := strconv.Atoi(request.Code)
-	if err != nil {
-		return &messages.Ack{}, errors.New(invalidFactCodeError)
-	}
-
-	valid, err := verifier.ConfirmFact(request.ConfirmationID, code)
+	valid, err := verifier.ConfirmFact(request.ConfirmationID, request.Code)
 	if err != nil {
 		return &messages.Ack{}, errors.Errorf(twilioConfirmFailureError+": %+v", err)
 	} else if !valid {

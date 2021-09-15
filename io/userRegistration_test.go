@@ -13,10 +13,10 @@ import (
 	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/elixxir/crypto/factID"
 	"gitlab.com/elixxir/crypto/hash"
+	"gitlab.com/elixxir/crypto/registration"
 	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/crypto/tls"
 	"gitlab.com/xx_network/primitives/id"
@@ -95,32 +95,24 @@ func TestRegisterUser(t *testing.T) {
 	store, _, _ := storage.NewStorage(params.Database{})
 	ndfObj, _ := ndf.Unmarshal(getNDF())
 
-	// Create a mock host
-	p := connect.GetDefaultHostParams()
-	p.MaxRetries = 0
-	fakeHost, err := connect.NewHost(clientId, "", nil, p)
-	if err != nil {
-		t.Errorf("Failed to create fakeHost, %s", err)
-	}
-	fakeHost.SetTestDynamic(t)
-
-	// Construct mock auth object
-	auth := &connect.Auth{
-		IsAuthenticated: true,
-		Sender:          fakeHost,
-	}
-
 	cert, err := loadPermissioningPubKey(ndfObj.Registration.TlsCertificate)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
+	testTime, err := time.Parse(time.RFC3339,
+		"2012-12-21T22:08:41+00:00")
+	if err != nil {
+		t.Fatalf("Could not parse precanned time: %v", err.Error())
+	}
+
 	// Set an invalid identity signature, check that error occurred
-	registerMsg, err := buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err := buildUserRegistrationMessage(clientId, clientKey, testTime, t)
 	if err != nil {
 		t.FailNow()
 	}
-	_, err = registerUser(registerMsg, cert, store, auth)
+
+	_, err = registerUser(registerMsg, cert, store)
 	if err != nil {
 		t.Errorf("Failed happy path: %v", err)
 	}
@@ -150,12 +142,13 @@ func TestRegisterUser(t *testing.T) {
 
 	// Create the expected user
 	expectedUser := &storage.User{
-		Id:        registerMsg.UID,
-		RsaPub:    registerMsg.RSAPublicPem,
-		DhPub:     registerMsg.IdentityRegistration.DhPubKey,
-		Salt:      registerMsg.IdentityRegistration.Salt,
-		Signature: registerMsg.PermissioningSignature,
-		Facts:     []storage.Fact{f},
+		Id:                    registerMsg.UID,
+		RsaPub:                registerMsg.RSAPublicPem,
+		DhPub:                 registerMsg.IdentityRegistration.DhPubKey,
+		Salt:                  registerMsg.IdentityRegistration.Salt,
+		Signature:             registerMsg.PermissioningSignature,
+		Facts:                 []storage.Fact{f},
+		RegistrationTimestamp: testTime,
 	}
 
 	// Compare the retrieved user and the expected user
@@ -177,53 +170,46 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 	store, _, _ := storage.NewStorage(params.Database{})
 	ndfObj, _ := ndf.Unmarshal(getNDF())
 
-	// Create a mock host
-	p := connect.GetDefaultHostParams()
-	p.MaxRetries = 0
-	fakeHost, err := connect.NewHost(clientId, "", nil, p)
-	if err != nil {
-		t.Errorf("Failed to create fakeHost, %s", err)
-	}
-
-	// Construct mock auth object
-	auth := &connect.Auth{
-		IsAuthenticated: true,
-		Sender:          fakeHost,
-	}
 	cert, err := loadPermissioningPubKey(ndfObj.Registration.TlsCertificate)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
+	testTime, err := time.Parse(time.RFC3339,
+		"2012-12-21T22:08:41+00:00")
+	if err != nil {
+		t.Fatalf("Could not parse precanned time: %v", err.Error())
+	}
+
 	// Set an invalid identity signature, check that error occurred
-	registerMsg, err := buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err := buildUserRegistrationMessage(clientId, clientKey, testTime, t)
 	if err != nil {
 		t.FailNow()
 	}
 	registerMsg.IdentitySignature = []byte("invalid")
-	_, err = registerUser(registerMsg, cert, store, auth)
+	_, err = registerUser(registerMsg, cert, store)
 	if err == nil {
 		t.Errorf("Should not be able to verify identity signature: %v", err)
 	}
 
 	// Set invalid fact registration signature, check that error occurred
-	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, testTime, t)
 	if err != nil {
 		t.FailNow()
 	}
 	registerMsg.Frs.FactSig = []byte("invalid")
-	_, err = registerUser(registerMsg, cert, store, auth)
+	_, err = registerUser(registerMsg, cert, store)
 	if err == nil {
 		t.Errorf("Should not be able to verify fact signature: %v", err)
 	}
 
 	// Set invalid permissioning signature, check that error occurred
-	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, testTime, t)
 	if err != nil {
 		t.FailNow()
 	}
 	registerMsg.PermissioningSignature = []byte("invalid")
-	_, err = registerUser(registerMsg, cert, store, auth)
+	_, err = registerUser(registerMsg, cert, store)
 	if err == nil {
 		t.Errorf("Should not be able to verify permissioning signature: %v", err)
 	}
@@ -237,65 +223,56 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 	store, _, _ := storage.NewStorage(params.Database{})
 	ndfObj, _ := ndf.Unmarshal(getNDF())
 
-	// Create a mock host
-	p := connect.GetDefaultHostParams()
-	p.MaxRetries = 0
-	fakeHost, err := connect.NewHost(clientId, "", nil, p)
-	if err != nil {
-		t.Errorf("Failed to create fakeHost, %s", err)
-	}
-
-	// Construct mock auth object
-	auth := &connect.Auth{
-		IsAuthenticated: true,
-		Sender:          fakeHost,
-	}
-
 	cert, err := loadPermissioningPubKey(ndfObj.Registration.TlsCertificate)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
+	testTime, err := time.Parse(time.RFC3339,
+		"2012-12-21T22:08:41+00:00")
+	if err != nil {
+		t.Fatalf("Could not parse precanned time: %v", err.Error())
+	}
 	// Set an invalid message, check that error occurred
-	registerMsg, err := buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err := buildUserRegistrationMessage(clientId, clientKey, testTime, t)
 	if err != nil {
 		t.FailNow()
 	}
 	registerMsg = nil
-	_, err = registerUser(registerMsg, cert, store, auth)
+	_, err = registerUser(registerMsg, cert, store)
 	if err == nil {
 		t.Errorf("Should not be able to handle nil message: %v", err)
 	}
 
 	// Set invalid fact registration, check that error occurred
-	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, testTime, t)
 	if err != nil {
 		t.FailNow()
 	}
 	registerMsg.Frs = nil
-	_, err = registerUser(registerMsg, cert, store, auth)
+	_, err = registerUser(registerMsg, cert, store)
 	if err == nil {
 		t.Errorf("Should not be able to handle nil FactRegistration message: %v", err)
 	}
 
 	// Set invalid fact, check that error occurred
-	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, testTime, t)
 	if err != nil {
 		t.FailNow()
 	}
 	registerMsg.Frs.Fact = nil
-	_, err = registerUser(registerMsg, cert, store, auth)
+	_, err = registerUser(registerMsg, cert, store)
 	if err == nil {
 		t.Errorf("Should not be able to handle nil Fact message: %v", err)
 	}
 
 	// Set invalid identity registration, check that error occurred
-	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, t)
+	registerMsg, err = buildUserRegistrationMessage(clientId, clientKey, testTime, t)
 	if err != nil {
 		t.FailNow()
 	}
 	registerMsg.IdentityRegistration = nil
-	_, err = registerUser(registerMsg, cert, store, auth)
+	_, err = registerUser(registerMsg, cert, store)
 	if err == nil {
 		t.Errorf("Should not be able to handle nil IdentityRegistration message: %v", err)
 	}
@@ -318,12 +295,12 @@ func initClientFields(t *testing.T) (*id.ID, *rsa.PrivateKey) {
 
 // Helper function which generates a user registration message
 func buildUserRegistrationMessage(clientId *id.ID, clientKey *rsa.PrivateKey,
-	t *testing.T) (*pb.UDBUserRegistration, error) {
+	registrationTimestamp time.Time, t *testing.T) (*pb.UDBUserRegistration, error) {
 	// Pull keys and ID out of client
 	clientPubKeyPem := rsa.CreatePublicKeyPem(clientKey.GetPublic())
 
 	// Generate permissioning signature, identity and fact messages
-	permSig := generatePermissioningSignature(clientPubKeyPem, t)
+	permSig := generatePermissioningSignature(clientPubKeyPem, registrationTimestamp, t)
 	requestedUsername := "newUser123"
 	identity, identitySig := buildIdentityMsg(requestedUsername, clientId, clientKey)
 	frs, err := buildFactMessage(requestedUsername, clientId, clientKey)
@@ -339,6 +316,7 @@ func buildUserRegistrationMessage(clientId *id.ID, clientKey *rsa.PrivateKey,
 		IdentitySignature:      identitySig,
 		Frs:                    frs,
 		UID:                    clientId.Bytes(),
+		Timestamp:              registrationTimestamp.UnixNano(),
 	}
 
 	return registerMsg, nil
@@ -387,7 +365,7 @@ func buildFactMessage(username string, clientId *id.ID, clientKey *rsa.PrivateKe
 }
 
 // Helper function which creates a permissioning signature for a client
-func generatePermissioningSignature(clientPubKey []byte, t *testing.T) []byte {
+func generatePermissioningSignature(clientPubKey []byte, regTimestamp time.Time, t *testing.T) []byte {
 	// Pull the key which matches cert in global ndf (see where def is initialized)
 	privKeyPem, err := utils.ReadFile(testkeys.GetGatewayKeyPath())
 	if err != nil {
@@ -400,18 +378,8 @@ func generatePermissioningSignature(clientPubKey []byte, t *testing.T) []byte {
 		t.Errorf("Could not get test key: %v", err)
 	}
 
-	// Construct hash
-	h, err := hash.NewCMixHash()
-	if err != nil {
-		t.Errorf("Could make hash: %v", err)
-	}
-
-	// Hash public key
-	h.Write(clientPubKey)
-	hashed := h.Sum(nil)
-
 	// Construct a permissioning signature
-	permSig, err := rsa.Sign(rand.Reader, permPrivKey, hash.CMixHash, hashed, nil)
+	permSig, err := registration.SignWithTimestamp(rand.Reader, permPrivKey, regTimestamp.UnixNano(), string(clientPubKey))
 	if err != nil {
 		t.Errorf("Could not get sign test data: %v", err)
 	}

@@ -44,10 +44,16 @@ var rootCmd = &cobra.Command{
 		initLog()
 		p := InitParams(viper.GetViper())
 		storage, _, err := storage.NewStorage(p.Database)
+		if err != nil {
+			jww.FATAL.Panicf("Failed to initialize storage interface: %+v", err)
+		}
+
+		_ = storage.StartFactManager(15 * time.Minute)
 
 		var twilioManager *twilio.Manager
 		devMode = viper.GetBool("devMode")
 		if devMode {
+			jww.WARN.Println("Twilio not configured; running with mock configuration")
 			twilioManager = twilio.NewMockManager(storage)
 		} else {
 			twilioManager = twilio.NewManager(p.Twilio, storage)
@@ -76,12 +82,12 @@ var rootCmd = &cobra.Command{
 			// If there is an unexpected error
 			if !strings.Contains(err.Error(), ndf.NO_NDF) {
 				// If it is not an issue with no ndf, return the error up the stack
-				jww.FATAL.Panicf("Failed to get NDF from permissioning: %v", err)
+				jww.ERROR.Printf("Failed to get NDF from permissioning: %v", err)
 			}
 
 			// If the error is that the permissioning server is not ready, ask again
 			jww.WARN.Println("Failed to get an ndf, possibly not ready yet. Retying now...")
-			time.Sleep(250 * time.Millisecond)
+			time.Sleep(250 * time.Millisecond) // TODO: should this be longer if we don't crash on errors?
 			returnedNdf, err = manager.Comms.RequestNdf(permHost)
 		}
 
@@ -91,14 +97,16 @@ var rootCmd = &cobra.Command{
 			jww.FATAL.Fatalf("Failed to create client: %+v", err)
 		}
 
-		_, err = client.StartNetworkFollower()
+		err = client.StartNetworkFollower(5 * time.Second)
 		if err != nil {
 			jww.FATAL.Fatal(err)
 		}
 
 		m := cmix.NewManager(single.NewManager(client), storage)
-		client.AddService(m.Start)
-
+		err = client.AddService(m.Start)
+		if err != nil {
+			jww.FATAL.Panicf("%v", err)
+		}
 		// Wait forever
 		select {}
 	},

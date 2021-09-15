@@ -9,6 +9,7 @@
 package storage
 
 import (
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
@@ -66,7 +67,7 @@ func (db *DatabaseImpl) InsertFact(fact *Fact) error {
 
 // Retreive a fact by confirmation ID
 func (db *DatabaseImpl) MarkFactVerified(factHash []byte) error {
-	return db.db.Model(&Fact{}).Where("hash = ?", factHash).UpdateColumn("verified", "true").Error
+	return db.db.Model(&Fact{}).Where("hash = ?", factHash).UpdateColumn("verified", true).Error
 }
 
 // Delete a fact by confirmation ID
@@ -85,6 +86,7 @@ func (db *DatabaseImpl) InsertFactTwilio(userID, factHash, signature []byte, fac
 		Type:      uint8(factType),
 		Signature: signature,
 		Verified:  false,
+		Timestamp: time.Now(),
 	}
 
 	tv := &TwilioVerification{
@@ -94,10 +96,11 @@ func (db *DatabaseImpl) InsertFactTwilio(userID, factHash, signature []byte, fac
 
 	tf := func(tx *gorm.DB) error {
 		var err error
-		if err = tx.Create(f).Error; err != nil {
+		if err = tx.Set("gorm:insert_option", "ON CONFLICT (hash) DO UPDATE SET timestamp = NOW()").Create(f).Error; err != nil {
 			return err
 		}
-		if err = tx.Create(tv).Error; err != nil {
+
+		if err = tx.Set("gorm:insert_option", fmt.Sprintf("ON CONFLICT (fact_hash) DO UPDATE SET confirmation_id = '%+v'", confirmationID)).Create(tv).Error; err != nil {
 			return err
 		}
 		return nil
@@ -128,28 +131,48 @@ func (db *DatabaseImpl) MarkTwilioFactVerified(confirmationId string) error {
 // Search for users by facts
 func (db *DatabaseImpl) Search(factHashes [][]byte) ([]*User, error) {
 	var facts []*Fact
-	err := db.db.Where("hash in (?)", factHashes).Find(&facts).Error
+	err := db.db.Where("hash in (?) and verified", factHashes).Find(&facts).Error
 	if err != nil {
 		return nil, err
 	}
 
-	var found map[id.ID]bool
-	found = make(map[id.ID]bool)
-	var users []*User
+	var found = make(map[id.ID][]Fact)
+	var usernames = make(map[id.ID]Fact)
 	for _, f := range facts {
+		// Unmarshal uid for this fact
 		uid, err := id.Unmarshal(f.UserId)
 		if err != nil {
 			return nil, errors.WithMessage(err, "failed to unmarshal uid")
 		}
-		if _, ok := found[*uid]; ok {
-			continue
+
+		// Add user if not hit already, add to list of facts otherwise
+		if fl, ok := found[*uid]; ok {
+			found[*uid] = append(fl, *f)
+		} else {
+			found[*uid] = []Fact{*f}
 		}
+
+		// Username handling
+		if f.Type == uint8(Username) {
+			if _, ok := usernames[*uid]; ok {
+				continue
+			} else {
+				usernames[*uid] = *f
+			}
+		}
+	}
+	var users []*User
+	for uid, fl := range found {
 		u := &User{}
-		err = db.db.Take(u, "id = ?", f.UserId).Error
+		err = db.db.Preload("Facts", "type = 0").Take(u, "id = ?", uid.Marshal()).Error
 		if err != nil {
 			return nil, err
 		}
-		found[*uid] = true
+		if _, ok := usernames[uid]; ok {
+			u.Facts = fl
+		} else {
+			u.Facts = append(u.Facts, fl...)
+		}
 		users = append(users, u)
 	}
 

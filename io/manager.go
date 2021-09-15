@@ -16,7 +16,6 @@ import (
 	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/twilio"
-	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
@@ -46,20 +45,24 @@ func NewManager(p params.IO, id *id.ID, permissioningCert *rsa.PublicKey, twilio
 func newImplementation(m *Manager) *udb.Implementation {
 	impl := udb.NewImplementation()
 
-	impl.Functions.RegisterUser = func(registration *pb.UDBUserRegistration, auth *connect.Auth) (*messages.Ack, error) {
-		return registerUser(registration, m.PermissioningPublicKey, m.Storage, auth)
+	impl.Functions.RegisterUser = func(registration *pb.UDBUserRegistration) (*messages.Ack, error) {
+		return registerUser(registration, m.PermissioningPublicKey, m.Storage)
 	}
 
-	impl.Functions.RegisterFact = func(request *pb.FactRegisterRequest, auth *connect.Auth) (*pb.FactRegisterResponse, error) {
-		return registerFact(request, m.Twilio, m.Storage, auth)
+	impl.Functions.RemoveUser = func(msg *pb.FactRemovalRequest) (*messages.Ack, error) {
+		return removeUser(msg, m.Storage)
 	}
 
-	impl.Functions.ConfirmFact = func(request *pb.FactConfirmRequest, auth *connect.Auth) (*messages.Ack, error) {
-		return confirmFact(request, m.Twilio, m.Storage, auth)
+	impl.Functions.RegisterFact = func(request *pb.FactRegisterRequest) (*pb.FactRegisterResponse, error) {
+		return registerFact(request, m.Twilio, m.Storage)
 	}
 
-	impl.Functions.RemoveFact = func(msg *pb.FactRemovalRequest, auth *connect.Auth) (*messages.Ack, error) {
-		return removeFact(msg, m.Storage, auth)
+	impl.Functions.ConfirmFact = func(request *pb.FactConfirmRequest) (*messages.Ack, error) {
+		return confirmFact(request, m.Twilio)
+	}
+
+	impl.Functions.RemoveFact = func(msg *pb.FactRemovalRequest) (*messages.Ack, error) {
+		return removeFact(msg, m.Storage)
 	}
 
 	return impl

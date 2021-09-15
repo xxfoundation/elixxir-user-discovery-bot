@@ -79,23 +79,25 @@ func TestManager_handleSearch(t *testing.T) {
 	c := single.NewContact(uid, &cyclic.Int{}, &cyclic.Int{}, singleUse.TagFP{}, 8)
 
 	expectedDhPub := []byte("DhPub")
+	fid := []byte("factHash")
+	f1 := &storage.Fact{
+		Hash:     fid,
+		UserId:   uid.Marshal(),
+		Fact:     "water is wet",
+		Type:     1,
+		Verified: true,
+	}
 	expectedContact := &ud.Contact{
-		UserID: uid.Marshal(),
-		PubKey: expectedDhPub,
+		UserID:    uid.Marshal(),
+		PubKey:    expectedDhPub,
+		TrigFacts: []*ud.HashFact{{Hash: f1.Hash, Type: int32(f1.Type)}},
 	}
 	err := m.db.InsertUser(&storage.User{Id: uid.Marshal(), DhPub: expectedDhPub})
 	if err != nil {
 		t.Errorf("Failed to insert dummy user: %+v", err)
 	}
 
-	fid := []byte("factHash")
-	err = m.db.InsertFact(&storage.Fact{
-		Hash:     fid,
-		UserId:   uid.Marshal(),
-		Fact:     "water is wet",
-		Type:     0,
-		Verified: true,
-	})
+	err = m.db.InsertFact(f1)
 	if err != nil {
 		t.Errorf("Failed to insert dummy fact: %+v", err)
 	}
@@ -113,8 +115,8 @@ func TestManager_handleSearch(t *testing.T) {
 	}
 
 	resp = m.handleSearch(&ud.SearchSend{Fact: []*ud.HashFact{{Hash: fid, Type: int32(fact.Nickname)}}}, c)
-	if resp.Error != "" {
-		t.Errorf("Failed to handle search: %+v", resp.Error)
+	if resp.Error == "" {
+		t.Errorf("Search should have returned error")
 	}
 	if len(resp.Contacts) != 0 {
 		t.Errorf("Should not be able to search with nickname")
@@ -136,6 +138,6 @@ func (s *mockSingleSearch) RespondSingleUse(partner single.Contact, payload []by
 	return nil
 }
 
-func (s *mockSingleSearch) StartProcesses() stoppable.Stoppable {
-	return stoppable.NewSingle("")
+func (s *mockSingleSearch) StartProcesses() (stoppable.Stoppable, error) {
+	return stoppable.NewSingle(""), nil
 }

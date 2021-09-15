@@ -3,6 +3,7 @@
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
+
 package io
 
 import (
@@ -11,9 +12,9 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/factID"
 	"gitlab.com/elixxir/crypto/hash"
+	"gitlab.com/elixxir/crypto/registration"
 	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
@@ -22,18 +23,13 @@ import (
 
 // Endpoint which handles a users attempt to register
 func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
-	store *storage.Storage, auth *connect.Auth) (*messages.Ack, error) {
+	store *storage.Storage) (*messages.Ack, error) {
 
 	// Nil checks
 	if msg == nil || msg.Frs == nil || msg.Frs.Fact == nil ||
 		msg.IdentityRegistration == nil {
 		return &messages.Ack{}, errors.New("Unable to parse required " +
 			"fields in registration message")
-	}
-
-	// Ensure client is properly authenticated
-	if !auth.IsAuthenticated || !auth.Sender.IsDynamicHost() {
-		return &messages.Ack{}, connect.AuthError(auth.Sender.GetId())
 	}
 
 	// Parse the username and UserID
@@ -51,17 +47,8 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 			"Please try again", username)
 	}
 
-	// Hash the rsa public key, what permissioning signature was signed off of
-	h, err := hash.NewCMixHash()
-	if err != nil {
-		return &messages.Ack{}, errors.Errorf("Failed to create cmix hash: %+v", err)
-	}
-	h.Write([]byte(msg.RSAPublicPem))
-	hashedRsaKey := h.Sum(nil)
-
 	// Verify the Permissioning signature provided
-	err = rsa.Verify(permPublicKey, hash.CMixHash, hashedRsaKey,
-		msg.PermissioningSignature, nil)
+	err = registration.VerifyWithTimestamp(permPublicKey, msg.Timestamp, msg.RSAPublicPem, msg.PermissioningSignature)
 	if err != nil {
 		return &messages.Ack{}, errors.Errorf(
 			"Could not verify permissioning signature. "+
@@ -106,12 +93,13 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 
 	// Create the user to insert into the database
 	u := &storage.User{
-		Id:        msg.UID,
-		RsaPub:    msg.RSAPublicPem,
-		DhPub:     msg.IdentityRegistration.DhPubKey,
-		Salt:      msg.IdentityRegistration.Salt,
-		Signature: msg.PermissioningSignature,
-		Facts:     []storage.Fact{f},
+		Id:                    msg.UID,
+		RsaPub:                msg.RSAPublicPem,
+		DhPub:                 msg.IdentityRegistration.DhPubKey,
+		Salt:                  msg.IdentityRegistration.Salt,
+		Signature:             msg.PermissioningSignature,
+		RegistrationTimestamp: time.Unix(0, msg.Timestamp),
+		Facts:                 []storage.Fact{f},
 	}
 
 	// Insert the user into the database
@@ -122,7 +110,7 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 
 	}
 
-	jww.INFO.Printf("User Registered: %s", uid)
+	jww.INFO.Printf("User Registered: %s, %s", uid, f.Fact)
 
 	return &messages.Ack{}, nil
 }
