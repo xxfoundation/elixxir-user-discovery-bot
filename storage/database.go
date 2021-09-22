@@ -66,7 +66,7 @@ type User struct {
 	Signature []byte `gorm:"NOT NULL"`
 	// Time in which user registered with the network (ie permisisoning)
 	RegistrationTimestamp time.Time `gorm:"NOT NULL"` // fixme: gorm key?
-	Facts                 []Fact    `gorm:"foreignkey:UserId;association_foreignkey:Id"`
+	Facts                 []Fact    `gorm:"constraint:OnDelete:CASCADE;foreignkey:UserId;association_foreignkey:Id"`
 }
 
 // Fact type enum
