@@ -66,7 +66,7 @@ type User struct {
 	Signature []byte `gorm:"NOT NULL"`
 	// Time in which user registered with the network (ie permisisoning)
 	RegistrationTimestamp time.Time `gorm:"NOT NULL"` // fixme: gorm key?
-	Facts                 []Fact    `gorm:"constraint:OnDelete:CASCADE;foreignkey:UserId;association_foreignkey:Id"`
+	Facts                 []Fact
 }
 
 // Fact type enum
@@ -85,7 +85,7 @@ func (f FactType) String() string {
 // Struct defining the facts table in the database
 type Fact struct {
 	Hash         []byte             `gorm:"primary_key"`
-	UserId       []byte             `gorm:"NOT NULL;type:bytea REFERENCES users(Id)"`
+	UserId       []byte             `gorm:"NOT NULL;type:bytea"`
 	Fact         string             `gorm:"NOT NULL"`
 	Type         uint8              `gorm:"NOT NULL"`
 	Signature    []byte             `gorm:"NOT NULL"`
@@ -173,6 +173,7 @@ func newDatabase(username, password, database, address,
 			return nil, func() error { return nil }, err
 		}
 	}
+	db.Model(&Fact{}).AddForeignKey("user_id", "users(id)", "CASCADE", "CASCADE")
 
 	jww.INFO.Println("Database backend initialized successfully!")
 	return &Storage{&DatabaseImpl{db: db}}, db.Close, nil
