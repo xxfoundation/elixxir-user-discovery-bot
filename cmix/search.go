@@ -1,12 +1,14 @@
 package cmix
 
 import (
+	"bytes"
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/client/single"
 	"gitlab.com/elixxir/client/ud"
 	"gitlab.com/elixxir/primitives/fact"
+	"gitlab.com/xx_network/primitives/id"
 	"time"
 )
 
@@ -64,6 +66,10 @@ func (m *Manager) handleSearch(msg *ud.SearchSend, c single.Contact) *ud.SearchR
 	jww.DEBUG.Printf("Raw search returned %+v", users)
 
 	for _, u := range users {
+		if bytes.Compare(u.Id, id.DummyUser[:]) == 0 {
+			jww.DEBUG.Printf("Don't return dummy user")
+			continue
+		}
 		var contact = &ud.Contact{
 			UserID: u.Id,
 			PubKey: u.DhPub,
