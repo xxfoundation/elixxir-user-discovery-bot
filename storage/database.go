@@ -159,7 +159,6 @@ func newDatabase(username, password, dbName, address,
 			return database(&DatabaseImpl{}), err
 		}
 	}
-	// TODO db.Model(&Fact{}).AddForeignKey("user_id", "users(id)", "CASCADE", "CASCADE")
 
 	jww.INFO.Println("Database backend initialized successfully!")
 	return &DatabaseImpl{db: db}, nil
