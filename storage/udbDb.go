@@ -9,19 +9,18 @@
 package storage
 
 import (
-	"fmt"
-	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/primitives/id"
+	"gorm.io/gorm"
 	"time"
 )
 
 // Check if a username is available
-func (db *DatabaseImpl) CheckUser(username string, id *id.ID, rsaPem string) error {
+func (db *DatabaseImpl) CheckUser(username string, id *id.ID) error {
 	var err error
 	var facts []*Fact
-	var count int
+	var count int64
 	err = db.db.Where("type = ? AND fact = ?", Username, username).Find(&facts).Count(&count).Error
 	if err != nil {
 		return errors.WithMessage(err, "Failed to check facts for desired username")
@@ -78,32 +77,19 @@ func (db *DatabaseImpl) DeleteFact(factHash []byte) error {
 }
 
 // Insert a twilio-verified fact
-func (db *DatabaseImpl) InsertFactTwilio(userID, factHash, signature []byte, factType uint, fact, confirmationID string) error {
+func (db *DatabaseImpl) InsertFactTwilio(userID, factHash, signature []byte, factType uint, confirmationID string) error {
 	f := &Fact{
-		Hash:      factHash,
-		UserId:    userID,
-		Fact:      "fact",
-		Type:      uint8(factType),
-		Signature: signature,
-		Verified:  false,
-		Timestamp: time.Now(),
-	}
-
-	tv := &TwilioVerification{
+		Hash:           factHash,
+		UserId:         userID,
+		Type:           uint8(factType),
+		Signature:      signature,
+		Verified:       false,
+		Timestamp:      time.Now(),
 		ConfirmationId: confirmationID,
-		FactHash:       factHash,
 	}
 
 	tf := func(tx *gorm.DB) error {
-		var err error
-		if err = tx.Set("gorm:insert_option", "ON CONFLICT (hash) DO UPDATE SET timestamp = NOW()").Create(f).Error; err != nil {
-			return err
-		}
-
-		if err = tx.Set("gorm:insert_option", fmt.Sprintf("ON CONFLICT (fact_hash) DO UPDATE SET confirmation_id = '%+v'", confirmationID)).Create(tv).Error; err != nil {
-			return err
-		}
-		return nil
+		return tx.Set("gorm:insert_option", "ON CONFLICT (hash) DO UPDATE SET timestamp = NOW()").Create(f).Error
 	}
 
 	return db.db.Transaction(tf)
@@ -113,16 +99,8 @@ func (db *DatabaseImpl) InsertFactTwilio(userID, factHash, signature []byte, fac
 func (db *DatabaseImpl) MarkTwilioFactVerified(confirmationId string) error {
 	tf := func(tx *gorm.DB) error {
 		var err error
-		tv := &TwilioVerification{}
-		err = tx.Where("confirmation_id = ?", confirmationId).First(tv).Error
-		if err != nil {
-			return err
-		}
-		err = tx.Model(&Fact{}).Where("hash = ?", tv.FactHash).UpdateColumn("verified", true).Error
-		if err != nil {
-			return err
-		}
-		err = tx.Delete(tv, "confirmation_id = ?", confirmationId).Error
+		fact := &Fact{}
+		err = tx.Where("confirmation_id = ?", confirmationId).First(fact).UpdateColumn("verified", true).Error
 		return err
 	}
 	return db.db.Transaction(tf)

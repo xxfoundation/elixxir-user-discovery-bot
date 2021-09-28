@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-func (m *MapImpl) CheckUser(username string, id *id.ID, rsaPem string) error {
+func (m *MapImpl) CheckUser(username string, id *id.ID) error {
 	for _, f := range m.facts {
 		if f.Type == uint8(Username) && f.Fact == username {
 			return errors.New("Username already exists")
@@ -99,35 +99,29 @@ func (m *MapImpl) DeleteFact(confirmationId []byte) error {
 }
 
 // Insert a twilio-verified fact
-func (m *MapImpl) InsertFactTwilio(userID, factHash, signature []byte, factType uint, fact, confirmationID string) error {
+func (m *MapImpl) InsertFactTwilio(userID, factHash, signature []byte, factType uint, confirmationID string) error {
 	f := Fact{
-		Hash:      factHash,
-		UserId:    userID,
-		Fact:      fact,
-		Type:      uint8(factType),
-		Signature: signature,
-		Verified:  false,
-		Timestamp: time.Now(),
-	}
-	tv := TwilioVerification{
+		Hash:           factHash,
+		UserId:         userID,
+		Type:           uint8(factType),
+		Signature:      signature,
+		Verified:       false,
+		Timestamp:      time.Now(),
 		ConfirmationId: confirmationID,
-		FactHash:       factHash,
 	}
 	fid := factId{}
 	copy(fid[:], factHash)
 	m.facts[fid] = &f
-	m.twilioVerifications[confirmationID] = &tv
-	m.fhToVerification[fid] = &tv
 	return nil
 }
 
 // Verify a twilio fact
 func (m *MapImpl) MarkTwilioFactVerified(confirmationId string) error {
-	fid := factId{}
-	copy(fid[:], m.twilioVerifications[confirmationId].FactHash)
-	m.facts[fid].Verified = true
-	delete(m.twilioVerifications, confirmationId)
-	delete(m.fhToVerification, fid)
+	for _, myFact := range m.facts {
+		if myFact.ConfirmationId == confirmationId {
+			myFact.Verified = true
+		}
+	}
 	return nil
 }
 
