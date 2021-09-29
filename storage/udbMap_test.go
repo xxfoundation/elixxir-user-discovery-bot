@@ -5,13 +5,13 @@ import (
 	"testing"
 )
 
-////Hidden function for one-time unit testing database implementation
+//Hidden function for one-time unit testing database implementation
 //func TestDatabaseImpl(t *testing.T) {
 //
 //	jwalterweatherman.SetLogThreshold(jwalterweatherman.LevelTrace)
 //	jwalterweatherman.SetStdoutThreshold(jwalterweatherman.LevelTrace)
 //
-//	db, _, err := newDatabase("jonahhusson", "", "cmix_udb", "0.0.0.0", "5432")
+//	db, err := newDatabase("cmix", "", "cmix_server", "0.0.0.0", "5432")
 //	if err != nil {
 //		t.Errorf(err.Error())
 //		return
@@ -52,12 +52,12 @@ import (
 //		t.Errorf("Failed to insert fact: %+v", err)
 //	}
 //
-//	err = db.CheckUser("zezima", uid, rsapub)
+//	err = db.CheckUser("zezima", uid)
 //	if err == nil {
 //		t.Error("Should have returned error")
 //	}
 //
-//	err = db.CheckUser("tim", id.NewIdFromString("tim", id.Node, t), "tim")
+//	err = db.CheckUser("tim", id.NewIdFromString("tim", id.Node, t))
 //	if err != nil {
 //		t.Errorf("Failed to check user: %+v", err)
 //	}
@@ -68,7 +68,7 @@ import (
 //	}
 //
 //	factid2 := []byte("facthashtwo")
-//	err = db.InsertFactTwilio(uid.Marshal(), factid2, []byte("factsig2"), 1, "twilio", "conf")
+//	err = db.InsertFactTwilio(uid.Marshal(), factid2, []byte("factsig2"), 1, "conf")
 //	if err != nil {
 //		t.Errorf("Failed to insert twilio-verified fact: %+v", err)
 //	}

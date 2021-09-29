@@ -65,7 +65,7 @@ type User struct {
 	Signature []byte `gorm:"not null"`
 	// Time in which user registered with the network (ie permissioning)
 	RegistrationTimestamp time.Time `gorm:"not null"`
-	Facts                 []Fact    `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
+	Facts                 []Fact    `gorm:"constraint:OnDelete:CASCADE"`
 }
 
 // Fact type enum
@@ -84,7 +84,7 @@ func (f FactType) String() string {
 // Struct defining the facts table in the database
 type Fact struct {
 	Hash           []byte `gorm:"primaryKey"`
-	UserId         []byte `gorm:"not null;references users(id)"`
+	UserId         []byte `gorm:"not null"`
 	Fact           string
 	Type           uint8     `gorm:"not null"`
 	Signature      []byte    `gorm:"not null"`
