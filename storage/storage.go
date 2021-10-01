@@ -9,7 +9,10 @@
 
 package storage
 
-import "gitlab.com/elixxir/user-discovery-bot/interfaces/params"
+import (
+	jww "github.com/spf13/jwalterweatherman"
+	"testing"
+)
 
 // API for the storage layer
 type Storage struct {
@@ -18,7 +21,20 @@ type Storage struct {
 }
 
 // Create a new Storage object wrapping a database interface
-// Returns a Storage object, close function, and error
-func NewStorage(p params.Database) (*Storage, func() error, error) {
-	return newDatabase(p.DbUsername, p.DbPassword, p.DbName, p.DbAddress, p.DbPort)
+// Returns a Storage object and error
+func NewStorage(username, password, dbName, address, port string) (*Storage, error) {
+	db, err := newDatabase(username, password, dbName, address, port)
+	storage := &Storage{db}
+	return storage, err
+}
+
+func NewTestDB(t *testing.T) *Storage {
+	if t == nil {
+		jww.FATAL.Panic("Cannot use this outside of testing")
+	}
+	mockDb, err := NewStorage("", "", "", "", "11")
+	if err != nil {
+		jww.FATAL.Panicf("Failed to init mock db: %+v", err)
+	}
+	return mockDb
 }
