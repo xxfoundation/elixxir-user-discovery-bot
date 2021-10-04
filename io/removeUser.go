@@ -115,14 +115,13 @@ func removeUser(msg *pb.FactRemovalRequest, store *storage.Storage) (
 	// insert a dummy fact for the same username which prevents
 	// reregistration.
 	sfact := &storage.Fact{
-		Hash:         hashFact,
-		UserId:       id.DummyUser[:],
-		Fact:         f.Fact,
-		Type:         uint8(f.T),
-		Signature:    nil,
-		Verified:     true,
-		Timestamp:    time.Time{},
-		Verification: storage.TwilioVerification{},
+		Hash:      hashFact,
+		UserId:    id.DummyUser[:],
+		Fact:      f.Fact,
+		Type:      uint8(f.T),
+		Signature: nil,
+		Verified:  true,
+		Timestamp: time.Time{},
 	}
 	err = store.InsertFact(sfact)
 	if err != nil {

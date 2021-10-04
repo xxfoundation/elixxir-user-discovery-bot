@@ -6,7 +6,6 @@ import (
 	"gitlab.com/elixxir/crypto/factID"
 	"gitlab.com/elixxir/crypto/hash"
 	"gitlab.com/elixxir/primitives/fact"
-	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
@@ -43,12 +42,9 @@ func TestDeleteUser_UsersCheck(t *testing.T) {
 	}
 
 	// Setup a Storage object
-	store, _, err := storage.NewStorage(params.Database{})
-	if err != nil {
-		t.Fatal("connect.NewHost returned an error: ", err)
-	}
+	store := storage.NewTestDB(t)
 
-	_, err = removeUser(&badmsg, store)
+	_, err := removeUser(&badmsg, store)
 	if err == nil {
 		t.Error("removeUser receiving a nil msg didn't error")
 	}
@@ -67,10 +63,7 @@ func TestDeleteUser_WrongOwner(t *testing.T) {
 	}
 
 	// Setup a Storage object
-	store, _, err := storage.NewStorage(params.Database{})
-	if err != nil {
-		t.Fatal("connect.NewHost returned an error: ", err)
-	}
+	store := storage.NewTestDB(t)
 
 	// Insert a user to assign the Fact to
 	suser_factstorage := new([]storage.Fact)
@@ -82,7 +75,7 @@ func TestDeleteUser_WrongOwner(t *testing.T) {
 		Signature: nil,
 		Facts:     *suser_factstorage,
 	}
-	err = store.InsertUser(&suser)
+	err := store.InsertUser(&suser)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -95,14 +88,13 @@ func TestDeleteUser_WrongOwner(t *testing.T) {
 		t.Fatal(err)
 	}
 	sfact := storage.Fact{
-		Hash:         factID.Fingerprint(f),
-		UserId:       id.NewIdFromUInt(0, id.User, t).Marshal(),
-		Fact:         "Testing",
-		Type:         uint8(fact.Username),
-		Signature:    nil,
-		Verified:     false,
-		Timestamp:    time.Time{},
-		Verification: storage.TwilioVerification{},
+		Hash:      factID.Fingerprint(f),
+		UserId:    id.NewIdFromUInt(0, id.User, t).Marshal(),
+		Fact:      "Testing",
+		Type:      uint8(fact.Username),
+		Signature: nil,
+		Verified:  false,
+		Timestamp: time.Time{},
 	}
 	err = store.InsertFact(&sfact)
 	if err != nil {
@@ -131,10 +123,7 @@ func TestDeleteUser_Happy(t *testing.T) {
 	}
 
 	// Setup a Storage object
-	store, _, err := storage.NewStorage(params.Database{})
-	if err != nil {
-		t.Fatal("connect.NewHost returned an error: ", err)
-	}
+	store := storage.NewTestDB(t)
 
 	// Insert a user to assign the Fact to
 	suser_factstorage := new([]storage.Fact)
@@ -147,7 +136,7 @@ func TestDeleteUser_Happy(t *testing.T) {
 		Signature: nil,
 		Facts:     *suser_factstorage,
 	}
-	err = store.InsertUser(&suser)
+	err := store.InsertUser(&suser)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -160,14 +149,13 @@ func TestDeleteUser_Happy(t *testing.T) {
 		t.Fatal(err)
 	}
 	sfact := storage.Fact{
-		Hash:         factID.Fingerprint(f),
-		UserId:       clientId.Bytes(),
-		Fact:         "Testing",
-		Type:         uint8(fact.Username),
-		Signature:    nil,
-		Verified:     false,
-		Timestamp:    time.Time{},
-		Verification: storage.TwilioVerification{},
+		Hash:      factID.Fingerprint(f),
+		UserId:    clientId.Bytes(),
+		Fact:      "Testing",
+		Type:      uint8(fact.Username),
+		Signature: nil,
+		Verified:  false,
+		Timestamp: time.Time{},
 	}
 	err = store.InsertFact(&sfact)
 	if err != nil {
@@ -200,10 +188,7 @@ func TestDeleteUser_DeletedUser(t *testing.T) {
 	}
 
 	// Setup a Storage object
-	store, _, err := storage.NewStorage(params.Database{})
-	if err != nil {
-		t.Fatal("connect.NewHost returned an error: ", err)
-	}
+	store := storage.NewTestDB(t)
 
 	// Insert a user to assign the Fact to
 	suser_factstorage := new([]storage.Fact)
@@ -216,7 +201,7 @@ func TestDeleteUser_DeletedUser(t *testing.T) {
 		Signature: nil,
 		Facts:     *suser_factstorage,
 	}
-	err = store.InsertUser(&suser)
+	err := store.InsertUser(&suser)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -229,14 +214,13 @@ func TestDeleteUser_DeletedUser(t *testing.T) {
 		t.Fatal(err)
 	}
 	sfact := storage.Fact{
-		Hash:         factID.Fingerprint(f),
-		UserId:       clientId.Bytes(),
-		Fact:         "Testing",
-		Type:         uint8(fact.Username),
-		Signature:    nil,
-		Verified:     false,
-		Timestamp:    time.Time{},
-		Verification: storage.TwilioVerification{},
+		Hash:      factID.Fingerprint(f),
+		UserId:    clientId.Bytes(),
+		Fact:      "Testing",
+		Type:      uint8(fact.Username),
+		Signature: nil,
+		Verified:  false,
+		Timestamp: time.Time{},
 	}
 	err = store.InsertFact(&sfact)
 	if err != nil {

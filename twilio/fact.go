@@ -52,7 +52,7 @@ func (m *Manager) RegisterFact(uid *id.ID, fact string, factType uint8, signatur
 	factId := factID.Fingerprint(f)
 
 	// Adds entry to facts and verifications tables
-	err = m.storage.InsertFactTwilio(uid.Marshal(), factId, signature, uint(factType), fact, verifyId)
+	err = m.storage.InsertFactTwilio(uid.Marshal(), factId, signature, uint(factType), verifyId)
 	// Makes call to Verification endpoint in twilio
 	// Return the confirmation ID from db entry
 	return verifyId, err

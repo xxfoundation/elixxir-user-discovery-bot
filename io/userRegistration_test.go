@@ -15,7 +15,6 @@ import (
 	"gitlab.com/elixxir/crypto/hash"
 	"gitlab.com/elixxir/crypto/registration"
 	"gitlab.com/elixxir/primitives/fact"
-	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/crypto/tls"
@@ -92,7 +91,7 @@ func getNDF() []byte {
 func TestRegisterUser(t *testing.T) {
 	// Initialize client and storage
 	clientId, clientKey := initClientFields(t)
-	store, _, _ := storage.NewStorage(params.Database{})
+	store := storage.NewTestDB(t)
 	ndfObj, _ := ndf.Unmarshal(getNDF())
 
 	cert, err := loadPermissioningPubKey(ndfObj.Registration.TlsCertificate)
@@ -167,7 +166,7 @@ func TestRegisterUser(t *testing.T) {
 func TestRegisterUser_InvalidSignatures(t *testing.T) {
 	// Initialize client and storage
 	clientId, clientKey := initClientFields(t)
-	store, _, _ := storage.NewStorage(params.Database{})
+	store := storage.NewTestDB(t)
 	ndfObj, _ := ndf.Unmarshal(getNDF())
 
 	cert, err := loadPermissioningPubKey(ndfObj.Registration.TlsCertificate)
@@ -220,7 +219,7 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 func TestRegisterUser_InvalidMessage(t *testing.T) {
 	// Initialize client and storage
 	clientId, clientKey := initClientFields(t)
-	store, _, _ := storage.NewStorage(params.Database{})
+	store := storage.NewTestDB(t)
 	ndfObj, _ := ndf.Unmarshal(getNDF())
 
 	cert, err := loadPermissioningPubKey(ndfObj.Registration.TlsCertificate)

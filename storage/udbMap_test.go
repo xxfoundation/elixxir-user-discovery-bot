@@ -5,13 +5,13 @@ import (
 	"testing"
 )
 
-////Hidden function for one-time unit testing database implementation
+//Hidden function for one-time unit testing database implementation
 //func TestDatabaseImpl(t *testing.T) {
 //
 //	jwalterweatherman.SetLogThreshold(jwalterweatherman.LevelTrace)
 //	jwalterweatherman.SetStdoutThreshold(jwalterweatherman.LevelTrace)
 //
-//	db, _, err := newDatabase("jonahhusson", "", "cmix_udb", "0.0.0.0", "5432")
+//	db, err := newDatabase("cmix", "", "cmix_server", "0.0.0.0", "5432")
 //	if err != nil {
 //		t.Errorf(err.Error())
 //		return
@@ -52,12 +52,12 @@ import (
 //		t.Errorf("Failed to insert fact: %+v", err)
 //	}
 //
-//	err = db.CheckUser("zezima", uid, rsapub)
+//	err = db.CheckUser("zezima", uid)
 //	if err == nil {
 //		t.Error("Should have returned error")
 //	}
 //
-//	err = db.CheckUser("tim", id.NewIdFromString("tim", id.Node, t), "tim")
+//	err = db.CheckUser("tim", id.NewIdFromString("tim", id.Node, t))
 //	if err != nil {
 //		t.Errorf("Failed to check user: %+v", err)
 //	}
@@ -68,7 +68,7 @@ import (
 //	}
 //
 //	factid2 := []byte("facthashtwo")
-//	err = db.InsertFactTwilio(uid.Marshal(), factid2, []byte("factsig2"), 1, "twilio", "conf")
+//	err = db.InsertFactTwilio(uid.Marshal(), factid2, []byte("factsig2"), 1, "conf")
 //	if err != nil {
 //		t.Errorf("Failed to insert twilio-verified fact: %+v", err)
 //	}
@@ -106,7 +106,7 @@ import (
 
 // Unit test for mapimpl insert fact
 func TestMapImpl_InsertFact(t *testing.T) {
-	mapImpl, _, err := newDatabase("", "", "", "", "")
+	mapImpl, err := newDatabase("", "", "", "", "")
 	if err != nil {
 		t.Errorf("Failed to create map impl")
 		t.FailNow()
@@ -143,7 +143,7 @@ func TestMapImpl_InsertFact(t *testing.T) {
 
 // Unit test for mapimpl insert user
 func TestMapImpl_InsertUser(t *testing.T) {
-	mapImpl, _, err := newDatabase("", "", "", "", "")
+	mapImpl, err := newDatabase("", "", "", "", "")
 	if err != nil {
 		t.Errorf("Failed to create map impl")
 		t.FailNow()
@@ -165,7 +165,7 @@ func TestMapImpl_InsertUser(t *testing.T) {
 
 // Unit test for mapimpl get user
 func TestMapImpl_GetUser(t *testing.T) {
-	mapImpl, _, err := newDatabase("", "", "", "", "")
+	mapImpl, err := newDatabase("", "", "", "", "")
 	if err != nil {
 		t.Errorf("Failed to create map impl")
 		t.FailNow()
@@ -195,7 +195,7 @@ func TestMapImpl_GetUser(t *testing.T) {
 
 // Unit test for mapimpl delete fact
 func TestMapImpl_DeleteFact(t *testing.T) {
-	mapImpl, _, err := newDatabase("", "", "", "", "")
+	mapImpl, err := newDatabase("", "", "", "", "")
 	if err != nil {
 		t.Errorf("Failed to create map impl")
 		t.FailNow()
@@ -237,7 +237,7 @@ func TestMapImpl_DeleteFact(t *testing.T) {
 
 // Unit test for mapimpl delete user
 func TestMapImpl_DeleteUser(t *testing.T) {
-	mapImpl, _, err := newDatabase("", "", "", "", "")
+	mapImpl, err := newDatabase("", "", "", "", "")
 	if err != nil {
 		t.Errorf("Failed to create map impl")
 		t.FailNow()
@@ -280,7 +280,7 @@ func TestMapImpl_DeleteUser(t *testing.T) {
 
 // Unit test for mapimpl verify fact
 func TestMapImpl_VerifyFact(t *testing.T) {
-	mapImpl, _, err := newDatabase("", "", "", "", "")
+	mapImpl, err := newDatabase("", "", "", "", "")
 	if err != nil {
 		t.Errorf("Failed to create map impl")
 		t.FailNow()
@@ -321,12 +321,12 @@ func TestMapImpl_VerifyFact(t *testing.T) {
 
 // unit test for mapimpl check user
 func TestMapImpl_CheckUser(t *testing.T) {
-	mapImpl, _, err := newDatabase("", "", "", "", "")
+	mapImpl, err := newDatabase("", "", "", "", "")
 	if err != nil {
 		t.Errorf("Failed to create map impl")
 		t.FailNow()
 	}
-	err = mapImpl.CheckUser("", id.NewIdFromString("test", id.User, t), "")
+	err = mapImpl.CheckUser("", id.NewIdFromString("test", id.User, t))
 	if err != nil {
 		t.Errorf("This should always return nil from map impl: %+v", err)
 	}
@@ -334,7 +334,7 @@ func TestMapImpl_CheckUser(t *testing.T) {
 
 // unit test for insert twilio fact on map backend
 func TestMapImpl_InsertFactTwilio(t *testing.T) {
-	mapImpl, _, err := newDatabase("", "", "", "", "")
+	mapImpl, err := newDatabase("", "", "", "", "")
 	if err != nil {
 		t.Errorf("Failed to create map impl")
 		t.FailNow()
@@ -355,7 +355,7 @@ func TestMapImpl_InsertFactTwilio(t *testing.T) {
 
 	factHash := []byte("testconfid")
 	conf := "twilio"
-	err = mapImpl.InsertFactTwilio(uid.Marshal(), factHash, []byte("John Hancock"), 0, "water is wet", conf)
+	err = mapImpl.InsertFactTwilio(uid.Marshal(), factHash, []byte("John Hancock"), 0, conf)
 	if err != nil {
 		t.Errorf("Failed to insert fact: %+v", err)
 	}
@@ -363,7 +363,7 @@ func TestMapImpl_InsertFactTwilio(t *testing.T) {
 
 // unit test for verifying a twilio fact in the map backend
 func TestMapImpl_VerifyFactTwilio(t *testing.T) {
-	mapImpl, _, err := newDatabase("", "", "", "", "")
+	mapImpl, err := newDatabase("", "", "", "", "")
 	if err != nil {
 		t.Errorf("Failed to create map impl")
 		t.FailNow()
@@ -384,7 +384,7 @@ func TestMapImpl_VerifyFactTwilio(t *testing.T) {
 
 	factHash := []byte("testconfid")
 	conf := "twilio"
-	err = mapImpl.InsertFactTwilio(uid.Marshal(), factHash, []byte("John Hancock"), 0, "water is wet", conf)
+	err = mapImpl.InsertFactTwilio(uid.Marshal(), factHash, []byte("John Hancock"), 0, conf)
 	if err != nil {
 		t.Errorf("Failed to insert fact: %+v", err)
 	}
@@ -397,7 +397,7 @@ func TestMapImpl_VerifyFactTwilio(t *testing.T) {
 
 // Search unit test for map backend
 func TestMapImpl_Search(t *testing.T) {
-	mapImpl, _, err := newDatabase("", "", "", "", "")
+	mapImpl, err := newDatabase("", "", "", "", "")
 	if err != nil {
 		t.Errorf("Failed to create map impl")
 		t.FailNow()
@@ -418,7 +418,7 @@ func TestMapImpl_Search(t *testing.T) {
 
 	factHash := []byte("testconfid")
 	conf := "twilio"
-	err = mapImpl.InsertFactTwilio(uid.Marshal(), factHash, []byte("John Hancock"), 0, "water is wet", conf)
+	err = mapImpl.InsertFactTwilio(uid.Marshal(), factHash, []byte("John Hancock"), 0, conf)
 	if err != nil {
 		t.Errorf("Failed to insert fact: %+v", err)
 	}

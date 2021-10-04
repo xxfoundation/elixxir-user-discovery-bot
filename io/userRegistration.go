@@ -41,7 +41,7 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 	}
 
 	// Check if username is taken
-	err = store.CheckUser(username, uid, msg.RSAPublicPem)
+	err = store.CheckUser(username, uid)
 	if err != nil {
 		return &messages.Ack{}, errors.Errorf("Username %s is already taken. "+
 			"Please try again", username)

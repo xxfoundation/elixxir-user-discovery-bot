@@ -5,8 +5,6 @@ go 1.13
 require (
 	github.com/armon/consul-api v0.0.0-20180202201655-eb2c6b5be1b6 // indirect
 	github.com/golang/protobuf v1.5.2
-	github.com/jinzhu/gorm v1.9.16
-	github.com/lib/pq v1.9.0 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/pelletier/go-toml v1.9.0 // indirect
@@ -24,7 +22,7 @@ require (
 	gitlab.com/xx_network/comms v0.0.4-0.20210921011654-3b73a40ed3d6
 	gitlab.com/xx_network/crypto v0.0.5-0.20210920180047-4dd4aed4a942
 	gitlab.com/xx_network/primitives v0.0.4-0.20210915220237-70cb4551d6f3
-	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect
-	golang.org/x/sys v0.0.0-20210426230700-d19ff857e887 // indirect
 	google.golang.org/genproto v0.0.0-20210427215850-f767ed18ee4d // indirect
+	gorm.io/driver/postgres v1.1.2
+	gorm.io/gorm v1.21.15
 )
