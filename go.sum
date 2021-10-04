@@ -19,6 +19,7 @@ github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAE
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
+github.com/armon/consul-api v0.0.0-20180202201655-eb2c6b5be1b6/go.mod h1:grANhF5doyWs3UAsr3K4I6qtAmlQcZDesFNEHPZAzj8=
 github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da/go.mod h1:Q73ZrmVTwzkszR9V5SSuryQ31EELlFMUz1kKyl939pY=
 github.com/armon/go-radix v0.0.0-20180808171621-7fddfc383310/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgIH9cCH8=
 github.com/badoux/checkmail v1.2.1 h1:TzwYx5pnsV6anJweMx2auXdekBwGr/yt1GgalIx9nBQ=
@@ -330,7 +331,9 @@ github.com/ttacon/libphonenumber v1.2.1 h1:fzOfY5zUADkCkbIafAed11gL1sW+bJ26p6zWL
 github.com/ttacon/libphonenumber v1.2.1/go.mod h1:E0TpmdVMq5dyVlQ7oenAkhsLu86OkUl+yR4OAxyEg/M=
 github.com/tyler-smith/go-bip39 v1.1.0 h1:5eUemwrMargf3BSLRRCalXT93Ns6pQJIjYQN2nyfOP8=
 github.com/tyler-smith/go-bip39 v1.1.0/go.mod h1:gUYDtqQw1JS3ZJ8UWVcGTGqqr6YIN3CWg+kkNaLt55U=
+github.com/ugorji/go v1.1.4/go.mod h1:uQMGLiO92mf5W77hV/PUCpI3pbzQx3CRekS0kk+RGrc=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
+github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/zeebo/assert v0.0.0-20181109011804-10f827ce2ed6/go.mod h1:yssERNPivllc1yU3BvpjYI5BUW+zglcz6QWqeVRL5t0=
 github.com/zeebo/assert v1.1.0 h1:hU1L1vLTHsnO8x8c9KAR5GmM5QscxHg5RNU5z5qbUWY=
@@ -346,8 +349,18 @@ gitlab.com/elixxir/bloomfilter v0.0.0-20200930191214-10e9ac31b228 h1:Gi6rj4mAlK0
 gitlab.com/elixxir/bloomfilter v0.0.0-20200930191214-10e9ac31b228/go.mod h1:H6jztdm0k+wEV2QGK/KYA+MY9nj9Zzatux/qIvDDv3k=
 gitlab.com/elixxir/client v1.5.1-0.20210929221802-d01ba4467e89 h1:V087nHKbPitWjHIPGCu0VBYl9rJg4IH6jo1pBsk0lr4=
 gitlab.com/elixxir/client v1.5.1-0.20210929221802-d01ba4467e89/go.mod h1:lWNwLFqvTBgsXDoV9w7EUfzXknsZMpXEdGKL4haIU8g=
+gitlab.com/elixxir/client v1.5.1-0.20210930222158-6f0435bf188b h1:BeJQKcDvmTTTSCUq9T1sebxguWAKfLEQQOrcAEyeMMw=
+gitlab.com/elixxir/client v1.5.1-0.20210930222158-6f0435bf188b/go.mod h1:lWNwLFqvTBgsXDoV9w7EUfzXknsZMpXEdGKL4haIU8g=
+gitlab.com/elixxir/client v1.5.1-0.20211001204656-4a670390718a h1:syNaon8PPGl+dgJ1eNdVbeTT8al5CsTvkp+QcvT4lFc=
+gitlab.com/elixxir/client v1.5.1-0.20211001204656-4a670390718a/go.mod h1:bPcQILeHB9Nhu6QKsnRk1KmXTmc6gZumzqeD3QnxgnU=
+gitlab.com/elixxir/client v1.5.1-0.20211001213306-3802ca29efe0 h1:HQ6StOXHPDFJctOqWLOfvGzfZIzBerTV6geVpXIbfOU=
+gitlab.com/elixxir/client v1.5.1-0.20211001213306-3802ca29efe0/go.mod h1:bPcQILeHB9Nhu6QKsnRk1KmXTmc6gZumzqeD3QnxgnU=
+gitlab.com/elixxir/client v1.5.1-0.20211001231607-a89bfe3618b0 h1:gw1QF5fegvIFirGBRH9EoaR/+gPZfbFlZV/piMewRO8=
+gitlab.com/elixxir/client v1.5.1-0.20211001231607-a89bfe3618b0/go.mod h1:jefdCbV5w0YQkuE0/rHkohhX5SDwlp0OFqaTvj2EXHA=
 gitlab.com/elixxir/comms v0.0.4-0.20210929221338-7bca5799cbe8 h1:QOmtXPYunIdx1EsvKL3ecPKBnIHocP2L9o8C0unocv8=
 gitlab.com/elixxir/comms v0.0.4-0.20210929221338-7bca5799cbe8/go.mod h1:h41+FHc9zlQGveEao3aw8VSfzyOPecEhhUIadUsW1C8=
+gitlab.com/elixxir/comms v0.0.4-0.20211001193246-9088a5356960 h1:46zxXPsTLj7zw0NWqSn7PNbmZWUGSg5ODb2MAnFkRu8=
+gitlab.com/elixxir/comms v0.0.4-0.20211001193246-9088a5356960/go.mod h1:h41+FHc9zlQGveEao3aw8VSfzyOPecEhhUIadUsW1C8=
 gitlab.com/elixxir/crypto v0.0.0-20200804182833-984246dea2c4/go.mod h1:ucm9SFKJo+K0N2GwRRpaNr+tKXMIOVWzmyUD0SbOu2c=
 gitlab.com/elixxir/crypto v0.0.3/go.mod h1:ZNgBOblhYToR4m8tj4cMvJ9UsJAUKq+p0gCp07WQmhA=
 gitlab.com/elixxir/crypto v0.0.7-0.20210920180151-6c9b84bae372 h1:W5Ax+cwqOOcsVegaMLvsFJ/Cs24a4Wyhp5UHFwvMQxo=
