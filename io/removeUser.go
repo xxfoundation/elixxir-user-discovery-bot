@@ -18,7 +18,6 @@ import (
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
-	"time"
 )
 
 // Takes in a FactRemovalRequest from a client and deletes the Fact if the client owns it
@@ -105,10 +104,9 @@ func removeUser(msg *pb.FactRemovalRequest, store *storage.Storage) (
 	suser := storage.User{
 		Id:        id.DummyUser.Bytes(),
 		RsaPub:    "DUMMY KEY",
-		DhPub:     nil,
-		Salt:      nil,
-		Signature: nil,
-		Facts:     *new([]storage.Fact),
+		DhPub:     []byte("DUMMY_DHPUB"),
+		Salt:      []byte("DUMMY_SALT"),
+		Signature: []byte("DUMMY_SIG"),
 	}
 	_ = store.InsertUser(&suser)
 
@@ -119,9 +117,8 @@ func removeUser(msg *pb.FactRemovalRequest, store *storage.Storage) (
 		UserId:    id.DummyUser[:],
 		Fact:      f.Fact,
 		Type:      uint8(f.T),
-		Signature: nil,
+		Signature: []byte("DUMMY_SIG"),
 		Verified:  true,
-		Timestamp: time.Time{},
 	}
 	err = store.InsertFact(sfact)
 	if err != nil {
