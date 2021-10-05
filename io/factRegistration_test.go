@@ -3,7 +3,6 @@ package io
 import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/twilio"
 	"gitlab.com/xx_network/crypto/signature/rsa"
@@ -16,9 +15,9 @@ import (
 func TestRegisterFact(t *testing.T) {
 	// Initialize client and storage
 	clientId, clientKey := initClientFields(t)
-	store, _, err := storage.NewStorage(params.Database{})
+	store := storage.NewTestDB(t)
 
-	err = store.InsertUser(&storage.User{
+	err := store.InsertUser(&storage.User{
 		Id:     clientId.Bytes(),
 		RsaPub: string(rsa.CreatePublicKeyPem(clientKey.GetPublic())),
 	})
@@ -63,9 +62,9 @@ func TestRegisterFact(t *testing.T) {
 func TestRegisterFact_BadSigError(t *testing.T) {
 	// Initialize client and storage
 	clientId, clientKey := initClientFields(t)
-	store, _, err := storage.NewStorage(params.Database{})
+	store := storage.NewTestDB(t)
 
-	err = store.InsertUser(&storage.User{
+	err := store.InsertUser(&storage.User{
 		Id:     clientId.Bytes(),
 		RsaPub: string(rsa.CreatePublicKeyPem(clientKey.GetPublic())),
 	})
@@ -97,9 +96,9 @@ func TestConfirmFact(t *testing.T) {
 	jww.SetStdoutThreshold(jww.LevelTrace)
 	// Initialize client and storage
 	clientId, clientKey := initClientFields(t)
-	store, _, err := storage.NewStorage(params.Database{})
+	store := storage.NewTestDB(t)
 
-	err = store.InsertUser(&storage.User{
+	err := store.InsertUser(&storage.User{
 		Id:     clientId.Bytes(),
 		RsaPub: string(rsa.CreatePublicKeyPem(clientKey.GetPublic())),
 	})
@@ -133,9 +132,9 @@ func TestConfirmFact(t *testing.T) {
 func TestConfirmFact_FailedVerification(t *testing.T) {
 	// Initialize client and storage
 	clientId, clientKey := initClientFields(t)
-	store, _, err := storage.NewStorage(params.Database{})
+	store := storage.NewTestDB(t)
 
-	err = store.InsertUser(&storage.User{
+	err := store.InsertUser(&storage.User{
 		Id:     clientId.Bytes(),
 		RsaPub: string(rsa.CreatePublicKeyPem(clientKey.GetPublic())),
 	})
