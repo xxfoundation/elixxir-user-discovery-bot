@@ -17,7 +17,7 @@ require (
 	github.com/ttacon/libphonenumber v1.2.1
 	github.com/ugorji/go v1.1.4 // indirect
 	github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77 // indirect
-	gitlab.com/elixxir/client v1.5.1-0.20211005180240-41adc1295350
+	gitlab.com/elixxir/client v1.5.1-0.20211006193413-6cf8213da14e
 	gitlab.com/elixxir/comms v0.0.4-0.20211005175815-25f80f7d9993
 	gitlab.com/elixxir/crypto v0.0.7-0.20210928232606-4f7feb90bee7
 	gitlab.com/elixxir/primitives v0.0.3-0.20210920180121-b85bca5212f4
