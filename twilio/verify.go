@@ -59,6 +59,7 @@ func (v *verifier) Verification(to, channel string) (string, error) {
 
 	data, err := v.twilioRequest(payload, verificationURL)
 	if err != nil {
+		jww.FATAL.Printf("Failed to submit verification request: %+v", err)
 		return "", err
 	}
 	jww.INFO.Printf("Response data: %+v", data)
@@ -76,6 +77,7 @@ func (v *verifier) VerificationCheck(code string, to string) (bool, error) {
 
 	data, err := v.twilioRequest(payload, checkUrl)
 	if err != nil {
+		jww.FATAL.Printf("Failed to submit verification check request: %+v", err)
 		return false, errors.WithMessage(err, "Failed to make verification check request")
 	}
 	jww.INFO.Println(data)
