@@ -59,8 +59,8 @@ type MapImpl struct {
 // Struct defining the users table for the database
 type User struct {
 	Id        []byte `gorm:"primaryKey"`
-	RsaPub    string `gorm:"not null"`
-	DhPub     []byte `gorm:"not null"`
+	RsaPub    string `gorm:"not null;unique"`
+	DhPub     []byte `gorm:"not null;unique"`
 	Salt      []byte `gorm:"not null"`
 	Signature []byte `gorm:"not null"`
 	// Time in which user registered with the network (ie permissioning)
@@ -86,8 +86,8 @@ type Fact struct {
 	Hash           []byte `gorm:"primaryKey"`
 	UserId         []byte `gorm:"not null"`
 	Fact           string
-	Type           uint8     `gorm:"not null"`
-	Signature      []byte    `gorm:"not null"`
+	Type           uint8 `gorm:"not null"`
+	Signature      []byte
 	Verified       bool      `gorm:"not null"`
 	Timestamp      time.Time `gorm:"not null"`
 	ConfirmationId string
