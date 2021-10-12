@@ -70,6 +70,7 @@ build:
 #    - GOOS=windows GOARCH=386 CGO_ENABLED=0 go build -ldflags '-w -s' -o release/udb.win32 main.go
     - GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -ldflags '-w -s' -o release/udb.darwin64 main.go
     - /upload-artifacts.sh release/
+    - /hash-file.sh release/udb.linux64
   artifacts:
     paths:
      - release/
