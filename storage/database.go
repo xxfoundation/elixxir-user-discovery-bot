@@ -60,7 +60,7 @@ type MapImpl struct {
 type User struct {
 	Id        []byte `gorm:"primaryKey"`
 	RsaPub    string `gorm:"not null;unique"`
-	DhPub     []byte `gorm:"not null"`
+	DhPub     []byte `gorm:"not null;unique"`
 	Salt      []byte `gorm:"not null"`
 	Signature []byte `gorm:"not null"`
 	// Time in which user registered with the network (ie permissioning)
