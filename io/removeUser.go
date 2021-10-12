@@ -105,10 +105,9 @@ func removeUser(msg *pb.FactRemovalRequest, store *storage.Storage) (
 	suser := storage.User{
 		Id:        id.DummyUser.Bytes(),
 		RsaPub:    "DUMMY KEY",
-		DhPub:     nil,
-		Salt:      nil,
-		Signature: nil,
-		Facts:     *new([]storage.Fact),
+		DhPub:     []byte("DUMMY USER DH PUB"),
+		Salt:      []byte("Tears of my enemies"),
+		Signature: []byte("John Hancock"),
 	}
 	_ = store.InsertUser(&suser)
 
