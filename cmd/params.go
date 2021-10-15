@@ -40,6 +40,15 @@ func InitParams(vip *viper.Viper) params.General {
 		jww.FATAL.Fatalf("Failed to read permissioning certificate at %s: %+v", permCertPath, err)
 	}
 
+	protoUserPath := viper.GetString("protoUserPath")
+	if protoUserPath == "" {
+		jww.FATAL.Fatalf("protoUserPath is blank - cannot run without proto user")
+	}
+	protoUserJson, err := utils.ReadFile(protoUserPath)
+	if err != nil {
+		jww.FATAL.Fatalf("Failed to read proto user at %s: %+v", protoUserPath, err)
+	}
+
 	sessionPass = viper.GetString("sessionPass")
 
 	ioparams := params.IO{
@@ -76,10 +85,11 @@ func InitParams(vip *viper.Viper) params.General {
 	jww.INFO.Printf("UDB port: %s", ioparams.Port)
 
 	return params.General{
-		PermCert:    permCert,
-		SessionPath: viper.GetString("sessionPath"),
-		Database:    dbparams,
-		IO:          ioparams,
-		Twilio:      twilioparams,
+		PermCert:      permCert,
+		SessionPath:   viper.GetString("sessionPath"),
+		Database:      dbparams,
+		IO:            ioparams,
+		Twilio:        twilioparams,
+		ProtoUserJson: protoUserJson,
 	}
 }
