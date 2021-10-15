@@ -9,8 +9,10 @@
 package storage
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/xx_network/primitives/id"
 	"gorm.io/gorm"
 	"time"
@@ -48,7 +50,7 @@ func (db *DatabaseImpl) InsertUser(user *User) error {
 // Retrieve a user by ID
 func (db *DatabaseImpl) GetUser(id []byte) (*User, error) {
 	result := &User{}
-	err := db.db.Preload("Facts", "type = 0").First(&result, "id = ?", id).Error
+	err := db.db.Preload("Facts", fmt.Sprintf("type = %d", fact.Username)).First(&result, "id = ?", id).Error
 	return result, err
 }
 
@@ -142,7 +144,7 @@ func (db *DatabaseImpl) Search(factHashes [][]byte) ([]*User, error) {
 	var users []*User
 	for uid, fl := range found {
 		u := &User{}
-		err = db.db.Preload("Facts", "type = 0").Take(u, "id = ?", uid.Marshal()).Error
+		err = db.db.Preload("Facts", fmt.Sprintf("type = %d", fact.Username)).Take(u, "id = ?", uid.Marshal()).Error
 		if err != nil {
 			return nil, err
 		}
