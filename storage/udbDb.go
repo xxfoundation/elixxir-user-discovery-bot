@@ -48,7 +48,7 @@ func (db *DatabaseImpl) InsertUser(user *User) error {
 // Retrieve a user by ID
 func (db *DatabaseImpl) GetUser(id []byte) (*User, error) {
 	result := &User{}
-	err := db.db.First(&result, "id = ?", id).Error
+	err := db.db.Preload("Facts", "type = 0").First(&result, "id = ?", id).Error
 	return result, err
 }
 
