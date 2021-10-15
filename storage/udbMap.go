@@ -48,6 +48,10 @@ func (m *MapImpl) GetUser(uid []byte) (*User, error) {
 		return nil, err
 	}
 	u, _ := m.users[*nuid]
+	un, ok := m.usernames[*nuid]
+	if ok {
+		u.Facts = []Fact{*un}
+	}
 	return u, nil
 }
 

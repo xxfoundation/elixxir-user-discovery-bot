@@ -6,6 +6,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/client/single"
 	"gitlab.com/elixxir/client/ud"
+	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/xx_network/primitives/id"
 	"time"
 )
@@ -57,6 +58,9 @@ func (m *Manager) handleLookup(msg *ud.LookupSend, c single.Contact) *ud.LookupR
 			"%s: %+v", lookupID, c.GetPartner(), err)
 		jww.WARN.Printf("Failed to handle lookup response: %+v", response.Error)
 		return response
+	}
+	if len(usr.Facts) > 0 && usr.Facts[0].Type == uint8(fact.Username) {
+		response.Username = usr.Facts[0].Fact
 	}
 
 	response.PubKey = usr.DhPub
