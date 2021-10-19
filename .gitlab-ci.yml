@@ -20,7 +20,7 @@ before_script:
   - chmod 700 ~/.ssh
   - ssh-keyscan -t rsa $GITLAB_SERVER > ~/.ssh/known_hosts
   - git config --global url."git@$GITLAB_SERVER:".insteadOf "https://gitlab.com/"
-  - git config --global url."git@$GITLAB_SERVER:".insteadOf "https://git.xx.network/"
+  - git config --global url."git@$GITLAB_SERVER:".insteadOf "https://git.xx.network/" --add
   - export PATH=$HOME/go/bin:$PATH
 
 stages:
@@ -70,6 +70,7 @@ build:
 #    - GOOS=windows GOARCH=386 CGO_ENABLED=0 go build -ldflags '-w -s' -o release/udb.win32 main.go
     - GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -ldflags '-w -s' -o release/udb.darwin64 main.go
     - /upload-artifacts.sh release/
+    - /hash-file.sh release/udb.linux64
   artifacts:
     paths:
      - release/

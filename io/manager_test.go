@@ -15,10 +15,7 @@ func TestNewManager(t *testing.T) {
 		Key:  nil,
 		Port: "",
 	}
-	store, _, err := storage.NewStorage(params.Database{})
-	if err != nil {
-		t.Errorf("Failed to create storage")
-	}
+	store := storage.NewTestDB(t)
 	tm := twilio.NewMockManager(store)
 
 	m := NewManager(p, id.NewIdFromString("zezima", id.User, t), nil, tm, store)
