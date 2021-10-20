@@ -39,12 +39,12 @@ func (m *Manager) RegisterFact(uid *id.ID, fact string, factType uint8, signatur
 	}
 	verifyId, err := m.verifier.Verification(to, channel)
 	jww.INFO.Printf("Sent verification & received %s", verifyId)
-
 	if err != nil {
 		err = errors.WithMessage(err, "Twilio verification init failed")
 		jww.ERROR.Println(err)
 		return "", err
 	}
+
 	f, err := fact2.NewFact(fact2.FactType(factType), fact)
 	if err != nil {
 		return "", errors.WithMessage(err, "Failed to hash fact object")
