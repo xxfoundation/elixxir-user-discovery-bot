@@ -77,6 +77,11 @@ func (v *verifier) VerificationCheck(code string, to string) (bool, error) {
 
 	data, err := v.twilioRequest(payload, checkUrl)
 	if err != nil {
+		// https://www.twilio.com/docs/api/errors/20404
+		// If twilio cannot find the verification check, it probably expired
+		if strings.Contains(err.Error(), "errors/20404") {
+			return false, errors.New("Your verification code may have expired; please resubmit")
+		}
 		jww.FATAL.Printf("Failed to submit verification check request: %+v", err)
 		return false, errors.WithMessage(err, "Failed to make verification check request")
 	}
