@@ -68,7 +68,16 @@ func TestManager_handleLookup(t *testing.T) {
 	c := single.NewContact(uid, &cyclic.Int{}, &cyclic.Int{}, singleUse.TagFP{}, 8)
 
 	expectedDhPub := "DhPub"
-	err := m.db.InsertUser(&storage.User{Id: uid.Marshal(), DhPub: []byte(expectedDhPub)})
+	err := m.db.InsertUser(&storage.User{Id: uid.Marshal(), DhPub: []byte(expectedDhPub), Facts: []storage.Fact{
+		{
+			Hash:      []byte("hash"),
+			UserId:    uid.Marshal(),
+			Fact:      "zezima",
+			Type:      0,
+			Signature: []byte("Signature"),
+			Verified:  true,
+		},
+	}})
 	if err != nil {
 		t.Errorf("Failed to insert dummy user: %+v", err)
 	}
@@ -81,6 +90,10 @@ func TestManager_handleLookup(t *testing.T) {
 	if string(resp.PubKey) != expectedDhPub {
 		t.Errorf("handleLookup() returned a response with inccorect PubKey."+
 			"\nexpected: %s\nreceived: %s", expectedDhPub, resp.Error)
+	}
+
+	if resp.Username != "zezima" {
+		t.Errorf("Should have gotten username zezima, instead got: %s", resp.Username)
 	}
 }
 
