@@ -79,7 +79,7 @@ var rootCmd = &cobra.Command{
 		retryTimer := 1 * time.Second
 		for returnedNdf, err = manager.Comms.RequestNdf(permHost); ; {
 			if err != nil {
-				jww.WARN.Printf("Failed to get an ndf, Retying now: %+v", err)
+				jww.WARN.Printf("Failed to get an ndf, Retying now: %s", err.Error())
 				time.Sleep(retryTimer)
 				continue
 			}
