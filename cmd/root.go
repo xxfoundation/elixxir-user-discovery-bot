@@ -91,9 +91,16 @@ var rootCmd = &cobra.Command{
 			returnedNdf, err = manager.Comms.RequestNdf(permHost)
 		}
 
-		parsedNdf := &ndf.NetworkDefinition{}
-		for len(parsedNdf.Gateways) == 0 {
 
+		// Attempt to parse returned ndf
+		parsedNdf, err := ndf.Unmarshal(returnedNdf.GetNdf())
+		if err != nil {
+			// reset parsed NDF to ensure non nil at top of loop
+			parsedNdf = &ndf.NetworkDefinition{}
+		}
+
+		// Make sure ndf is populated
+		for len(parsedNdf.Gateways) == 0 {
 			jww.WARN.Println("Failed to parse an ndf, possibly not ready yet. Retying now...")
 			time.Sleep(250 * time.Millisecond) // TODO: should this be longer if we don't crash on errors?
 			returnedNdf, err = manager.Comms.RequestNdf(permHost)
