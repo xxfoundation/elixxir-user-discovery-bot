@@ -102,7 +102,7 @@ var rootCmd = &cobra.Command{
 			}
 			parsedNdf, err = ndf.Unmarshal(returnedNdf.GetNdf())
 			if err != nil {
-				// reset parsed NDF
+				// reset parsed NDF to ensure non nil at top of loop
 				parsedNdf = &ndf.NetworkDefinition{}
 			}
 
