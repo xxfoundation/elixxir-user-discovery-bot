@@ -5,13 +5,13 @@ import (
 	"testing"
 )
 
-//Hidden function for one-time unit testing database implementation
+// Hidden function for one-time unit testing database implementation
 //func TestDatabaseImpl(t *testing.T) {
 //
 //	jwalterweatherman.SetLogThreshold(jwalterweatherman.LevelTrace)
 //	jwalterweatherman.SetStdoutThreshold(jwalterweatherman.LevelTrace)
 //
-//	db, err := newDatabase("cmix", "", "cmix_server", "0.0.0.0", "5432")
+//	db, err := newDatabase("jonahhusson", "", "cmix_server", "0.0.0.0", "5432")
 //	if err != nil {
 //		t.Errorf(err.Error())
 //		return
@@ -52,7 +52,7 @@ import (
 //		t.Errorf("Failed to insert fact: %+v", err)
 //	}
 //
-//	err = db.CheckUser("zezima", uid)
+//	err = db.CheckUser("ZeZiMa", uid)
 //	if err == nil {
 //		t.Error("Should have returned error")
 //	}
@@ -103,65 +103,65 @@ import (
 //		t.Errorf("Failed to delete user: %+v", err)
 //	}
 //}
-
-// Unit test for mapimpl insert fact
-func TestMapImpl_InsertFact(t *testing.T) {
-	mapImpl, err := newDatabase("", "", "", "", "")
-	if err != nil {
-		t.Errorf("Failed to create map impl")
-		t.FailNow()
-	}
-	uid := id.NewIdFromString("testuserid", id.User, t)
-	user := &User{
-		Id:        uid.Marshal(),
-		RsaPub:    "testrsa",
-		DhPub:     []byte("testdh"),
-		Salt:      []byte("testsalt"),
-		Signature: []byte("testsig"),
-	}
-
-	err = mapImpl.InsertUser(user)
-	if err != nil {
-		t.Errorf("Failed to insert dummy user: %+v", err)
-	}
-
-	factHash := []byte("testconfid")
-	fact := &Fact{
-		UserId:    uid.Marshal(),
-		Fact:      "water is wet",
-		Type:      0,
-		Hash:      factHash,
-		Signature: []byte("John Hancock"),
-		Verified:  true,
-	}
-	err = mapImpl.InsertFact(fact)
-	if err != nil {
-		t.Errorf("Failed to insert fact: %+v", err)
-	}
-
-}
-
-// Unit test for mapimpl insert user
-func TestMapImpl_InsertUser(t *testing.T) {
-	mapImpl, err := newDatabase("", "", "", "", "")
-	if err != nil {
-		t.Errorf("Failed to create map impl")
-		t.FailNow()
-	}
-	uid := id.NewIdFromString("testuserid", id.User, t)
-	user := &User{
-		Id:        uid.Marshal(),
-		RsaPub:    "testrsa",
-		DhPub:     []byte("testdh"),
-		Salt:      []byte("testsalt"),
-		Signature: []byte("testsig"),
-	}
-
-	err = mapImpl.InsertUser(user)
-	if err != nil {
-		t.Errorf("Failed to insert dummy user: %+v", err)
-	}
-}
+//
+//// Unit test for mapimpl insert fact
+//func TestMapImpl_InsertFact(t *testing.T) {
+//	mapImpl, err := newDatabase("", "", "", "", "")
+//	if err != nil {
+//		t.Errorf("Failed to create map impl")
+//		t.FailNow()
+//	}
+//	uid := id.NewIdFromString("testuserid", id.User, t)
+//	user := &User{
+//		Id:        uid.Marshal(),
+//		RsaPub:    "testrsa",
+//		DhPub:     []byte("testdh"),
+//		Salt:      []byte("testsalt"),
+//		Signature: []byte("testsig"),
+//	}
+//
+//	err = mapImpl.InsertUser(user)
+//	if err != nil {
+//		t.Errorf("Failed to insert dummy user: %+v", err)
+//	}
+//
+//	factHash := []byte("testconfid")
+//	fact := &Fact{
+//		UserId:    uid.Marshal(),
+//		Fact:      "water is wet",
+//		Type:      0,
+//		Hash:      factHash,
+//		Signature: []byte("John Hancock"),
+//		Verified:  true,
+//	}
+//	err = mapImpl.InsertFact(fact)
+//	if err != nil {
+//		t.Errorf("Failed to insert fact: %+v", err)
+//	}
+//
+//}
+//
+//// Unit test for mapimpl insert user
+//func TestMapImpl_InsertUser(t *testing.T) {
+//	mapImpl, err := newDatabase("", "", "", "", "")
+//	if err != nil {
+//		t.Errorf("Failed to create map impl")
+//		t.FailNow()
+//	}
+//	uid := id.NewIdFromString("testuserid", id.User, t)
+//	user := &User{
+//		Id:        uid.Marshal(),
+//		RsaPub:    "testrsa",
+//		DhPub:     []byte("testdh"),
+//		Salt:      []byte("testsalt"),
+//		Signature: []byte("testsig"),
+//	}
+//
+//	err = mapImpl.InsertUser(user)
+//	if err != nil {
+//		t.Errorf("Failed to insert dummy user: %+v", err)
+//	}
+//}
 
 // Unit test for mapimpl get user
 func TestMapImpl_GetUser(t *testing.T) {
