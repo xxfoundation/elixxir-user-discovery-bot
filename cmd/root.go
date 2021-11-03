@@ -77,7 +77,8 @@ var rootCmd = &cobra.Command{
 		// Obtain the NDF from permissioning
 		var returnedNdf *mixmessages.NDF
 		retryTimer := 1 * time.Second
-		for returnedNdf, err = manager.Comms.RequestNdf(permHost); ; {
+		for {
+			returnedNdf, err = manager.Comms.RequestNdf(permHost)
 			if err != nil {
 				jww.WARN.Printf("Failed to get an ndf, Retying now: %s", err.Error())
 				time.Sleep(retryTimer)
