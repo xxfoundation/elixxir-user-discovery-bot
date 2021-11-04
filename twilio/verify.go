@@ -59,7 +59,9 @@ func (v *verifier) Verification(to, channel string) (string, error) {
 
 	data, err := v.twilioRequest(payload, verificationURL)
 	if err != nil {
-		jww.FATAL.Printf("Failed to submit verification request: %+v", err)
+		if strings.Contains(err.Error(), "Account is not active") {
+			jww.FATAL.Printf("Failed to submit verification request: %+v", err)
+		}
 		return "", err
 	}
 	jww.INFO.Printf("Response data: %+v", data)
