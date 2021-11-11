@@ -59,7 +59,9 @@ func (v *verifier) Verification(to, channel string) (string, error) {
 
 	data, err := v.twilioRequest(payload, verificationURL)
 	if err != nil {
-		jww.FATAL.Printf("Failed to submit verification request: %+v", err)
+		if strings.Contains(err.Error(), "Account is not active") {
+			jww.FATAL.Printf("Failed to submit verification request: %+v", err)
+		}
 		return "", err
 	}
 	jww.INFO.Printf("Response data: %+v", data)
@@ -77,6 +79,11 @@ func (v *verifier) VerificationCheck(code string, to string) (bool, error) {
 
 	data, err := v.twilioRequest(payload, checkUrl)
 	if err != nil {
+		// https://www.twilio.com/docs/api/errors/20404
+		// If twilio cannot find the verification check, it probably expired
+		if strings.Contains(err.Error(), "errors/20404") {
+			return false, errors.New("Your verification code may have expired; please resubmit")
+		}
 		jww.FATAL.Printf("Failed to submit verification check request: %+v", err)
 		return false, errors.WithMessage(err, "Failed to make verification check request")
 	}

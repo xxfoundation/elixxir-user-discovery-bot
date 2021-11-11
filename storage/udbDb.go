@@ -15,6 +15,7 @@ import (
 	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/xx_network/primitives/id"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"time"
 )
 
@@ -23,7 +24,7 @@ func (db *DatabaseImpl) CheckUser(username string, id *id.ID) error {
 	var err error
 	var facts []*Fact
 	var count int64
-	err = db.db.Where("type = ? AND fact = ?", Username, username).Find(&facts).Count(&count).Error
+	err = db.db.Where("type = ? AND fact ILIKE ?", Username, username).Find(&facts).Count(&count).Error
 	if err != nil {
 		return errors.WithMessage(err, "Failed to check facts for desired username")
 	}
@@ -91,7 +92,10 @@ func (db *DatabaseImpl) InsertFactTwilio(userID, factHash, signature []byte, fac
 	}
 
 	tf := func(tx *gorm.DB) error {
-		return tx.Set("gorm:insert_option", "ON CONFLICT (hash) DO UPDATE SET timestamp = NOW()").Create(f).Error
+		return tx.Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "hash"}},
+			DoUpdates: clause.AssignmentColumns([]string{"timestamp"}),
+		}).Create(f).Error
 	}
 
 	return db.db.Transaction(tf)

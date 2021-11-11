@@ -13,12 +13,13 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/xx_network/primitives/id"
+	"strings"
 	"time"
 )
 
 func (m *MapImpl) CheckUser(username string, id *id.ID) error {
 	for _, f := range m.facts {
-		if f.Type == uint8(Username) && f.Fact == username {
+		if f.Type == uint8(Username) && strings.ToUpper(f.Fact) == strings.ToUpper(username) {
 			return errors.New("Username already exists")
 		}
 	}

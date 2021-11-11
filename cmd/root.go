@@ -19,7 +19,6 @@ import (
 	"gitlab.com/xx_network/primitives/ndf"
 	"gitlab.com/xx_network/primitives/utils"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -76,19 +75,31 @@ var rootCmd = &cobra.Command{
 		}
 
 		// Obtain the NDF from permissioning
-		returnedNdf, err := manager.Comms.RequestNdf(permHost)
-		// Keep going until we get a grpc error or we get an ndf
-		for err != nil {
-			// If there is an unexpected error
-			if !strings.Contains(err.Error(), ndf.NO_NDF) {
-				// If it is not an issue with no ndf, return the error up the stack
-				jww.ERROR.Printf("Failed to get NDF from permissioning: %v", err)
+		var returnedNdf *mixmessages.NDF
+		retryTimer := 1 * time.Second
+		for {
+			returnedNdf, err = manager.Comms.RequestNdf(permHost)
+			if err != nil {
+				jww.WARN.Printf("Failed to get an ndf, Retying now: %s", err.Error())
+				time.Sleep(retryTimer)
+				continue
 			}
 
-			// If the error is that the permissioning server is not ready, ask again
-			jww.WARN.Println("Failed to get an ndf, possibly not ready yet. Retying now...")
-			time.Sleep(250 * time.Millisecond) // TODO: should this be longer if we don't crash on errors?
-			returnedNdf, err = manager.Comms.RequestNdf(permHost)
+			// Attempt to parse returned ndf
+			parsedNdf, err := ndf.Unmarshal(returnedNdf.GetNdf())
+			if err != nil {
+				jww.ERROR.Printf("Unable to unmarshal returned NDF: %+v", err)
+				time.Sleep(retryTimer)
+				continue
+			}
+
+			// Verify the NDF has been populated
+			if len(parsedNdf.Gateways) == 0 {
+				jww.WARN.Printf("NDF is empty, waiting for gateways...")
+				time.Sleep(retryTimer)
+				continue
+			}
+			break
 		}
 
 		// Pass NDF directly into client library
