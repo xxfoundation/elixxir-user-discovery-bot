@@ -40,6 +40,10 @@ func InitParams(vip *viper.Viper) params.General {
 		jww.FATAL.Fatalf("Failed to read permissioning certificate at %s: %+v", permCertPath, err)
 	}
 
+	sessionPath, err := utils.ExpandPath(viper.GetString("sessionPath"))
+	if err != nil {
+		jww.FATAL.Fatalf("Failed to read session path: %+v", err)
+	}
 	sessionPass = viper.GetString("sessionPass")
 
 	ioparams := params.IO{
@@ -77,7 +81,7 @@ func InitParams(vip *viper.Viper) params.General {
 
 	return params.General{
 		PermCert:    permCert,
-		SessionPath: viper.GetString("sessionPath"),
+		SessionPath: sessionPath,
 		Database:    dbparams,
 		IO:          ioparams,
 		Twilio:      twilioparams,
