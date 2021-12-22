@@ -12,13 +12,13 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.7.1
 	github.com/ttacon/libphonenumber v1.2.1
-	gitlab.com/elixxir/client v1.5.1-0.20211222163735-40f8f95af42c
-	gitlab.com/elixxir/comms v0.0.4-0.20211222154743-2f5bc6365f8d
-	gitlab.com/elixxir/crypto v0.0.7-0.20211220224022-1f518df56c0f
-	gitlab.com/elixxir/primitives v0.0.3-0.20211220223949-1fdbc43d8269
-	gitlab.com/xx_network/comms v0.0.4-0.20211220223937-660809b69338
-	gitlab.com/xx_network/crypto v0.0.5-0.20211220223913-6088f05a1191
-	gitlab.com/xx_network/primitives v0.0.4-0.20211220222437-cfa4d22efd35
+	gitlab.com/elixxir/client v1.5.1-0.20211222195643-f938c935ac41
+	gitlab.com/elixxir/comms v0.0.4-0.20211222195106-4ec0e4f02f69
+	gitlab.com/elixxir/crypto v0.0.7-0.20211222194952-736897f54f09
+	gitlab.com/elixxir/primitives v0.0.3-0.20211222194918-5c28e9620d4e
+	gitlab.com/xx_network/comms v0.0.4-0.20211222194906-4c28450f7144
+	gitlab.com/xx_network/crypto v0.0.5-0.20211222194842-09692b01f03e
+	gitlab.com/xx_network/primitives v0.0.4-0.20211222005558-11c44d609c7d
 	google.golang.org/genproto v0.0.0-20210427215850-f767ed18ee4d // indirect
 	gorm.io/driver/postgres v1.1.2
 	gorm.io/gorm v1.21.15
