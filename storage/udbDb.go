@@ -24,7 +24,7 @@ func (db *DatabaseImpl) CheckUser(username string, id *id.ID) error {
 	var err error
 	var facts []*Fact
 	var count int64
-	err = db.db.Where("type = ? AND fact = ?", Username, username).Find(&facts).Count(&count).Error
+	err = db.db.Where("type = ? AND fact ILIKE ?", Username, username).Find(&facts).Count(&count).Error
 	if err != nil {
 		return errors.WithMessage(err, "Failed to check facts for desired username")
 	}
