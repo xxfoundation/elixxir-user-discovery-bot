@@ -193,6 +193,10 @@ func init() {
 	rootCmd.Flags().BoolVarP(&devMode, "devMode", "", false, "Developer run mode")
 	err = viper.BindPFlag("devMode", rootCmd.Flags().Lookup("devMode"))
 	handleBindingError(err, "devMode")
+
+	rootCmd.Flags().StringP("protoUserPath", "", "",
+		"Path for ProtoUser file containing user primitives")
+
 }
 
 // Handle flag binding errors
