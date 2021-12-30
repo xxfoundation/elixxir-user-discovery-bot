@@ -196,6 +196,8 @@ func init() {
 
 	rootCmd.Flags().StringP("protoUserPath", "", "",
 		"Path for ProtoUser file containing user primitives")
+	err = viper.BindPFlag("protoUserPath", rootCmd.Flags().Lookup("protoUserPath"))
+	handleBindingError(err, "protoUserPath")
 
 }
 
