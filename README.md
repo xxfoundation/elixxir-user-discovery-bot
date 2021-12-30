@@ -18,7 +18,6 @@ The user discovery bot helps users make first contact with other users. Users ca
 |--permCertPath| |Path to permissioning public certificate|--permCertPath ./keys/permissioning.pem|
 |--sessionPass| |Password for UDB session files|--sessionPass pass|
 |--devMode| |Activate developer mode|--devMode|
-|--protoUserPath| |Path for ProtoUser file containing user primitives|--protoUserPath proto.json|
 |--help|-h|Shows a help message|-h|
 
 ## Example configuration
