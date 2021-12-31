@@ -359,8 +359,8 @@ github.com/zeebo/pcg v1.0.0/go.mod h1:09F0S9iiKrwn9rlI5yjLkmrug154/YRW6KnnXVDM/l
 github.com/zenazn/goji v0.9.0/go.mod h1:7S9M489iMyHBNxwZnk9/EHS098H4/F6TATF2mIxtB1Q=
 gitlab.com/elixxir/bloomfilter v0.0.0-20200930191214-10e9ac31b228 h1:Gi6rj4mAlK0BJIk1HIzBVMjWNjIUfstrsXC2VqLYPcA=
 gitlab.com/elixxir/bloomfilter v0.0.0-20200930191214-10e9ac31b228/go.mod h1:H6jztdm0k+wEV2QGK/KYA+MY9nj9Zzatux/qIvDDv3k=
-gitlab.com/elixxir/client v1.5.1-0.20211230231252-e9f82d27f730 h1:y4KD70ddVGID65ydzR4M6az9OZmc1yvgZGSXwcMbmLk=
-gitlab.com/elixxir/client v1.5.1-0.20211230231252-e9f82d27f730/go.mod h1:zvVn5ubBMBRsrRjiwriYpP8gOiUTCQPclQlxxGlsFGY=
+gitlab.com/elixxir/client v1.5.1-0.20211230234021-2322cdd58945 h1:uS+80QpamH/OSXqN3Gk4rR2umqPIYLDIGmDy65eFx4Y=
+gitlab.com/elixxir/client v1.5.1-0.20211230234021-2322cdd58945/go.mod h1:zvVn5ubBMBRsrRjiwriYpP8gOiUTCQPclQlxxGlsFGY=
 gitlab.com/elixxir/comms v0.0.4-0.20211230230712-35eff148e814 h1:Zqz6MqjylcSa2wegq6EWN5KopehpyisAYSswOWHjxhE=
 gitlab.com/elixxir/comms v0.0.4-0.20211230230712-35eff148e814/go.mod h1:r4xZgd+DPDujHTJZ6Y8+JXM2Ae2rZHa6rFggOPxs/Gc=
 gitlab.com/elixxir/crypto v0.0.0-20200804182833-984246dea2c4/go.mod h1:ucm9SFKJo+K0N2GwRRpaNr+tKXMIOVWzmyUD0SbOu2c=
