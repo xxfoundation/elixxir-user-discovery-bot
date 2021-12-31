@@ -9,9 +9,11 @@
 package params
 
 type General struct {
-	SessionPath string
-	Ndf         string
-	PermCert    []byte
+	SessionPath       string
+	ProtoUserJsonPath string
+	ProtoUserJson     []byte
+	Ndf               string
+	PermCert          []byte
 
 	Database
 	IO
