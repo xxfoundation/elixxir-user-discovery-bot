@@ -47,6 +47,7 @@ func InitParams(vip *viper.Viper) params.General {
 
 	// Only require proto user path if session does not exist
 	var protoUserJson []byte
+	protoUserPath := ""
 	if sessionPath == "" {
 		protoUserPath, err := utils.ExpandPath(viper.GetString("protoUserPath"))
 		if err != nil {
