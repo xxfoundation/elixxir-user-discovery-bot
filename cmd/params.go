@@ -49,18 +49,18 @@ func InitParams(vip *viper.Viper) params.General {
 	var protoUserJson []byte
 	protoUserPath := ""
 	if sessionPath == "" {
-		protoUserPath, err := utils.ExpandPath(viper.GetString("protoUserPath"))
+		jww.INFO.Printf("Session file-path was not specified, attempting to load proto client file...")
+		protoUserPath, err = utils.ExpandPath(viper.GetString("protoUserPath"))
 		if err != nil {
 			jww.FATAL.Fatalf("Failed to read proto path: %+v", err)
-		}
-		if protoUserPath == "" {
+		} else if protoUserPath == "" {
 			jww.FATAL.Fatalf("protoUserPath is blank - cannot run without proto user")
 		}
 		protoUserJson, err = utils.ReadFile(protoUserPath)
 		if err != nil {
 			jww.FATAL.Fatalf("Failed to read proto user at %s: %+v", protoUserPath, err)
 		}
-
+		jww.INFO.Printf("Proto file was successfully loaded")
 	}
 
 	sessionPass = viper.GetString("sessionPass")
