@@ -48,8 +48,8 @@ func InitParams(vip *viper.Viper) params.General {
 	// Only require proto user path if session does not exist
 	var protoUserJson []byte
 	protoUserPath := ""
-	if sessionPath == "" {
-		jww.INFO.Printf("Session file-path was not specified, attempting to load proto client file...")
+	if sessionPath == "" || !utils.Exists(sessionPath) {
+		jww.INFO.Printf("Session file-path was not specified or does not exist, attempting to load proto client file...")
 		protoUserPath, err = utils.ExpandPath(viper.GetString("protoUserPath"))
 		if err != nil {
 			jww.FATAL.Fatalf("Failed to read proto path: %+v", err)
