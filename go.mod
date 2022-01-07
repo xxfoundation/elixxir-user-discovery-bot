@@ -12,7 +12,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.7.1
 	github.com/ttacon/libphonenumber v1.2.1
-	gitlab.com/elixxir/client v1.5.1-0.20220104183139-af542c43effc
+	gitlab.com/elixxir/client v1.5.1-0.20220107212437-35ed2d7a68b1
 	gitlab.com/elixxir/comms v0.0.4-0.20220104182551-5f9da6b4a832
 	gitlab.com/elixxir/crypto v0.0.7-0.20220104182450-8ae43b36323a
 	gitlab.com/elixxir/primitives v0.0.3-0.20220104173924-275cb9d7834f
