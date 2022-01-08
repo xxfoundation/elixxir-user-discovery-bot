@@ -104,7 +104,7 @@ var rootCmd = &cobra.Command{
 
 		// Pass NDF directly into client library
 		var client *api.Client
-		if p.SessionPath != "" {
+		if p.SessionPath != "" && utils.Exists(p.SessionPath) {
 			client, err = api.LoginWithNewBaseNDF_UNSAFE(p.SessionPath,
 				[]byte(sessionPass), string(returnedNdf.GetNdf()),
 				params.GetDefaultNetwork())
