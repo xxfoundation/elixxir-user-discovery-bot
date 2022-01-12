@@ -18,7 +18,6 @@ import (
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
-	"strings"
 	"time"
 )
 
@@ -59,7 +58,7 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 	//	}
 
 	// Check if the username is banned
-	if store.IsBanned(strings.ToLower(username)) {
+	if store.IsBanned(username) {
 		// Return same error message as if the user was already taken
 		return &messages.Ack{}, errors.Errorf("Username %s is already taken. "+
 			"Please try again", username)
