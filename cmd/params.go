@@ -45,6 +45,7 @@ func InitParams(vip *viper.Viper) params.General {
 		jww.FATAL.Fatalf("Failed to read session path: %+v", err)
 	}
 
+	// Load banned user CSV
 	bannedUserList, err := utils.ReadFile(viper.GetString("bannedUserList"))
 	if err != nil {
 		jww.WARN.Printf("Failed to read banned user list: %v", err)

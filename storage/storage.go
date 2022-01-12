@@ -32,11 +32,14 @@ func NewStorage(username, password, dbName, address, port string, bannedUserList
 	return storage, err
 }
 
+// IsBanned checks if the username is in Storage's bannedUserList.
 func (s *Storage) IsBanned(username string) bool {
 	_, exists := s.bannedUserList[username]
 	return exists
 }
 
+// SetBanned is a testing only helper function which sets a username
+// in Storage's bannedUserList.
 func (s *Storage) SetBanned(username string, t *testing.T) {
 	if t == nil {
 		jww.FATAL.Panic("Cannot use this outside of testing")

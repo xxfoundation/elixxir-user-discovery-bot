@@ -44,6 +44,7 @@ var rootCmd = &cobra.Command{
 		initLog()
 		p := InitParams(viper.GetViper())
 
+		// Process CSV into a map
 		bannedUsers := make(map[string]struct{})
 		if p.BannedUserList != "" {
 			bannedUserList := strings.Split(p.BannedUserList, ",")
@@ -52,6 +53,7 @@ var rootCmd = &cobra.Command{
 			}
 		}
 
+		// Initialize storage
 		storage, err := storage.NewStorage(p.DbUsername, p.DbPassword, p.DbName, p.DbAddress, p.DbPort, bannedUsers)
 		if err != nil {
 			jww.FATAL.Panicf("Failed to initialize storage interface: %+v", err)
