@@ -33,15 +33,21 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 	}
 
 	// Parse the username and UserID
-	username := msg.IdentityRegistration.Username
+	username := msg.IdentityRegistration.Username // TODO: this & msg.Frs.Fact seems redundant
 	uid, err := id.Unmarshal(msg.UID)
 	if err != nil {
 		return &messages.Ack{}, errors.New("Could not parse UID sent over. " +
 			"Please try again")
 	}
 
+	flatten := func(s string) string {
+		return s
+	}
+	// TODO: flatten username
+	flattened := flatten(username)
+
 	// Check if username is taken
-	err = store.CheckUser(username, uid)
+	err = store.CheckUser(flattened, uid) // TODO: this should take flattened
 	if err != nil {
 		return &messages.Ack{}, errors.Errorf("Username %s is already taken. "+
 			"Please try again", username)
@@ -84,7 +90,7 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 	f := storage.Fact{
 		Hash:      hashedFact,
 		UserId:    msg.UID,
-		Fact:      msg.Frs.Fact.Fact,
+		Fact:      flattened,
 		Type:      uint8(msg.Frs.Fact.FactType),
 		Signature: msg.Frs.FactSig,
 		Verified:  true,
@@ -94,6 +100,7 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 	// Create the user to insert into the database
 	u := &storage.User{
 		Id:                    msg.UID,
+		Username:              username,
 		RsaPub:                msg.RSAPublicPem,
 		DhPub:                 msg.IdentityRegistration.DhPubKey,
 		Salt:                  msg.IdentityRegistration.Salt,
