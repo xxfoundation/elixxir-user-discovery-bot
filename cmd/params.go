@@ -45,6 +45,11 @@ func InitParams(vip *viper.Viper) params.General {
 		jww.FATAL.Fatalf("Failed to read session path: %+v", err)
 	}
 
+	bannedUserList, err := utils.ReadFile(viper.GetString("bannedUserList"))
+	if err != nil {
+		jww.WARN.Printf("Failed to read banned user list: %v", err)
+	}
+
 	// Only require proto user path if session does not exist
 	var protoUserJson []byte
 	protoUserPath := ""
@@ -99,11 +104,12 @@ func InitParams(vip *viper.Viper) params.General {
 	jww.INFO.Printf("UDB port: %s", ioparams.Port)
 
 	return params.General{
-		PermCert:      permCert,
-		SessionPath:   sessionPath,
-		Database:      dbparams,
-		IO:            ioparams,
-		Twilio:        twilioparams,
-		ProtoUserJson: protoUserJson,
+		PermCert:       permCert,
+		SessionPath:    sessionPath,
+		Database:       dbparams,
+		IO:             ioparams,
+		Twilio:         twilioparams,
+		ProtoUserJson:  protoUserJson,
+		BannedUserList: string(bannedUserList),
 	}
 }

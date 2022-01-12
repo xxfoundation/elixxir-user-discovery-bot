@@ -19,6 +19,7 @@ import (
 	"gitlab.com/xx_network/primitives/ndf"
 	"gitlab.com/xx_network/primitives/utils"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -42,7 +43,16 @@ var rootCmd = &cobra.Command{
 		initConfig()
 		initLog()
 		p := InitParams(viper.GetViper())
-		storage, err := storage.NewStorage(p.DbUsername, p.DbPassword, p.DbName, p.DbAddress, p.DbPort)
+
+		bannedUsers := make(map[string]struct{})
+		if p.BannedUserList != "" {
+			bannedUserList := strings.Split(p.BannedUserList, ",")
+			for _, bannedUser := range bannedUserList {
+				bannedUsers[bannedUser] = struct{}{}
+			}
+		}
+
+		storage, err := storage.NewStorage(p.DbUsername, p.DbPassword, p.DbName, p.DbAddress, p.DbPort, bannedUsers)
 		if err != nil {
 			jww.FATAL.Panicf("Failed to initialize storage interface: %+v", err)
 		}
