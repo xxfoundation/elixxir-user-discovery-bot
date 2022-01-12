@@ -18,6 +18,7 @@ import (
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
+	"strings"
 	"time"
 )
 
@@ -43,6 +44,23 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 	// Check if username is taken
 	err = store.CheckUser(username, uid)
 	if err != nil {
+		return &messages.Ack{}, errors.Errorf("Username %s is already taken. "+
+			"Please try again", username)
+	}
+
+	//	todo: consider flattening a username
+	// 	such that for username "admin" which we want banned,
+	// 	these usernames are also banned: ADMIN, AdMiN, Ádmíñ
+	// flattenedUsername := flatten(username)
+	// if store.IsBanned(flattenedUsername) {
+	//		// Return same error message as if the user was already taken
+	//		return &messages.Ack{}, errors.Errorf("Username %s is already taken. "+
+	//			"Please try again", username)
+	//	}
+
+	// Check if the username is banned
+	if store.IsBanned(strings.ToLower(username)) {
+		// Return same error message as if the user was already taken
 		return &messages.Ack{}, errors.Errorf("Username %s is already taken. "+
 			"Please try again", username)
 	}
