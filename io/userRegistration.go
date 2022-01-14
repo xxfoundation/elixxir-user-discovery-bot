@@ -33,7 +33,7 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 	}
 
 	// Parse the username and UserID
-	username := msg.IdentityRegistration.Username // TODO: this & msg.Frs.Fact seems redundant
+	username := msg.Frs.Fact.Fact // TODO: this & msg.IdentityRegistration.Username seems redundant
 	uid, err := id.Unmarshal(msg.UID)
 	if err != nil {
 		return &messages.Ack{}, errors.New("Could not parse UID sent over. " +
@@ -47,7 +47,7 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 	flattened := flatten(username)
 
 	// Check if username is taken
-	err = store.CheckUser(flattened, uid) // TODO: this should take flattened
+	err = store.CheckUser(flattened, uid)
 	if err != nil {
 		return &messages.Ack{}, errors.Errorf("Username %s is already taken. "+
 			"Please try again", username)
@@ -68,6 +68,22 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 		return &messages.Ack{}, errors.New("Could not parse key passed in")
 	}
 
+	// Verify the signed fact
+	tf, err := fact.NewFact(fact.FactType(msg.Frs.Fact.FactType), msg.Frs.Fact.Fact)
+	if err != nil {
+		return &messages.Ack{}, errors.WithMessage(err, "Failed to hash fact")
+	}
+	hashedFact := factID.Fingerprint(tf) // TODO: does fingerprint still need to uppercase the fact?
+	err = rsa.Verify(clientPubKey, hash.CMixHash, hashedFact, msg.Frs.FactSig, nil)
+	if err != nil {
+		return &messages.Ack{}, errors.New("Could not verify fact signature")
+	}
+
+	flattendFact, err := fact.NewFact(fact.FactType(msg.Frs.Fact.FactType), flattened)
+	if err != nil {
+		return &messages.Ack{}, errors.WithMessage(err, "Failed to hash flattened fact")
+	}
+
 	// Verify the signed identity data
 	hashedIdentity := msg.IdentityRegistration.Digest()
 	err = rsa.Verify(clientPubKey, hash.CMixHash, hashedIdentity, msg.IdentitySignature, nil)
@@ -75,20 +91,9 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 		return &messages.Ack{}, errors.New("Could not verify identity signature")
 	}
 
-	// Verify the signed fact
-	tf, err := fact.NewFact(fact.FactType(msg.Frs.Fact.FactType), msg.Frs.Fact.Fact)
-	if err != nil {
-		return &messages.Ack{}, errors.WithMessage(err, "Failed to hash fact")
-	}
-	hashedFact := factID.Fingerprint(tf)
-	err = rsa.Verify(clientPubKey, hash.CMixHash, hashedFact, msg.Frs.FactSig, nil)
-	if err != nil {
-		return &messages.Ack{}, errors.New("Could not verify fact signature")
-	}
-
 	// Create fact off of username
 	f := storage.Fact{
-		Hash:      hashedFact,
+		Hash:      factID.Fingerprint(flattendFact),
 		UserId:    msg.UID,
 		Fact:      flattened,
 		Type:      uint8(msg.Frs.Fact.FactType),
