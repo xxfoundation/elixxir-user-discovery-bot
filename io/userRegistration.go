@@ -41,22 +41,22 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 			"Please try again")
 	}
 
-	flattened := canonicalize(username)
+	canonicalUsername := canonicalize(username)
 
 	// Check if username is valid
-	if err := isValidUsername(flattened); err != nil {
+	if err := isValidUsername(canonicalUsername); err != nil {
 		return nil, errors.Errorf("Username %q is invalid: %v", username, err)
 	}
 
 	// Check if the username is banned
-	if bannedManager.IsBanned(flattened) {
+	if bannedManager.IsBanned(canonicalUsername) {
 		// Return same error message as if the user was already taken
 		return &messages.Ack{}, errors.Errorf("Username %s is already taken. "+
 			"Please try again", username)
 	}
 
 	// Check if username is taken
-	err = store.CheckUser(flattened, uid)
+	err = store.CheckUser(canonicalUsername, uid)
 	if err != nil {
 		return &messages.Ack{}, errors.Errorf("Username %q is already taken. "+
 			"Please try again", username)
@@ -88,9 +88,9 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 		return &messages.Ack{}, errors.New("Could not verify fact signature")
 	}
 
-	flattendFact, err := fact.NewFact(fact.FactType(msg.Frs.Fact.FactType), flattened)
+	canonicalFact, err := fact.NewFact(fact.FactType(msg.Frs.Fact.FactType), canonicalUsername)
 	if err != nil {
-		return &messages.Ack{}, errors.WithMessage(err, "Failed to hash flattened fact")
+		return &messages.Ack{}, errors.WithMessage(err, "Failed to hash canonicalUsername fact")
 	}
 
 	// Verify the signed identity data
@@ -102,9 +102,9 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 
 	// Create fact off of username
 	f := storage.Fact{
-		Hash:      factID.Fingerprint(flattendFact),
+		Hash:      factID.Fingerprint(canonicalFact),
 		UserId:    msg.UID,
-		Fact:      flattened,
+		Fact:      canonicalUsername,
 		Type:      uint8(msg.Frs.Fact.FactType),
 		Signature: msg.Frs.FactSig,
 		Verified:  true,
