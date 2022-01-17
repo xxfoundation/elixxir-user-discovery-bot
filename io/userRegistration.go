@@ -18,8 +18,12 @@ import (
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
+	"regexp"
+	"strings"
 	"time"
 )
+
+var usernameRegex = regexp.MustCompile("^[a-zA-Z0-9_\\-\\!@#$%\\^\\*\\?]*$")
 
 // Endpoint which handles a users attempt to register
 func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
@@ -40,8 +44,14 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 			"Please try again")
 	}
 
+	// Check if username contains acceptable characters
+	if !isValidUsername(username) {
+		return nil, errors.Errorf("Username %q "+
+			"must contain only printable non-whitespace ASCII characters", username)
+	}
+
 	flatten := func(s string) string {
-		return s
+		return strings.ToLower(s)
 	}
 	// TODO: flatten username
 	flattened := flatten(username)
@@ -125,4 +135,11 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 	jww.INFO.Printf("User Registered: %s, %s", uid, f.Fact)
 
 	return &messages.Ack{}, nil
+}
+
+// isValidUsername determines whether the username is valid under a
+// pre-defined ASCII subset. The ASCII subset is defined as the following characters:
+// "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-!@#$%^*?"
+func isValidUsername(username string) bool {
+	return usernameRegex.MatchString(username)
 }
