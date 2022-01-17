@@ -45,13 +45,13 @@ func InitParams(vip *viper.Viper) params.General {
 		jww.FATAL.Fatalf("Failed to read session path: %+v", err)
 	}
 
-	// Load banned user CSV
+	// Load banned user list
 	bannedUserList, err := utils.ReadFile(viper.GetString("bannedUserList"))
 	if err != nil {
 		jww.WARN.Printf("Failed to read banned user list: %v", err)
 	}
 
-	// Load banned user CSV
+	// Load banned regex list
 	bannedRegexList, err := utils.ReadFile(viper.GetString("bannedRegexList"))
 	if err != nil {
 		jww.WARN.Printf("Failed to read banned regex list: %v", err)
