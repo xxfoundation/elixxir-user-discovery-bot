@@ -13,6 +13,7 @@ import (
 	"fmt"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/udb"
+	"gitlab.com/elixxir/user-discovery-bot/banned"
 	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/twilio"
@@ -27,14 +28,17 @@ type Manager struct {
 	PermissioningPublicKey *rsa.PublicKey
 	Storage                *storage.Storage
 	Twilio                 *twilio.Manager
+	Banned                 *banned.Manager
 }
 
 // Create a new UserDiscovery Manager given a set of Params
-func NewManager(p params.IO, id *id.ID, permissioningCert *rsa.PublicKey, twilio *twilio.Manager, storage *storage.Storage) *Manager {
+func NewManager(p params.IO, id *id.ID, permissioningCert *rsa.PublicKey,
+	twilio *twilio.Manager, banned *banned.Manager, storage *storage.Storage) *Manager {
 	m := &Manager{
 		Storage:                storage,
 		PermissioningPublicKey: permissioningCert,
 		Twilio:                 twilio,
+		Banned:                 banned,
 	}
 	m.Comms = udb.StartServer(id, fmt.Sprintf("0.0.0.0:%s", p.Port),
 		newImplementation(m), p.Cert, p.Key)
@@ -46,7 +50,7 @@ func newImplementation(m *Manager) *udb.Implementation {
 	impl := udb.NewImplementation()
 
 	impl.Functions.RegisterUser = func(registration *pb.UDBUserRegistration) (*messages.Ack, error) {
-		return registerUser(registration, m.PermissioningPublicKey, m.Storage)
+		return registerUser(registration, m.PermissioningPublicKey, m.Storage, m.Banned)
 	}
 
 	impl.Functions.RemoveUser = func(msg *pb.FactRemovalRequest) (*messages.Ack, error) {

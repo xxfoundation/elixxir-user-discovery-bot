@@ -54,6 +54,15 @@ permAddress: "0.0.0.0:12345"
 twilioSid: "sid"
 twilioToken: "token"
 twilioVerification: "verification"
+
+# Banned users which follow the regex codepath.
+# Usernames should be separated by a Linux newline character ("\n").
+bannedRegexList: "bannedRegexList.txt"
+
+# Simple banned username list. Any name exactly matching in this list will not be allowed as a username.
+# Usernames should be separated by a Linux newline character ("\n").
+bannedUserList: "bannedUserList.txt"
+
 ```
 
 ## Running
