@@ -13,12 +13,12 @@ func TestIsValidUsername_GoodUsernames(t *testing.T) {
 	// Construct a list of good username
 	goodUsernames := []string{
 		"abcdefghijklmnopqrstuvwxyzABCDEF",
-		"GHIJKLMNOPQRSTUVWXYZ0123456789_-",
-		"!@#$%^*?",
+		"GHIJKLMNOPQRSTUVWXYZ0123456789",
 		"john_doe",
 		"daMan",
-		"josh!!!!!",
-		"Mr?George",
+		"Mr.George",
+		"josh-@+#b",
+		"A........5",
 	}
 
 	// Test whether every good username is valid
@@ -44,9 +44,10 @@ func TestIsValidUsername_BadUsernames(t *testing.T) {
 		"𝔞𝔡𝔪𝔦𝔫",
 		"á̵͖͔͇̟͙̜͙̀͑̒̀̕ď̶̦̣̲m̴̡̬̺̯̩͂i̶͚͍̝̋ͅn̶̤̙̩͎̠͍̙̱̹̏",
 		"ﬁnished",
+		"GHIJKLMNOPQRSTUVWXYZ0123456789_-",
+		"!@#$%^*?",
+		"josh!!!!!",
 	}
-
-	t.Logf("%s", usernameRegex.String())
 
 	// Test if every bad username is invalid
 	for _, badUsername := range badUsernames {

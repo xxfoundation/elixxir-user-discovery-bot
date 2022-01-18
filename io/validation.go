@@ -12,15 +12,18 @@ import (
 	"strings"
 )
 
+// Contains logic for username validation.
+
 // Character limits for usernames.
 const (
 	minimumUsernameLength = 4
 	maximumUsernameLength = 32
 )
 
-// usernameRegex is the regular expression for the expected characters as follows:
-//  abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-!@#$%^*?
-var usernameRegex = regexp.MustCompile("^[a-zA-Z0-9_\\-\\!@#$%\\^\\*\\?]*$")
+// usernameRegex is the regular expression for the enforcing the following characters only:
+//  abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-+.@#
+// Furthermore, the regex enforces usernames to begin and end with an alphanumeric character.
+var usernameRegex = regexp.MustCompile("^[a-zA-Z0-9][a-zA-Z0-9_\\-+@.#]*[a-zA-Z0-9]$")
 
 // isValidUsername determines whether the username is of an acceptable length and
 // whether it contains allowed character. The allowed characters are defined
@@ -34,7 +37,8 @@ func isValidUsername(username string) error {
 
 	// Check is username contains allowed characters only
 	if !usernameRegex.MatchString(username) {
-		return errors.Errorf("username can only contain alphanumberics and the symbols !, @, #, $, %%, ^, *, ?")
+		return errors.Errorf("username can only contain alphanumberics " +
+			"and the symbols _, -, +, ., @, # and must start and end with an alphanumeric character")
 	}
 
 	return nil
