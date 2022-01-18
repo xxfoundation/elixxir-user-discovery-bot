@@ -24,7 +24,9 @@ type Storage struct {
 // Returns a Storage object and error
 func NewStorage(username, password, dbName, address, port string) (*Storage, error) {
 	db, err := newDatabase(username, password, dbName, address, port)
-	storage := &Storage{db}
+	storage := &Storage{
+		database: db,
+	}
 	return storage, err
 }
 
