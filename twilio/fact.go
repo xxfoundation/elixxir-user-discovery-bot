@@ -35,8 +35,8 @@ func (m *Manager) RegisterFact(uid *id.ID, fact string, factType uint8, signatur
 	} else {
 		to = fact
 		channel = Email.String()
-
 	}
+
 	verifyId, err := m.verifier.Verification(to, channel)
 	jww.INFO.Printf("Sent verification & received %s", verifyId)
 	if err != nil {

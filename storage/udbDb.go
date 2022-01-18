@@ -92,9 +92,12 @@ func (db *DatabaseImpl) InsertFactTwilio(userID, factHash, signature []byte, fac
 	}
 
 	tf := func(tx *gorm.DB) error {
+		// TODO: THIS IS A RACE CONDITION
+		// currently, unverified facts can be overwritten. When registerFact (io/factRegistration.go) is called,
+		// it searches for VERIFIED facts with the hash on line 53.  This means that unverified facts can compete with each other
 		return tx.Clauses(clause.OnConflict{
 			Columns:   []clause.Column{{Name: "hash"}},
-			DoUpdates: clause.AssignmentColumns([]string{"timestamp"}),
+			UpdateAll: true,
 		}).Create(f).Error
 	}
 
