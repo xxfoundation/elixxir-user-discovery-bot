@@ -67,12 +67,13 @@ func TestManager_handleLookup(t *testing.T) {
 	uid := id.NewIdFromString("zezima", id.User, t)
 	c := single.NewContact(uid, &cyclic.Int{}, &cyclic.Int{}, singleUse.TagFP{}, 8)
 
+	username := "ZeZima"
 	expectedDhPub := "DhPub"
-	err := m.db.InsertUser(&storage.User{Id: uid.Marshal(), DhPub: []byte(expectedDhPub), Facts: []storage.Fact{
+	err := m.db.InsertUser(&storage.User{Id: uid.Marshal(), DhPub: []byte(expectedDhPub), Username: username, Facts: []storage.Fact{
 		{
 			Hash:      []byte("hash"),
 			UserId:    uid.Marshal(),
-			Fact:      "zezima",
+			Fact:      strings.ToLower(username),
 			Type:      0,
 			Signature: []byte("Signature"),
 			Verified:  true,
@@ -92,8 +93,8 @@ func TestManager_handleLookup(t *testing.T) {
 			"\nexpected: %s\nreceived: %s", expectedDhPub, resp.Error)
 	}
 
-	if resp.Username != "zezima" {
-		t.Errorf("Should have gotten username zezima, instead got: %s", resp.Username)
+	if resp.Username != username {
+		t.Errorf("Should have gotten username %s, instead got: %s", username, resp.Username)
 	}
 }
 
