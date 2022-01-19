@@ -9,6 +9,7 @@ import (
 	"gitlab.com/elixxir/client/interfaces/params"
 	"gitlab.com/elixxir/client/single"
 	"gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/user-discovery-bot/banned"
 	"gitlab.com/elixxir/user-discovery-bot/cmix"
 	"gitlab.com/elixxir/user-discovery-bot/io"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
@@ -42,6 +43,8 @@ var rootCmd = &cobra.Command{
 		initConfig()
 		initLog()
 		p := InitParams(viper.GetViper())
+
+		// Initialize storage
 		storage, err := storage.NewStorage(p.DbUsername, p.DbPassword, p.DbName, p.DbAddress, p.DbPort)
 		if err != nil {
 			jww.FATAL.Panicf("Failed to initialize storage interface: %+v", err)
@@ -64,8 +67,13 @@ var rootCmd = &cobra.Command{
 		}
 		permCert, err := tls.ExtractPublicKey(cert)
 
+		bannedManager, err := banned.NewManager(p.BannedUserList, p.BannedRegexList)
+		if err != nil {
+			jww.FATAL.Panicf("Failed to construct ban manager: %v", err)
+		}
+
 		// Set up manager with the ability to contact permissioning
-		manager := io.NewManager(p.IO, &id.UDB, permCert, twilioManager, storage)
+		manager := io.NewManager(p.IO, &id.UDB, permCert, twilioManager, bannedManager, storage)
 		hostParams := connect.GetDefaultHostParams()
 		hostParams.AuthEnabled = false
 		permHost, err := manager.Comms.AddHost(&id.Permissioning,
