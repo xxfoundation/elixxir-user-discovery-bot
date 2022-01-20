@@ -12,6 +12,8 @@ import (
 	"strings"
 )
 
+// Todo: move validation of username logic to the face package in primitives
+
 // Contains logic for username validation.
 
 // Character limits for usernames.
