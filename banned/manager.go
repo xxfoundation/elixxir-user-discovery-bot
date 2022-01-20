@@ -10,6 +10,7 @@ package banned
 import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/user-discovery-bot/io"
 	"regexp"
 	"strings"
 	"testing"
@@ -41,7 +42,7 @@ func NewManager(bannedUserFile, bannedRegexFile string) (*Manager, error) {
 			if bannedUser == "" { // Skip any empty lines
 				continue
 			}
-			bannedUsers[bannedUser] = struct{}{}
+			bannedUsers[io.Canonicalize(bannedUser)] = struct{}{}
 		}
 	}
 

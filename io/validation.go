@@ -44,8 +44,8 @@ func isValidUsername(username string) error {
 	return nil
 }
 
-// canonicalize reduces the username to its canonical form. For the purposes
+// Canonicalize reduces the username to its canonical form. For the purposes
 // of internal usage only.
-func canonicalize(username string) string {
+func Canonicalize(username string) string {
 	return strings.ToLower(username)
 }

@@ -41,7 +41,7 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 			"Please try again")
 	}
 
-	canonicalUsername := canonicalize(username)
+	canonicalUsername := Canonicalize(username)
 
 	// Check if username is valid
 	if err := isValidUsername(canonicalUsername); err != nil {

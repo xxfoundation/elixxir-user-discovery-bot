@@ -59,7 +59,7 @@ func TestIsValidUsername_BadUsernames(t *testing.T) {
 
 }
 
-// Consistency test for the canonicalize function.
+// Consistency test for the Canonicalize function.
 func TestCanonicalize(t *testing.T) {
 	inputList := []string{
 		"John_Doe",
@@ -76,9 +76,9 @@ func TestCanonicalize(t *testing.T) {
 	}
 
 	for i, input := range inputList {
-		received := canonicalize(input)
+		received := Canonicalize(input)
 		if received != expected[i] {
-			t.Errorf("canonicalize did not produce expeccted result with %q"+
+			t.Errorf("Canonicalize did not produce expeccted result with %q"+
 				"\nExpected: %s"+
 				"\nReceived: %s", input, expected[i], received)
 		}

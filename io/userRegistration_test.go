@@ -192,7 +192,7 @@ func TestRegisterUser_Banned(t *testing.T) {
 		t.FailNow()
 	}
 
-	bannedManager, err := banned.NewManager(canonicalize(registerMsg.IdentityRegistration.Username), "")
+	bannedManager, err := banned.NewManager(Canonicalize(registerMsg.IdentityRegistration.Username), "")
 	if err != nil {
 		t.Fatalf("Failed to construct ban manager: %v", err)
 	}
