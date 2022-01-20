@@ -4,7 +4,7 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-package io
+package validation
 
 import "testing"
 
@@ -23,9 +23,9 @@ func TestIsValidUsername_GoodUsernames(t *testing.T) {
 
 	// Test whether every good username is valid
 	for _, goodUsername := range goodUsernames {
-		err := isValidUsername(goodUsername)
+		err := IsValidUsername(goodUsername)
 		if err != nil { // If invalid, fail test
-			t.Errorf("isValidUsername failed with username %q: %v", goodUsername, err)
+			t.Errorf("IsValidUsername failed with username %q: %v", goodUsername, err)
 		}
 	}
 
@@ -51,9 +51,9 @@ func TestIsValidUsername_BadUsernames(t *testing.T) {
 
 	// Test if every bad username is invalid
 	for _, badUsername := range badUsernames {
-		err := isValidUsername(badUsername)
+		err := IsValidUsername(badUsername)
 		if err == nil { // If considered valid, fail test
-			t.Errorf("isValidUsername did not fail with username %q", badUsername)
+			t.Errorf("IsValidUsername did not fail with username %q", badUsername)
 		}
 	}
 

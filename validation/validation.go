@@ -4,7 +4,7 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-package io
+package validation
 
 import (
 	"github.com/pkg/errors"
@@ -27,10 +27,10 @@ const (
 // Furthermore, the regex enforces usernames to begin and end with an alphanumeric character.
 var usernameRegex = regexp.MustCompile("^[a-zA-Z0-9][a-zA-Z0-9_\\-+@.#]*[a-zA-Z0-9]$")
 
-// isValidUsername determines whether the username is of an acceptable length and
+// IsValidUsername determines whether the username is of an acceptable length and
 // whether it contains allowed character. The allowed characters are defined
 // by usernameRegex.
-func isValidUsername(username string) error {
+func IsValidUsername(username string) error {
 	// Check for acceptable length
 	if len(username) < minimumUsernameLength || len(username) > maximumUsernameLength {
 		return errors.Errorf("username length %d is not between %d and %d",
