@@ -9,9 +9,9 @@ import (
 	"gitlab.com/elixxir/client/interfaces/params"
 	"gitlab.com/elixxir/client/single"
 	"gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/user-discovery-bot/banned"
 	"gitlab.com/elixxir/user-discovery-bot/cmix"
 	"gitlab.com/elixxir/user-discovery-bot/io"
+	"gitlab.com/elixxir/user-discovery-bot/restricted"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/twilio"
 	"gitlab.com/xx_network/comms/connect"
@@ -67,13 +67,15 @@ var rootCmd = &cobra.Command{
 		}
 		permCert, err := tls.ExtractPublicKey(cert)
 
-		bannedManager, err := banned.NewManager(p.BannedUserList, p.BannedRegexList)
+		restrictedManager, err := restricted.NewManager(
+			p.RestrictedUserListPath, p.RestrictedRegexListPath, nil)
 		if err != nil {
 			jww.FATAL.Panicf("Failed to construct ban manager: %v", err)
 		}
 
 		// Set up manager with the ability to contact permissioning
-		manager := io.NewManager(p.IO, &id.UDB, permCert, twilioManager, bannedManager, storage)
+		manager := io.NewManager(p.IO, &id.UDB, permCert, twilioManager,
+			restrictedManager, storage)
 		hostParams := connect.GetDefaultHostParams()
 		hostParams.AuthEnabled = false
 		permHost, err := manager.Comms.AddHost(&id.Permissioning,

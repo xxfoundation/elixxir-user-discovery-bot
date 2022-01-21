@@ -15,7 +15,7 @@ import (
 	"gitlab.com/elixxir/crypto/hash"
 	"gitlab.com/elixxir/crypto/registration"
 	"gitlab.com/elixxir/primitives/fact"
-	"gitlab.com/elixxir/user-discovery-bot/banned"
+	"gitlab.com/elixxir/user-discovery-bot/restricted"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/validation"
 	"gitlab.com/xx_network/crypto/signature/rsa"
@@ -113,12 +113,9 @@ func TestRegisterUser(t *testing.T) {
 		t.FailNow()
 	}
 
-	bannedManager, err := banned.NewManager("", "")
-	if err != nil {
-		t.Fatalf("Failed to construct ban manager: %v", err)
-	}
+	restrictedUsernames := restricted.NewManagerForTesting(nil, nil, t)
 
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	_, err = registerUser(registerMsg, cert, store, restrictedUsernames)
 	if err != nil {
 		t.Errorf("Failed happy path: %v", err)
 	}
@@ -168,9 +165,9 @@ func TestRegisterUser(t *testing.T) {
 
 }
 
-// TestRegisterUser_Banned tests that registering a username in the banned list
-// returns an error.
-func TestRegisterUser_Banned(t *testing.T) {
+// TestRegisterUser_Restricted tests that registering a username in the restricted
+// list returns an error.
+func TestRegisterUser_Restricted(t *testing.T) {
 	// Initialize client and storage
 	clientId, clientKey := initClientFields(t)
 	store := storage.NewTestDB(t)
@@ -193,12 +190,8 @@ func TestRegisterUser_Banned(t *testing.T) {
 		t.FailNow()
 	}
 
-	bannedManager, err := banned.NewManager(validation.Canonicalize(registerMsg.IdentityRegistration.Username), "")
-	if err != nil {
-		t.Fatalf("Failed to construct ban manager: %v", err)
-	}
-
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	restrictedUsernames := restricted.NewManagerForTesting(map[string]struct{}{validation.Canonicalize(registerMsg.IdentityRegistration.Username): {}}, nil, t)
+	_, err = registerUser(registerMsg, cert, store, restrictedUsernames)
 	if err == nil {
 		t.Errorf("Failed happy path: %v", err)
 	}
@@ -223,11 +216,8 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 		t.Fatalf("Could not parse precanned time: %v", err.Error())
 	}
 
-	// Construct dummy ban manager
-	bannedManager, err := banned.NewManager("", "")
-	if err != nil {
-		t.Fatalf("Failed to construct ban manager: %v", err)
-	}
+	// Construct dummy restricted username manager
+	restrictedUsernames := restricted.NewManagerForTesting(nil, nil, t)
 
 	// Set an invalid identity signature, check that error occurred
 	registerMsg, err := buildUserRegistrationMessage(clientId, clientKey, testTime, t)
@@ -235,7 +225,7 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg.IdentitySignature = []byte("invalid")
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	_, err = registerUser(registerMsg, cert, store, restrictedUsernames)
 	if err == nil {
 		t.Errorf("Should not be able to verify identity signature: %v", err)
 	}
@@ -246,7 +236,7 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg.Frs.FactSig = []byte("invalid")
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	_, err = registerUser(registerMsg, cert, store, restrictedUsernames)
 	if err == nil {
 		t.Errorf("Should not be able to verify fact signature: %v", err)
 	}
@@ -257,7 +247,7 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg.PermissioningSignature = []byte("invalid")
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	_, err = registerUser(registerMsg, cert, store, restrictedUsernames)
 	if err == nil {
 		t.Errorf("Should not be able to verify permissioning signature: %v", err)
 	}
@@ -282,11 +272,8 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 		t.Fatalf("Could not parse precanned time: %v", err.Error())
 	}
 
-	// Construct dummy ban manager
-	bannedManager, err := banned.NewManager("", "")
-	if err != nil {
-		t.Fatalf("Failed to construct ban manager: %v", err)
-	}
+	// Construct restricted username manager
+	restrictedManager := restricted.NewManagerForTesting(nil, nil, t)
 
 	// Set an invalid message, check that error occurred
 	registerMsg, err := buildUserRegistrationMessage(clientId, clientKey, testTime, t)
@@ -294,7 +281,7 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg = nil
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	_, err = registerUser(registerMsg, cert, store, restrictedManager)
 	if err == nil {
 		t.Errorf("Should not be able to handle nil message: %v", err)
 	}
@@ -305,7 +292,7 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg.Frs = nil
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	_, err = registerUser(registerMsg, cert, store, restrictedManager)
 	if err == nil {
 		t.Errorf("Should not be able to handle nil FactRegistration message: %v", err)
 	}
@@ -316,7 +303,7 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg.Frs.Fact = nil
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	_, err = registerUser(registerMsg, cert, store, restrictedManager)
 	if err == nil {
 		t.Errorf("Should not be able to handle nil Fact message: %v", err)
 	}
@@ -327,7 +314,7 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg.IdentityRegistration = nil
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	_, err = registerUser(registerMsg, cert, store, restrictedManager)
 	if err == nil {
 		t.Errorf("Should not be able to handle nil IdentityRegistration message: %v", err)
 	}

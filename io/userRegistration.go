@@ -14,7 +14,7 @@ import (
 	"gitlab.com/elixxir/crypto/hash"
 	"gitlab.com/elixxir/crypto/registration"
 	"gitlab.com/elixxir/primitives/fact"
-	"gitlab.com/elixxir/user-discovery-bot/banned"
+	"gitlab.com/elixxir/user-discovery-bot/restricted"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/validation"
 	"gitlab.com/xx_network/comms/messages"
@@ -25,7 +25,7 @@ import (
 
 // Endpoint which handles a users attempt to register
 func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
-	store *storage.Storage, bannedManager *banned.Manager) (*messages.Ack, error) {
+	store *storage.Storage, restrictedManager *restricted.Manager) (*messages.Ack, error) {
 
 	// Nil checks
 	if msg == nil || msg.Frs == nil || msg.Frs.Fact == nil ||
@@ -49,8 +49,8 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 		return nil, errors.Errorf("Username %q is invalid: %v", username, err)
 	}
 
-	// Check if the username is banned
-	if bannedManager.IsBanned(canonicalUsername) {
+	// Check if the username is restricted
+	if restrictedManager.IsRestricted(canonicalUsername) {
 		// Return same error message as if the user was already taken
 		return &messages.Ack{}, errors.Errorf("Username %s is already taken. "+
 			"Please try again", username)

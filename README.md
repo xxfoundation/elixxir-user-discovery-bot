@@ -55,13 +55,17 @@ twilioSid: "sid"
 twilioToken: "token"
 twilioVerification: "verification"
 
-# Banned users which follow the regex codepath.
-# Usernames should be separated by a Linux newline character ("\n").
-bannedRegexList: "bannedRegexList.txt"
 
-# Simple banned username list. Any name exactly matching in this list will not be allowed as a username.
-# Usernames should be separated by a Linux newline character ("\n").
-bannedUserList: "bannedUserList.txt"
+# Path to line-seperated list of restricted usernames. Any username that appears
+# on this list cannot be registered with UD. Each username on the list must be
+# seperated by a new line character (\n).
+restrictedUserList: "restrictedUserList.txt"
+
+# Path to line-seperated list of restricted username regular expressions. Any
+# username that matches a statement on this list cannot be registered with UD.
+# Each regular expressions on the list must be seperated by a new line character
+# (\n).
+restrictedRegexList: "restrictedRegexList.txt"
 
 ```
 

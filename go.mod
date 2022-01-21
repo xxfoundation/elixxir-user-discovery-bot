@@ -3,6 +3,7 @@ module gitlab.com/elixxir/user-discovery-bot
 go 1.13
 
 require (
+	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/golang/protobuf v1.5.2
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mitchellh/mapstructure v1.4.1 // indirect

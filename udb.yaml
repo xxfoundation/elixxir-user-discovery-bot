@@ -11,4 +11,4 @@ dbPassword: ""
 dbName: ""
 dbAddress: ""
 
-bannedUserList: "bannedUserList.csv"
+restrictedUserList: "restrictedUserList.csv"
