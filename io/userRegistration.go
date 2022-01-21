@@ -16,6 +16,7 @@ import (
 	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/elixxir/user-discovery-bot/banned"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"gitlab.com/elixxir/user-discovery-bot/validation"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
@@ -41,10 +42,10 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 			"Please try again")
 	}
 
-	canonicalUsername := canonicalize(username)
+	canonicalUsername := validation.Canonicalize(username)
 
 	// Check if username is valid
-	if err := isValidUsername(canonicalUsername); err != nil {
+	if err := validation.IsValidUsername(canonicalUsername); err != nil {
 		return nil, errors.Errorf("Username %q is invalid: %v", username, err)
 	}
 

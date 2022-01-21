@@ -8,6 +8,7 @@
 package banned
 
 import (
+	"gitlab.com/elixxir/user-discovery-bot/validation"
 	"reflect"
 	"regexp"
 	"testing"
@@ -16,8 +17,8 @@ import (
 func TestNewManager(t *testing.T) {
 	expectedManager := &Manager{
 		bannedUserList: map[string]struct{}{
-			"Privategrity":      {},
-			"Privategrity_Corp": {},
+			"privategrity":      {},
+			"privategrity_corp": {},
 		},
 		bannedRegexList: []*regexp.Regexp{
 			regexp.MustCompile("xx"),
@@ -90,7 +91,7 @@ func TestManager_IsBanned_BadUsername(t *testing.T) {
 	}
 
 	for _, badUsername := range badUsernames {
-		if !m.IsBanned(badUsername) {
+		if !m.IsBanned(validation.Canonicalize(badUsername)) {
 			t.Errorf("Username %q was not recognized as banned when it should be", badUsername)
 		}
 

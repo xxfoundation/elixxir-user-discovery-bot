@@ -17,6 +17,7 @@ import (
 	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/elixxir/user-discovery-bot/banned"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"gitlab.com/elixxir/user-discovery-bot/validation"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/crypto/tls"
 	"gitlab.com/xx_network/primitives/id"
@@ -192,7 +193,7 @@ func TestRegisterUser_Banned(t *testing.T) {
 		t.FailNow()
 	}
 
-	bannedManager, err := banned.NewManager(canonicalize(registerMsg.IdentityRegistration.Username), "")
+	bannedManager, err := banned.NewManager(validation.Canonicalize(registerMsg.IdentityRegistration.Username), "")
 	if err != nil {
 		t.Fatalf("Failed to construct ban manager: %v", err)
 	}
