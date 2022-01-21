@@ -3,7 +3,6 @@ module gitlab.com/elixxir/user-discovery-bot
 go 1.13
 
 require (
-	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
 	github.com/golang/protobuf v1.5.2
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
@@ -13,8 +12,8 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.7.1
 	github.com/ttacon/libphonenumber v1.2.1
-	gitlab.com/elixxir/client v1.5.1-0.20220110192738-7ffe6da471ca
-	gitlab.com/elixxir/comms v0.0.4-0.20220110170643-64d965049b60
+	gitlab.com/elixxir/client v1.5.1-0.20220121024002-5011f3fee43b
+	gitlab.com/elixxir/comms v0.0.4-0.20220121022905-57f13d4772d2
 	gitlab.com/elixxir/crypto v0.0.7-0.20220110170041-7e42f2e8b062
 	gitlab.com/elixxir/primitives v0.0.3-0.20220104173924-275cb9d7834f
 	gitlab.com/xx_network/comms v0.0.4-0.20211227194445-c099754b3cda
