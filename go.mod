@@ -12,11 +12,11 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.7.1
 	github.com/ttacon/libphonenumber v1.2.1
-	gitlab.com/elixxir/client v1.5.1-0.20220126010713-e6a0bcbcf569
-	gitlab.com/elixxir/comms v0.0.4-0.20220126003616-2b7476edf5c9
+	gitlab.com/elixxir/client v1.5.1-0.20220126233834-6b5074f1bff1
+	gitlab.com/elixxir/comms v0.0.4-0.20220126233028-dc64691c7d3e
 	gitlab.com/elixxir/crypto v0.0.7-0.20220110170041-7e42f2e8b062
 	gitlab.com/elixxir/primitives v0.0.3-0.20220104173924-275cb9d7834f
-	gitlab.com/xx_network/comms v0.0.4-0.20211227194445-c099754b3cda
+	gitlab.com/xx_network/comms v0.0.4-0.20220126231737-fe2338016cce
 	gitlab.com/xx_network/crypto v0.0.5-0.20211227194420-f311e8920467
 	gitlab.com/xx_network/primitives v0.0.4-0.20211222205802-03e9d7d835b0
 	google.golang.org/genproto v0.0.0-20210427215850-f767ed18ee4d // indirect
