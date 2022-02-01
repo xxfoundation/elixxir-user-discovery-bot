@@ -112,17 +112,17 @@ var rootCmd = &cobra.Command{
 
 		// Pass NDF directly into client library
 		var client *api.Client
+		nwParams := params.GetDefaultNetwork()
+		nwParams = nwParams.SetRealtimeOnlyAll()
 		if p.SessionPath != "" && utils.Exists(p.SessionPath) {
 			client, err = api.LoginWithNewBaseNDF_UNSAFE(p.SessionPath,
-				[]byte(sessionPass), string(returnedNdf.GetNdf()),
-				params.GetDefaultNetwork())
+				[]byte(sessionPass), string(returnedNdf.GetNdf()), nwParams)
 			if err != nil {
 				jww.FATAL.Fatalf("Failed to create client: %+v", err)
 			}
 		} else {
 			client, err = api.LoginWithProtoClient(p.SessionPath,
-				[]byte(sessionPass), p.ProtoUserJson, string(returnedNdf.GetNdf()),
-				params.GetDefaultNetwork())
+				[]byte(sessionPass), p.ProtoUserJson, string(returnedNdf.GetNdf()), nwParams)
 			if err != nil {
 				jww.FATAL.Fatalf("Failed to create client: %+v", err)
 			}
