@@ -2,6 +2,7 @@ package cmix
 
 import (
 	"bytes"
+	"github.com/golang/protobuf/proto"
 	"gitlab.com/elixxir/client/single"
 	"gitlab.com/elixxir/client/stoppable"
 	"gitlab.com/elixxir/client/ud"
@@ -11,7 +12,6 @@ import (
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/xx_network/crypto/large"
 	"gitlab.com/xx_network/primitives/id"
-	"google.golang.org/protobuf/proto"
 	"reflect"
 	"testing"
 	"time"
