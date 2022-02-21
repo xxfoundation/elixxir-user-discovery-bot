@@ -20,9 +20,6 @@ type Manager struct {
 	singleUse SingleInterface
 }
 
-type SingleUseInterface interface {
-}
-
 // Create a CMIX Manager
 func NewManager(singleUse *single.Manager, db *storage.Storage) *Manager {
 	return &Manager{
