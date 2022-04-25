@@ -6,8 +6,6 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"gitlab.com/elixxir/client/api"
-	"gitlab.com/elixxir/client/interfaces/params"
-	"gitlab.com/elixxir/client/single"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/user-discovery-bot/banned"
 	"gitlab.com/elixxir/user-discovery-bot/cmix"
@@ -32,6 +30,8 @@ var (
 	devMode                         bool
 	sessionPass                     string
 )
+
+type manager struct{}
 
 // RootCmd represents the base command when called without any sub-commands
 var rootCmd = &cobra.Command{
@@ -112,33 +112,35 @@ var rootCmd = &cobra.Command{
 
 		// Pass NDF directly into client library
 		var client *api.Client
-		nwParams := params.GetDefaultNetwork()
-		nwParams = nwParams.SetRealtimeOnlyAll()
+		nwParams := api.GetDefaultParams()
+		nwParams.CMix = nwParams.CMix.SetRealtimeOnlyAll()
 		if p.SessionPath != "" && utils.Exists(p.SessionPath) {
 			client, err = api.LoginWithNewBaseNDF_UNSAFE(p.SessionPath,
-				[]byte(sessionPass), string(returnedNdf.GetNdf()), nwParams)
+				[]byte(sessionPass), string(returnedNdf.GetNdf()), nil, nwParams)
 			if err != nil {
 				jww.FATAL.Fatalf("Failed to create client: %+v", err)
 			}
 		} else {
 			client, err = api.LoginWithProtoClient(p.SessionPath,
-				[]byte(sessionPass), p.ProtoUserJson, string(returnedNdf.GetNdf()), nwParams)
+				[]byte(sessionPass), p.ProtoUserJson, string(returnedNdf.GetNdf()), nil, nwParams)
 			if err != nil {
 				jww.FATAL.Fatalf("Failed to create client: %+v", err)
 			}
 		}
+
+		m := cmix.NewManager(client, storage)
+		m.Start()
 
 		err = client.StartNetworkFollower(5 * time.Second)
 		if err != nil {
 			jww.FATAL.Fatal(err)
 		}
 
-		m := cmix.NewManager(single.NewManager(client), storage)
-		err = client.AddService(m.Start)
 		if err != nil {
 			jww.FATAL.Panicf("%v", err)
 		}
 		// Wait forever
+
 		select {}
 	},
 }
