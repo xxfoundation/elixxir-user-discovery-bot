@@ -26,10 +26,20 @@ func NewManager(client *api.Client, db *storage.Storage) *Manager {
 // Start user discovery CMIX handler for single use messages
 func (m *Manager) Start() {
 	// Register the lookup listener
-	m.lookupListener = single.Listen(ud.LookupTag, m.cl.GetE2EHandler().GetReceptionID(), m.cl.GetUser().E2eDhPublicKey, m.cl.GetNetworkInterface(), m.cl.GetE2EHandler().GetGroup(), &lookupManager{m: m})
+	m.lookupListener = single.Listen(ud.LookupTag,
+		m.cl.GetE2EHandler().GetReceptionID(),
+		m.cl.GetUser().E2eDhPrivateKey,
+		m.cl.GetNetworkInterface(),
+		m.cl.GetE2EHandler().GetGroup(),
+		&lookupManager{m: m})
 
 	// Register the search listener
-	m.searchListener = single.Listen(ud.LookupTag, m.cl.GetE2EHandler().GetReceptionID(), m.cl.GetUser().E2eDhPublicKey, m.cl.GetNetworkInterface(), m.cl.GetE2EHandler().GetGroup(), &searchManager{m: m})
+	m.searchListener = single.Listen(ud.SearchTag,
+		m.cl.GetE2EHandler().GetReceptionID(),
+		m.cl.GetUser().E2eDhPrivateKey,
+		m.cl.GetNetworkInterface(),
+		m.cl.GetE2EHandler().GetGroup(),
+		&searchManager{m: m})
 }
 
 // Stop the user discovery cmix handler
