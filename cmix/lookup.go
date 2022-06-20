@@ -60,7 +60,7 @@ func (m *Manager) handleLookup(msg *ud.LookupSend, c single.Contact) *ud.LookupR
 		return response
 	}
 	if len(usr.Facts) > 0 && usr.Facts[0].Type == uint8(fact.Username) {
-		response.Username = usr.Facts[0].Fact
+		response.Username = usr.Username
 	}
 
 	response.PubKey = usr.DhPub

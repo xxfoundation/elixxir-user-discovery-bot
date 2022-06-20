@@ -84,7 +84,7 @@ func (v *verifier) VerificationCheck(code string, to string) (bool, error) {
 		if strings.Contains(err.Error(), "errors/20404") {
 			return false, errors.New("Your verification code may have expired; please resubmit")
 		}
-		jww.FATAL.Printf("Failed to submit verification check request: %+v", err)
+		jww.ERROR.Printf("Failed to submit verification check request: %+v", err)
 		return false, errors.WithMessage(err, "Failed to make verification check request")
 	}
 	jww.INFO.Println(data)

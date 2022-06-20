@@ -14,7 +14,9 @@ import (
 	"gitlab.com/elixxir/crypto/hash"
 	"gitlab.com/elixxir/crypto/registration"
 	"gitlab.com/elixxir/primitives/fact"
+	"gitlab.com/elixxir/user-discovery-bot/banned"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"gitlab.com/elixxir/user-discovery-bot/validation"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
@@ -23,7 +25,7 @@ import (
 
 // Endpoint which handles a users attempt to register
 func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
-	store *storage.Storage) (*messages.Ack, error) {
+	store *storage.Storage, bannedManager *banned.Manager) (*messages.Ack, error) {
 
 	// Nil checks
 	if msg == nil || msg.Frs == nil || msg.Frs.Fact == nil ||
@@ -33,17 +35,31 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 	}
 
 	// Parse the username and UserID
-	username := msg.IdentityRegistration.Username
+	username := msg.Frs.Fact.Fact // TODO: this & msg.IdentityRegistration.Username seems redundant
 	uid, err := id.Unmarshal(msg.UID)
 	if err != nil {
 		return &messages.Ack{}, errors.New("Could not parse UID sent over. " +
 			"Please try again")
 	}
 
-	// Check if username is taken
-	err = store.CheckUser(username, uid)
-	if err != nil {
+	canonicalUsername := validation.Canonicalize(username)
+
+	// Check if username is valid
+	if err := validation.IsValidUsername(canonicalUsername); err != nil {
+		return nil, errors.Errorf("Username %q is invalid: %v", username, err)
+	}
+
+	// Check if the username is banned
+	if bannedManager.IsBanned(canonicalUsername) {
+		// Return same error message as if the user was already taken
 		return &messages.Ack{}, errors.Errorf("Username %s is already taken. "+
+			"Please try again", username)
+	}
+
+	// Check if username is taken
+	err = store.CheckUser(canonicalUsername, uid)
+	if err != nil {
+		return &messages.Ack{}, errors.Errorf("Username %q is already taken. "+
 			"Please try again", username)
 	}
 
@@ -62,6 +78,22 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 		return &messages.Ack{}, errors.New("Could not parse key passed in")
 	}
 
+	// Verify the signed fact
+	tf, err := fact.NewFact(fact.FactType(msg.Frs.Fact.FactType), msg.Frs.Fact.Fact)
+	if err != nil {
+		return &messages.Ack{}, errors.WithMessage(err, "Failed to hash fact")
+	}
+	hashedFact := factID.Fingerprint(tf) // TODO: does fingerprint still need to uppercase the fact?
+	err = rsa.Verify(clientPubKey, hash.CMixHash, hashedFact, msg.Frs.FactSig, nil)
+	if err != nil {
+		return &messages.Ack{}, errors.New("Could not verify fact signature")
+	}
+
+	canonicalFact, err := fact.NewFact(fact.FactType(msg.Frs.Fact.FactType), canonicalUsername)
+	if err != nil {
+		return &messages.Ack{}, errors.WithMessage(err, "Failed to hash canonicalUsername fact")
+	}
+
 	// Verify the signed identity data
 	hashedIdentity := msg.IdentityRegistration.Digest()
 	err = rsa.Verify(clientPubKey, hash.CMixHash, hashedIdentity, msg.IdentitySignature, nil)
@@ -69,22 +101,11 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 		return &messages.Ack{}, errors.New("Could not verify identity signature")
 	}
 
-	// Verify the signed fact
-	tf, err := fact.NewFact(fact.FactType(msg.Frs.Fact.FactType), msg.Frs.Fact.Fact)
-	if err != nil {
-		return &messages.Ack{}, errors.WithMessage(err, "Failed to hash fact")
-	}
-	hashedFact := factID.Fingerprint(tf)
-	err = rsa.Verify(clientPubKey, hash.CMixHash, hashedFact, msg.Frs.FactSig, nil)
-	if err != nil {
-		return &messages.Ack{}, errors.New("Could not verify fact signature")
-	}
-
 	// Create fact off of username
 	f := storage.Fact{
-		Hash:      hashedFact,
+		Hash:      factID.Fingerprint(canonicalFact),
 		UserId:    msg.UID,
-		Fact:      msg.Frs.Fact.Fact,
+		Fact:      canonicalUsername,
 		Type:      uint8(msg.Frs.Fact.FactType),
 		Signature: msg.Frs.FactSig,
 		Verified:  true,
@@ -94,6 +115,7 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 	// Create the user to insert into the database
 	u := &storage.User{
 		Id:                    msg.UID,
+		Username:              username,
 		RsaPub:                msg.RSAPublicPem,
 		DhPub:                 msg.IdentityRegistration.DhPubKey,
 		Salt:                  msg.IdentityRegistration.Salt,

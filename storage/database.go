@@ -59,6 +59,7 @@ type MapImpl struct {
 // Struct defining the users table for the database
 type User struct {
 	Id        []byte `gorm:"primaryKey"`
+	Username  string `gorm:"not null;unique"`
 	RsaPub    string `gorm:"not null;unique"`
 	DhPub     []byte `gorm:"not null;unique"`
 	Salt      []byte `gorm:"not null"`

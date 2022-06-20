@@ -78,7 +78,7 @@ func (m *Manager) handleSearch(msg *ud.SearchSend, c single.Contact) *ud.SearchR
 		var uFacts []*ud.HashFact
 		for _, f := range u.Facts {
 			if f.Type == uint8(fact.Username) {
-				contact.Username = f.Fact
+				contact.Username = u.Username
 			}
 			uFacts = append(uFacts, &ud.HashFact{
 				Hash: f.Hash,
