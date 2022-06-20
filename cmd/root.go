@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
-	"gitlab.com/elixxir/client/api"
+	"gitlab.com/elixxir/client/xxdk"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/user-discovery-bot/banned"
 	"gitlab.com/elixxir/user-discovery-bot/cmix"
@@ -111,18 +111,18 @@ var rootCmd = &cobra.Command{
 		}
 
 		// Pass NDF directly into client library
-		var client *api.Client
-		nwParams := api.GetDefaultParams()
+		var client *xxdk.Cmix
+		nwParams := xxdk.GetDefaultParams()
 		nwParams.CMix = nwParams.CMix.SetRealtimeOnlyAll()
 		if p.SessionPath != "" && utils.Exists(p.SessionPath) {
-			client, err = api.LoginWithNewBaseNDF_UNSAFE(p.SessionPath,
-				[]byte(sessionPass), string(returnedNdf.GetNdf()), nil, nwParams)
+			client, err = xxdk.LoginWithNewBaseNDF_UNSAFE(p.SessionPath,
+				[]byte(sessionPass), string(returnedNdf.GetNdf()), nwParams)
 			if err != nil {
 				jww.FATAL.Fatalf("Failed to create client: %+v", err)
 			}
 		} else {
-			client, err = api.LoginWithProtoClient(p.SessionPath,
-				[]byte(sessionPass), p.ProtoUserJson, string(returnedNdf.GetNdf()), nil, nwParams)
+			client, err = xxdk.LoginWithProtoClient(p.SessionPath,
+				[]byte(sessionPass), p.ProtoUserJson, string(returnedNdf.GetNdf()), nwParams)
 			if err != nil {
 				jww.FATAL.Fatalf("Failed to create client: %+v", err)
 			}

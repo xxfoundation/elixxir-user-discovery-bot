@@ -9,12 +9,12 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.11.0
 	github.com/ttacon/libphonenumber v1.2.1
-	gitlab.com/elixxir/client v1.5.1-0.20220502181915-265a310f0566
-	gitlab.com/elixxir/comms v0.0.4-0.20220323190139-9ed75f3a8b2c
-	gitlab.com/elixxir/crypto v0.0.7-0.20220425192911-a23209a58073
-	gitlab.com/elixxir/primitives v0.0.3-0.20220330212736-cce83b5f948f
+	gitlab.com/elixxir/client v1.5.1-0.20220620170910-7054b4734c19
+	gitlab.com/elixxir/comms v0.0.4-0.20220603231314-e47e4af13326
+	gitlab.com/elixxir/crypto v0.0.7-0.20220606201132-c370d5039cea
+	gitlab.com/elixxir/primitives v0.0.3-0.20220606195757-40f7a589347f
 	gitlab.com/xx_network/comms v0.0.4-0.20220315161313-76acb14429ac
-	gitlab.com/xx_network/crypto v0.0.5-0.20220317171841-084640957d71
+	gitlab.com/xx_network/crypto v0.0.5-0.20220606200528-3f886fe49e81
 	gitlab.com/xx_network/primitives v0.0.4-0.20220324193139-b292d1ae6e7e
 	gorm.io/driver/postgres v1.1.2
 	gorm.io/gorm v1.21.15
