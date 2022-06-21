@@ -10,7 +10,7 @@ import (
 // Manager struct for user discovery single use
 type Manager struct {
 	db             *storage.Storage
-	e2eClient      client
+	e2eClient      *xxdk.E2e
 	lookupListener single.Listener
 	searchListener single.Listener
 }

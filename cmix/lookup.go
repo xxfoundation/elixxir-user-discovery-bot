@@ -21,7 +21,7 @@ type lookupManager struct {
 func (lm *lookupManager) Callback(req *single.Request,
 	eid receptionID.EphemeralIdentity, rids []rounds.Round) {
 	jww.INFO.Printf("Received lookup request "+
-		"from %s [%+v] on rids %+v", req.GetPartner(), eid, rids)
+		"from %s [%+v] on rounds %+v", req.GetPartner(), eid, rids)
 	resp := lm.handleLookup(req)
 	marshaledResponse, err := proto.Marshal(resp)
 	if err != nil {
@@ -30,6 +30,7 @@ func (lm *lookupManager) Callback(req *single.Request,
 			"%s: %+v", req.GetPartner(), err)
 		return
 	}
+
 	rid, err := req.Respond(marshaledResponse,
 		cmix.GetDefaultCMIXParams(), time.Minute)
 	jww.INFO.Printf("Responded to lookup request from %s over "+
@@ -38,7 +39,6 @@ func (lm *lookupManager) Callback(req *single.Request,
 
 func (lm *lookupManager) handleLookup(req *single.Request) *ud.LookupResponse {
 	response := &ud.LookupResponse{}
-
 	msg := &ud.LookupSend{}
 	if err := proto.Unmarshal(req.GetPayload(), msg); err != nil {
 		jww.ERROR.Printf("Failed to unmarshal lookup request "+
