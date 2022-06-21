@@ -111,20 +111,20 @@ var rootCmd = &cobra.Command{
 		}
 
 		// Pass NDF directly into client library
-		var client *xxdk.Cmix
+		var client *xxdk.E2e
 		nwParams := xxdk.GetDefaultParams()
 		nwParams.CMix = nwParams.CMix.SetRealtimeOnlyAll()
 		if p.SessionPath != "" && utils.Exists(p.SessionPath) {
 			client, err = xxdk.LoginWithNewBaseNDF_UNSAFE(p.SessionPath,
 				[]byte(sessionPass), string(returnedNdf.GetNdf()), nwParams)
 			if err != nil {
-				jww.FATAL.Fatalf("Failed to create client: %+v", err)
+				jww.FATAL.Fatalf("Failed to create cMix client: %+v", err)
 			}
 		} else {
 			client, err = xxdk.LoginWithProtoClient(p.SessionPath,
 				[]byte(sessionPass), p.ProtoUserJson, string(returnedNdf.GetNdf()), nwParams)
 			if err != nil {
-				jww.FATAL.Fatalf("Failed to create client: %+v", err)
+				jww.FATAL.Fatalf("Failed to create cMix client: %+v", err)
 			}
 		}
 
