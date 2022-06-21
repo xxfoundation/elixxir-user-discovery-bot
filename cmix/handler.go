@@ -1,25 +1,26 @@
 package cmix
 
 import (
-	"gitlab.com/elixxir/client/api"
 	"gitlab.com/elixxir/client/single"
 	"gitlab.com/elixxir/client/ud"
+	"gitlab.com/elixxir/client/xxdk"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 )
 
 // Manager struct for user discovery single use
 type Manager struct {
 	db             *storage.Storage
-	cl             *api.Client
+	e2eClient      client
 	lookupListener single.Listener
 	searchListener single.Listener
 }
 
 // NewManager creates a CMIX Manager
-func NewManager(client *api.Client, db *storage.Storage) *Manager {
+func NewManager(e2eClient *xxdk.E2e,
+	db *storage.Storage) *Manager {
 	return &Manager{
-		db: db,
-		cl: client,
+		db:        db,
+		e2eClient: e2eClient,
 	}
 }
 
@@ -27,18 +28,18 @@ func NewManager(client *api.Client, db *storage.Storage) *Manager {
 func (m *Manager) Start() {
 	// Register the lookup listener
 	m.lookupListener = single.Listen(ud.LookupTag,
-		m.cl.GetE2EHandler().GetReceptionID(),
-		m.cl.GetUser().E2eDhPrivateKey,
-		m.cl.GetNetworkInterface(),
-		m.cl.GetE2EHandler().GetGroup(),
+		m.e2eClient.GetUser().ReceptionID,
+		m.e2eClient.GetUser().E2eDhPrivateKey,
+		m.e2eClient.GetCmix(),
+		m.e2eClient.GetStorage().GetE2EGroup(),
 		&lookupManager{m: m})
 
 	// Register the search listener
 	m.searchListener = single.Listen(ud.SearchTag,
-		m.cl.GetE2EHandler().GetReceptionID(),
-		m.cl.GetUser().E2eDhPrivateKey,
-		m.cl.GetNetworkInterface(),
-		m.cl.GetE2EHandler().GetGroup(),
+		m.e2eClient.GetUser().ReceptionID,
+		m.e2eClient.GetUser().E2eDhPrivateKey,
+		m.e2eClient.GetCmix(),
+		m.e2eClient.GetStorage().GetE2EGroup(),
 		&searchManager{m: m})
 }
 
