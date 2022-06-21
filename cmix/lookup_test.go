@@ -4,132 +4,100 @@ import (
 	"bytes"
 	"github.com/golang/protobuf/proto"
 	"gitlab.com/elixxir/client/single"
-	"gitlab.com/elixxir/client/stoppable"
 	"gitlab.com/elixxir/client/ud"
+	"gitlab.com/elixxir/crypto/contact"
 	"gitlab.com/elixxir/crypto/cyclic"
-	"gitlab.com/elixxir/crypto/e2e/singleUse"
+	"gitlab.com/elixxir/crypto/diffieHellman"
+	"gitlab.com/elixxir/crypto/fastRNG"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"gitlab.com/xx_network/crypto/csprng"
 	"gitlab.com/xx_network/crypto/large"
 	"gitlab.com/xx_network/primitives/id"
-	"strings"
 	"testing"
 	"time"
 )
 
 func TestManager_lookupCallback(t *testing.T) {
-	m := &Manager{storage.NewTestDB(t), &mockSingleLookup{}}
+	// Initialize manager
+	m := &Manager{db: storage.NewTestDB(t),
+		lookupListener: &mockSingleLookup{}}
 	uid := id.NewIdFromString("zezima", id.User, t)
 	grp := cyclic.NewGroup(large.NewInt(107), large.NewInt(2))
-	ct := single.NewContact(uid, grp.NewInt(42), grp.NewInt(43), singleUse.TagFP{}, 8)
-	err := m.db.InsertUser(&storage.User{Id: uid.Marshal(), DhPub: []byte("DhPub")})
+
+	rng := fastRNG.NewStreamGenerator(12, 1024, csprng.NewSystemRNG).GetStream()
+	defer rng.Close()
+
+	dhPriv := diffieHellman.GeneratePrivateKey(128, grp, rng)
+	dhPub := diffieHellman.GeneratePublicKey(dhPriv, grp)
+
+	lm := &lookupManager{m: m}
+
+	// Insert mock user into DB
+	err := m.db.InsertUser(&storage.User{Id: uid.Marshal(), DhPub: dhPub.Bytes()})
 	if err != nil {
 		t.Errorf("Failed to insert dummy user: %+v", err)
 	}
 
+	mockCmix := newMockCmix(uid, newMockCmixHandler(), t)
+
+	// Set up the listener
+	single.Listen(ud.LookupTag, uid, dhPriv, mockCmix, grp, lm)
+
+	// Build the request
 	lookupMsg := &ud.LookupSend{UserID: uid.Marshal()}
 	payload, err := proto.Marshal(lookupMsg)
 	if err != nil {
 		t.Errorf("Failed to marshal payload: %+v", err)
 	}
-	expectedPayload, err := proto.Marshal(m.handleLookup(lookupMsg, ct))
+
+	// Build the contact
+	userContact := contact.Contact{
+		ID:       uid,
+		DhPubKey: dhPub,
+	}
+
+	// Set up the response handling
+	callbackChan := make(chan []byte)
+	mockResponse := newMockResponse(callbackChan, t)
+
+	// Trigger the request
+	_, _, err = single.TransmitRequest(userContact, ud.LookupTag, payload,
+		mockResponse, single.GetDefaultRequestParams(), mockCmix, rng, grp)
 	if err != nil {
-		t.Errorf("Failed to marshal message: %+v", err)
+		t.Fatalf("Failed to transmit mock message: %v", err)
 	}
 
-	callbackChan := make(chan struct {
-		payload []byte
-		c       single.Contact
-	})
-	callback := func(payload []byte, c single.Contact) {
-		callbackChan <- struct {
-			payload []byte
-			c       single.Contact
-		}{payload: payload, c: c}
+	// Build expected response
+	expectedResponse := &ud.LookupResponse{
+		PubKey: dhPub.Bytes(),
 	}
-	m.singleUse.RegisterCallback("", callback)
 
-	m.lookupCallback(payload, ct)
-
-	results := <-callbackChan
-	if !results.c.Equal(ct) {
-		t.Errorf("Callback did not return the expected contact."+
-			"\nexpected: %s\nreceived: %s", ct, results.c)
-	}
-	if !bytes.Equal(expectedPayload, results.payload) {
-		t.Errorf("Callback did not return the expected payload."+
-			"\nexpected: %+v\nreceived: %+v", expectedPayload, results.payload)
-	}
-}
-
-// Happy path.
-func TestManager_handleLookup(t *testing.T) {
-	m := &Manager{db: storage.NewTestDB(t)}
-	uid := id.NewIdFromString("zezima", id.User, t)
-	c := single.NewContact(uid, &cyclic.Int{}, &cyclic.Int{}, singleUse.TagFP{}, 8)
-
-	username := "ZeZima"
-	expectedDhPub := "DhPub"
-	err := m.db.InsertUser(&storage.User{Id: uid.Marshal(), DhPub: []byte(expectedDhPub), Username: username, Facts: []storage.Fact{
-		{
-			Hash:      []byte("hash"),
-			UserId:    uid.Marshal(),
-			Fact:      strings.ToLower(username),
-			Type:      0,
-			Signature: []byte("Signature"),
-			Verified:  true,
-		},
-	}})
+	// Marshal expected response
+	expected, err := proto.Marshal(expectedResponse)
 	if err != nil {
-		t.Errorf("Failed to insert dummy user: %+v", err)
+		t.Fatalf("Marshal response: %v", err)
 	}
 
-	resp := m.handleLookup(&ud.LookupSend{UserID: uid.Marshal()}, c)
-	if resp.Error != "" {
-		t.Errorf("handleLookup() returned a response with an error: %s", resp.Error)
+	// Wait for response or timeout
+	timeout := time.NewTicker(5 * time.Second)
+	select {
+	case response := <-callbackChan:
+		if !bytes.Equal(expected, response) {
+			t.Errorf("Did not receive expected response."+
+				"\nExpected: %s"+
+				"\nReceived: %s", expected, response)
+		}
+	case <-timeout.C:
+		t.Fatalf("Failed to get response")
 	}
 
-	if string(resp.PubKey) != expectedDhPub {
-		t.Errorf("handleLookup() returned a response with inccorect PubKey."+
-			"\nexpected: %s\nreceived: %s", expectedDhPub, resp.Error)
-	}
-
-	if resp.Username != username {
-		t.Errorf("Should have gotten username %s, instead got: %s", username, resp.Username)
-	}
-}
-
-// Error path: Id is malformed and fails to unmarshal.
-func TestManager_handleLookup_IdUnmarshalError(t *testing.T) {
-	m := &Manager{db: storage.NewTestDB(t)}
-	uid := id.NewIdFromString("zezima", id.User, t)
-	c := single.NewContact(uid, &cyclic.Int{}, &cyclic.Int{}, singleUse.TagFP{}, 8)
-
-	err := m.db.InsertUser(&storage.User{Id: uid.Marshal(), DhPub: []byte("DhPub")})
-	if err != nil {
-		t.Errorf("Failed to insert dummy user: %+v", err)
-	}
-
-	resp := m.handleLookup(&ud.LookupSend{UserID: []byte{1}}, c)
-	if !strings.Contains(resp.Error, "failed to unmarshal lookup ID in request") {
-		t.Errorf("handleLookup() returned a response with an error: %s", resp.Error)
-	}
 }
 
 // mockSingleLookup is used to test the lookup function, which uses the single-
 // use manager. It adheres to the SingleInterface interface.
 type mockSingleLookup struct {
-	callback func(payload []byte, c single.Contact)
 }
 
-func (s *mockSingleLookup) RegisterCallback(_ string, callback single.ReceiveComm) {
-	s.callback = callback
-}
+func (s *mockSingleLookup) Stop() {
 
-func (s *mockSingleLookup) RespondSingleUse(partner single.Contact, payload []byte, _ time.Duration) error {
-	go s.callback(payload, partner)
-	return nil
-}
-
-func (s *mockSingleLookup) StartProcesses() (stoppable.Stoppable, error) {
-	return stoppable.NewSingle(""), nil
 }

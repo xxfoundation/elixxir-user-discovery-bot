@@ -2,39 +2,49 @@ package cmix
 
 import (
 	"gitlab.com/elixxir/client/single"
-	"gitlab.com/elixxir/client/stoppable"
 	"gitlab.com/elixxir/client/ud"
+	"gitlab.com/elixxir/client/xxdk"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
-	"time"
 )
 
-type SingleInterface interface {
-	RegisterCallback(string, single.ReceiveComm)
-	RespondSingleUse(single.Contact, []byte, time.Duration) error
-	StartProcesses() (stoppable.Stoppable, error)
-}
-
-// CMIX Handler struct for user discovery
+// Manager struct for user discovery single use
 type Manager struct {
-	db        *storage.Storage
-	singleUse SingleInterface
+	db             *storage.Storage
+	e2eClient      *xxdk.E2e
+	lookupListener single.Listener
+	searchListener single.Listener
 }
 
-// Create a CMIX Manager
-func NewManager(singleUse *single.Manager, db *storage.Storage) *Manager {
+// NewManager creates a CMIX Manager
+func NewManager(e2eClient *xxdk.E2e,
+	db *storage.Storage) *Manager {
 	return &Manager{
 		db:        db,
-		singleUse: singleUse,
+		e2eClient: e2eClient,
 	}
 }
 
-// Start user discovery CMIX handler with a general callback that confirms all authenticated channel requests
-func (m *Manager) Start() (stoppable.Stoppable, error) {
+// Start user discovery CMIX handler for single use messages
+func (m *Manager) Start() {
 	// Register the lookup listener
-	m.singleUse.RegisterCallback(ud.LookupTag, m.lookupCallback)
+	m.lookupListener = single.Listen(ud.LookupTag,
+		m.e2eClient.GetUser().ReceptionID,
+		m.e2eClient.GetUser().E2eDhPrivateKey,
+		m.e2eClient.GetCmix(),
+		m.e2eClient.GetStorage().GetE2EGroup(),
+		&lookupManager{m: m})
 
 	// Register the search listener
-	m.singleUse.RegisterCallback(ud.SearchTag, m.searchCallback)
+	m.searchListener = single.Listen(ud.SearchTag,
+		m.e2eClient.GetUser().ReceptionID,
+		m.e2eClient.GetUser().E2eDhPrivateKey,
+		m.e2eClient.GetCmix(),
+		m.e2eClient.GetStorage().GetE2EGroup(),
+		&searchManager{m: m})
+}
 
-	return m.singleUse.StartProcesses()
+// Stop the user discovery cmix handler
+func (m *Manager) Stop() {
+	m.searchListener.Stop()
+	m.lookupListener.Stop()
 }

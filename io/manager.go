@@ -22,7 +22,7 @@ import (
 	"gitlab.com/xx_network/primitives/id"
 )
 
-// The main UserDiscovery instance object
+// Manager is the main UserDiscovery instance object.
 type Manager struct {
 	Comms                  *udb.Comms
 	PermissioningPublicKey *rsa.PublicKey
@@ -31,7 +31,7 @@ type Manager struct {
 	Banned                 *banned.Manager
 }
 
-// Create a new UserDiscovery Manager given a set of Params
+// NewManager creates a new UserDiscovery Manager given a set of Params.
 func NewManager(p params.IO, id *id.ID, permissioningCert *rsa.PublicKey,
 	twilio *twilio.Manager, banned *banned.Manager, storage *storage.Storage) *Manager {
 	m := &Manager{
