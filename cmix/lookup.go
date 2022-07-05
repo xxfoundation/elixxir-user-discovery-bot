@@ -62,7 +62,7 @@ func (lm *lookupManager) handleLookup(req *single.Request) *ud.LookupResponse {
 
 	// Lookup the ID
 	usr, err := lm.m.db.GetUser(lookupID.Marshal())
-	if err != nil {
+	if err != nil || usr == nil {
 		response.Error = fmt.Sprintf("failed to lookup ID %s "+
 			"in request from "+
 			"%s: %+v", lookupID, req.GetPartner(), err)
@@ -70,6 +70,10 @@ func (lm *lookupManager) handleLookup(req *single.Request) *ud.LookupResponse {
 		response.Error = err.Error()
 		return response
 	}
+
+	jww.INFO.Printf("userId: %s\n"+
+		"usr from db: %v",
+		lookupID.String(), usr)
 	if len(usr.Facts) > 0 && usr.Facts[0].Type == uint8(fact.Username) {
 		response.Username = usr.Username
 	}
