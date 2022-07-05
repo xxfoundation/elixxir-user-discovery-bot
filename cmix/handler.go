@@ -1,6 +1,7 @@
 package cmix
 
 import (
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/client/single"
 	"gitlab.com/elixxir/client/ud"
 	"gitlab.com/elixxir/client/xxdk"
@@ -26,18 +27,25 @@ func NewManager(e2eClient *xxdk.E2e,
 
 // Start user discovery CMIX handler for single use messages
 func (m *Manager) Start() {
+	// Rebuild diffie helman key
+	privKeyBytes := m.e2eClient.GetReceptionIdentity().DHKeyPrivate
+	receptionPrivKey := m.e2eClient.GetE2E().GetGroup().NewInt(1)
+	err := receptionPrivKey.UnmarshalJSON(privKeyBytes)
+	if err != nil {
+		jww.FATAL.Panicf("Failed to parse private key: %+v", err)
+	}
 	// Register the lookup listener
 	m.lookupListener = single.Listen(ud.LookupTag,
-		m.e2eClient.GetUser().ReceptionID,
-		m.e2eClient.GetUser().E2eDhPrivateKey,
+		m.e2eClient.GetReceptionIdentity().ID,
+		receptionPrivKey,
 		m.e2eClient.GetCmix(),
 		m.e2eClient.GetStorage().GetE2EGroup(),
 		&lookupManager{m: m})
 
 	// Register the search listener
 	m.searchListener = single.Listen(ud.SearchTag,
-		m.e2eClient.GetUser().ReceptionID,
-		m.e2eClient.GetUser().E2eDhPrivateKey,
+		m.e2eClient.GetReceptionIdentity().ID,
+		receptionPrivKey,
 		m.e2eClient.GetCmix(),
 		m.e2eClient.GetStorage().GetE2EGroup(),
 		&searchManager{m: m})

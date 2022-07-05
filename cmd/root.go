@@ -122,7 +122,8 @@ var rootCmd = &cobra.Command{
 			}
 		} else {
 			client, err = xxdk.LoginWithProtoClient(p.SessionPath,
-				[]byte(sessionPass), p.ProtoUserJson, string(returnedNdf.GetNdf()), nwParams)
+				[]byte(sessionPass), p.ProtoUserJson,
+				string(returnedNdf.GetNdf()), nil, nwParams)
 			if err != nil {
 				jww.FATAL.Fatalf("Failed to create cMix client: %+v", err)
 			}
