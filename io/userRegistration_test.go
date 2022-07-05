@@ -118,7 +118,7 @@ func TestRegisterUser(t *testing.T) {
 		t.Fatalf("Failed to construct ban manager: %v", err)
 	}
 
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	_, err = registerUser(registerMsg, cert, store, bannedManager, false)
 	if err != nil {
 		t.Errorf("Failed happy path: %v", err)
 	}
@@ -198,7 +198,7 @@ func TestRegisterUser_Banned(t *testing.T) {
 		t.Fatalf("Failed to construct ban manager: %v", err)
 	}
 
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	_, err = registerUser(registerMsg, cert, store, bannedManager, false)
 	if err == nil {
 		t.Errorf("Failed happy path: %v", err)
 	}
@@ -235,7 +235,7 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg.IdentitySignature = []byte("invalid")
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	_, err = registerUser(registerMsg, cert, store, bannedManager, false)
 	if err == nil {
 		t.Errorf("Should not be able to verify identity signature: %v", err)
 	}
@@ -246,7 +246,7 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg.Frs.FactSig = []byte("invalid")
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	_, err = registerUser(registerMsg, cert, store, bannedManager, false)
 	if err == nil {
 		t.Errorf("Should not be able to verify fact signature: %v", err)
 	}
@@ -257,7 +257,7 @@ func TestRegisterUser_InvalidSignatures(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg.PermissioningSignature = []byte("invalid")
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	_, err = registerUser(registerMsg, cert, store, bannedManager, false)
 	if err == nil {
 		t.Errorf("Should not be able to verify permissioning signature: %v", err)
 	}
@@ -294,7 +294,7 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg = nil
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	_, err = registerUser(registerMsg, cert, store, bannedManager, false)
 	if err == nil {
 		t.Errorf("Should not be able to handle nil message: %v", err)
 	}
@@ -305,7 +305,7 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg.Frs = nil
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	_, err = registerUser(registerMsg, cert, store, bannedManager, false)
 	if err == nil {
 		t.Errorf("Should not be able to handle nil FactRegistration message: %v", err)
 	}
@@ -316,7 +316,7 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg.Frs.Fact = nil
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	_, err = registerUser(registerMsg, cert, store, bannedManager, false)
 	if err == nil {
 		t.Errorf("Should not be able to handle nil Fact message: %v", err)
 	}
@@ -327,7 +327,7 @@ func TestRegisterUser_InvalidMessage(t *testing.T) {
 		t.FailNow()
 	}
 	registerMsg.IdentityRegistration = nil
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	_, err = registerUser(registerMsg, cert, store, bannedManager, false)
 	if err == nil {
 		t.Errorf("Should not be able to handle nil IdentityRegistration message: %v", err)
 	}

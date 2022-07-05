@@ -29,16 +29,19 @@ type Manager struct {
 	Storage                *storage.Storage
 	Twilio                 *twilio.Manager
 	Banned                 *banned.Manager
+	skipVerification       bool
 }
 
 // NewManager creates a new UserDiscovery Manager given a set of Params.
 func NewManager(p params.IO, id *id.ID, permissioningCert *rsa.PublicKey,
-	twilio *twilio.Manager, banned *banned.Manager, storage *storage.Storage) *Manager {
+	twilio *twilio.Manager, banned *banned.Manager,
+	storage *storage.Storage, skipVerification bool) *Manager {
 	m := &Manager{
 		Storage:                storage,
 		PermissioningPublicKey: permissioningCert,
 		Twilio:                 twilio,
 		Banned:                 banned,
+		skipVerification:       skipVerification,
 	}
 	m.Comms = udb.StartServer(id, fmt.Sprintf("0.0.0.0:%s", p.Port),
 		newImplementation(m), p.Cert, p.Key)
@@ -49,9 +52,11 @@ func NewManager(p params.IO, id *id.ID, permissioningCert *rsa.PublicKey,
 func newImplementation(m *Manager) *udb.Implementation {
 	impl := udb.NewImplementation()
 
-	impl.Functions.RegisterUser = func(registration *pb.UDBUserRegistration) (*messages.Ack, error) {
-		return registerUser(registration, m.PermissioningPublicKey, m.Storage, m.Banned)
-	}
+	impl.Functions.RegisterUser =
+		func(registration *pb.UDBUserRegistration) (*messages.Ack, error) {
+			return registerUser(registration, m.PermissioningPublicKey, m.Storage,
+				m.Banned, m.skipVerification)
+		}
 
 	impl.Functions.RemoveUser = func(msg *pb.FactRemovalRequest) (*messages.Ack, error) {
 		return removeUser(msg, m.Storage)

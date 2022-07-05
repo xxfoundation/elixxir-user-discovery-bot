@@ -73,7 +73,8 @@ var rootCmd = &cobra.Command{
 		}
 
 		// Set up manager with the ability to contact permissioning
-		manager := io.NewManager(p.IO, &id.UDB, permCert, twilioManager, bannedManager, storage)
+		manager := io.NewManager(p.IO, &id.UDB, permCert, twilioManager,
+			bannedManager, storage, viper.GetBool("skipVerification"))
 		hostParams := connect.GetDefaultHostParams()
 		hostParams.AuthEnabled = false
 		permHost, err := manager.Comms.AddHost(&id.Permissioning,
@@ -209,6 +210,12 @@ func init() {
 		"Path for ProtoUser file containing user primitives")
 	err = viper.BindPFlag("protoUserPath", rootCmd.Flags().Lookup("protoUserPath"))
 	handleBindingError(err, "protoUserPath")
+
+	rootCmd.Flags().Bool("skipVerification", true,
+		"Determines whether UD will verify a client's network signature "+
+			"when registering. The default behaviour is to check the signature.")
+	err = viper.BindPFlag("skipVerification", rootCmd.Flags().Lookup("skipVerification"))
+	handleBindingError(err, "skipVerification")
 
 }
 
