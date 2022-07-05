@@ -72,6 +72,8 @@ var rootCmd = &cobra.Command{
 			jww.FATAL.Panicf("Failed to construct ban manager: %v", err)
 		}
 
+		jww.WARN.Printf("Skipping scheduling signature verification set to %v ", viper.GetBool("skipVerification"))
+
 		// Set up manager with the ability to contact permissioning
 		manager := io.NewManager(p.IO, &id.UDB, permCert, twilioManager,
 			bannedManager, storage, viper.GetBool("skipVerification"))

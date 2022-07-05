@@ -64,8 +64,10 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 			"Please try again", username)
 	}
 
-	if !skipVerification {
-
+	if skipVerification {
+		jww.WARN.Printf("Skipping scheduling signature verification for "+
+			"user %s...", uid)
+	} else {
 		// Verify the Permissioning signature provided
 		err = registration.VerifyWithTimestamp(permPublicKey, msg.Timestamp, msg.RSAPublicPem,
 			msg.PermissioningSignature)
