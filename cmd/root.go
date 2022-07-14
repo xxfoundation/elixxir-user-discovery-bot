@@ -187,7 +187,7 @@ func LoginWithProto(statePath string, statePass []byte,
 	}
 
 	// Create and return a messenger
-	return xxdk.Login(net, nil, identity, e2eParams)
+	return xxdk.Login(net, xxdk.DefaultAuthCallbacks{}, identity, e2eParams)
 }
 
 // LoginWithNDF is a login function which creates an
@@ -216,7 +216,7 @@ func LoginWithNDF(statePath string, statePass []byte, baseNdf string,
 	}
 
 	// Create and return a messenger
-	return xxdk.Login(net, nil, identity, e2eParams)
+	return xxdk.Login(net, xxdk.DefaultAuthCallbacks{}, identity, e2eParams)
 
 }
 
