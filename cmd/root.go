@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
+	"gitlab.com/elixxir/client/storage/user"
 	"gitlab.com/elixxir/client/xxdk"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/user-discovery-bot/banned"
@@ -30,8 +32,6 @@ var (
 	devMode                         bool
 	sessionPass                     string
 )
-
-type manager struct{}
 
 // RootCmd represents the base command when called without any sub-commands
 var rootCmd = &cobra.Command{
@@ -113,29 +113,31 @@ var rootCmd = &cobra.Command{
 			break
 		}
 
-		// Pass NDF directly into client library
-		var client *xxdk.E2e
-		nwParams := xxdk.GetDefaultParams()
-		nwParams.CMix = nwParams.CMix.SetRealtimeOnlyAll()
+		var messenger *xxdk.E2e
+		cMixParams := xxdk.GetDefaultCMixParams()
+		cMixParams.Network = cMixParams.Network.SetRealtimeOnlyAll()
+		e2eParams := xxdk.GetDefaultE2EParams()
 		if p.SessionPath != "" && utils.Exists(p.SessionPath) {
-			client, err = xxdk.LoginWithNewBaseNDF_UNSAFE(p.SessionPath,
-				[]byte(sessionPass), string(returnedNdf.GetNdf()), nwParams)
+			// Construct a messenger using the NDF as a base
+			messenger, err = LoginWithNDF(p.SessionPath, []byte(sessionPass),
+				string(returnedNdf.GetNdf()),
+				cMixParams, e2eParams)
 			if err != nil {
-				jww.FATAL.Fatalf("Failed to create cMix client: %+v", err)
+				jww.FATAL.Fatalf("Failed to create messenger: %+v", err)
 			}
 		} else {
-			client, err = xxdk.LoginWithProtoClient(p.SessionPath,
-				[]byte(sessionPass), p.ProtoUserJson,
-				string(returnedNdf.GetNdf()), nil, nwParams)
+			messenger, err = LoginWithProto(p.SessionPath, []byte(sessionPass),
+				p.ProtoUserJson, string(returnedNdf.GetNdf()),
+				cMixParams, e2eParams)
 			if err != nil {
-				jww.FATAL.Fatalf("Failed to create cMix client: %+v", err)
+				jww.FATAL.Fatalf("Failed to create messenger: %+v", err)
 			}
 		}
 
-		m := cmix.NewManager(client, storage)
+		m := cmix.NewManager(messenger, storage)
 		m.Start()
 
-		err = client.StartNetworkFollower(5 * time.Second)
+		err = messenger.StartNetworkFollower(5 * time.Second)
 		if err != nil {
 			jww.FATAL.Fatal(err)
 		}
@@ -147,6 +149,75 @@ var rootCmd = &cobra.Command{
 
 		select {}
 	},
+}
+
+// LoginWithProto is a login function which constructs an xxdk.E2e object
+// using a user.Proto which has been JSON marshalled.
+func LoginWithProto(statePath string, statePass []byte,
+	protoJson []byte, baseNdf string,
+	cmixParams xxdk.CMIXParams, e2eParams xxdk.E2EParams) (*xxdk.E2e, error) {
+
+	// Unmarshal the proto user JSON
+	protoUser := &user.Proto{}
+	err := json.Unmarshal(protoJson, protoUser)
+	if err != nil {
+		return nil, err
+	}
+
+	// Construct a network object
+	err = xxdk.NewProtoClient_Unsafe(baseNdf, statePath,
+		statePass, protoUser)
+	net, err := xxdk.LoadCmix(statePath,
+		statePass, cmixParams)
+	if err != nil {
+		jww.FATAL.Panicf("%+v", err)
+	}
+
+	// Store the updated base NDF
+	def, err := xxdk.ParseNDF(baseNdf)
+	if err != nil {
+		return nil, err
+	}
+	net.GetStorage().SetNDF(def)
+
+	// Create a legacy identity
+	identity, err := xxdk.MakeLegacyReceptionIdentity(net)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create and return a messenger
+	return xxdk.Login(net, nil, identity, e2eParams)
+}
+
+// LoginWithNDF is a login function which creates an
+// xxdk.E2e instance using a base NDF.
+func LoginWithNDF(statePath string, statePass []byte, baseNdf string,
+	cmixParams xxdk.CMIXParams, e2eParams xxdk.E2EParams) (*xxdk.E2e, error) {
+	jww.INFO.Printf("LoginWithNDF()")
+
+	// Construct a network object
+	net, err := xxdk.LoadCmix(statePath, statePass, cmixParams)
+	if err != nil {
+		return nil, err
+	}
+
+	// Store the base NDF
+	def, err := xxdk.ParseNDF(baseNdf)
+	if err != nil {
+		return nil, err
+	}
+	net.GetStorage().SetNDF(def)
+
+	// Create a legacy identity
+	identity, err := xxdk.MakeLegacyReceptionIdentity(net)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create and return a messenger
+	return xxdk.Login(net, nil, identity, e2eParams)
+
 }
 
 func Execute() {
