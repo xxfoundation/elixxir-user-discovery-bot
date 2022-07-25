@@ -165,7 +165,7 @@ func LoginWithProto(statePath string, statePass []byte,
 	}
 
 	// Construct a network object
-	err = xxdk.NewProtoClient_Unsafe(baseNdf, statePath,
+	err = xxdk.NewProtoCmix_Unsafe(baseNdf, statePath,
 		statePass, protoUser)
 	net, err := xxdk.LoadCmix(statePath,
 		statePass, cmixParams)
