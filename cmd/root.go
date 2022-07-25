@@ -113,31 +113,31 @@ var rootCmd = &cobra.Command{
 			break
 		}
 
-		var messenger *xxdk.E2e
+		var user *xxdk.E2e
 		cMixParams := xxdk.GetDefaultCMixParams()
 		cMixParams.Network = cMixParams.Network.SetRealtimeOnlyAll()
 		e2eParams := xxdk.GetDefaultE2EParams()
 		if p.SessionPath != "" && utils.Exists(p.SessionPath) {
-			// Construct a messenger using the NDF as a base
-			messenger, err = LoginWithNDF(p.SessionPath, []byte(sessionPass),
+			// Construct a user using the NDF as a base
+			user, err = LoginWithNDF(p.SessionPath, []byte(sessionPass),
 				string(returnedNdf.GetNdf()),
 				cMixParams, e2eParams)
 			if err != nil {
-				jww.FATAL.Fatalf("Failed to create messenger: %+v", err)
+				jww.FATAL.Fatalf("Failed to create user: %+v", err)
 			}
 		} else {
-			messenger, err = LoginWithProto(p.SessionPath, []byte(sessionPass),
+			user, err = LoginWithProto(p.SessionPath, []byte(sessionPass),
 				p.ProtoUserJson, string(returnedNdf.GetNdf()),
 				cMixParams, e2eParams)
 			if err != nil {
-				jww.FATAL.Fatalf("Failed to create messenger: %+v", err)
+				jww.FATAL.Fatalf("Failed to create user: %+v", err)
 			}
 		}
 
-		m := cmix.NewManager(messenger, storage)
+		m := cmix.NewManager(user, storage)
 		m.Start()
 
-		err = messenger.StartNetworkFollower(5 * time.Second)
+		err = user.StartNetworkFollower(5 * time.Second)
 		if err != nil {
 			jww.FATAL.Fatal(err)
 		}
@@ -165,7 +165,7 @@ func LoginWithProto(statePath string, statePass []byte,
 	}
 
 	// Construct a network object
-	err = xxdk.NewProtoClient_Unsafe(baseNdf, statePath,
+	err = xxdk.NewProtoCmix_Unsafe(baseNdf, statePath,
 		statePass, protoUser)
 	net, err := xxdk.LoadCmix(statePath,
 		statePass, cmixParams)
