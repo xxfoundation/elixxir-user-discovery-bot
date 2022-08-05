@@ -63,6 +63,8 @@ bannedRegexList: "bannedRegexList.txt"
 # Usernames should be separated by a Linux newline character ("\n").
 bannedUserList: "bannedUserList.txt"
 
+ed25519Key: "udEd25519.key"
+
 ```
 
 ## Running

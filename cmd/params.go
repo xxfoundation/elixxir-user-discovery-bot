@@ -57,6 +57,8 @@ func InitParams(vip *viper.Viper) params.General {
 		jww.WARN.Printf("Failed to read banned regex list: %v", err)
 	}
 
+	ed25519Key, err := utils.ReadFile(viper.GetString("ed25519KeyPath"))
+
 	// Only require proto user path if session does not exist
 	var protoUserJson []byte
 	protoUserPath := ""
@@ -117,6 +119,7 @@ func InitParams(vip *viper.Viper) params.General {
 		IO:              ioparams,
 		Twilio:          twilioparams,
 		ProtoUserJson:   protoUserJson,
+		Ed25519Key:      ed25519Key,
 		BannedUserList:  string(bannedUserList),
 		BannedRegexList: string(bannedRegexList),
 	}

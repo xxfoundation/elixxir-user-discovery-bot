@@ -15,6 +15,7 @@ type General struct {
 	PermCert        []byte
 	BannedUserList  string
 	BannedRegexList string
+	Ed25519Key      []byte
 
 	Database
 	IO
