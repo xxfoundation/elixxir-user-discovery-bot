@@ -10,6 +10,7 @@
 package io
 
 import (
+	"crypto/ed25519"
 	"fmt"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/udb"
@@ -29,6 +30,7 @@ type Manager struct {
 	Storage                *storage.Storage
 	Twilio                 *twilio.Manager
 	Banned                 *banned.Manager
+	ChannelKey             ed25519.PrivateKey
 	skipVerification       bool
 }
 
@@ -72,6 +74,10 @@ func newImplementation(m *Manager) *udb.Implementation {
 
 	impl.Functions.RemoveFact = func(msg *pb.FactRemovalRequest) (*messages.Ack, error) {
 		return removeFact(msg, m.Storage)
+	}
+
+	impl.Functions.RequestChannelAuthentication = func(msg *pb.ChannelAuthenticationRequest) (*pb.ChannelAuthenticationResponse, error) {
+		return authorizeChannelUser(msg, m.ChannelKey, m.Storage)
 	}
 
 	return impl

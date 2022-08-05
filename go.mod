@@ -10,8 +10,8 @@ require (
 	github.com/spf13/viper v1.11.0
 	github.com/ttacon/libphonenumber v1.2.1
 	gitlab.com/elixxir/client v1.5.1-0.20220725172207-3ef87e8c794c
-	gitlab.com/elixxir/comms v0.0.4-0.20220603231314-e47e4af13326
-	gitlab.com/elixxir/crypto v0.0.7-0.20220606201132-c370d5039cea
+	gitlab.com/elixxir/comms v0.0.4-0.20220805121030-b95005ac4528
+	gitlab.com/elixxir/crypto v0.0.7-0.20220805130509-72ba5fb86ae9
 	gitlab.com/elixxir/primitives v0.0.3-0.20220606195757-40f7a589347f
 	gitlab.com/xx_network/comms v0.0.4-0.20220630163702-f3d372ef6acd
 	gitlab.com/xx_network/crypto v0.0.5-0.20220606200528-3f886fe49e81
@@ -21,7 +21,6 @@ require (
 )
 
 require (
-	github.com/andres-erbsen/clock v0.0.0-20160526145045-9e14626cd129 // indirect
 	github.com/badoux/checkmail v1.2.1 // indirect
 	github.com/cloudflare/circl v1.1.0 // indirect
 	github.com/elliotchance/orderedmap v1.4.0 // indirect
@@ -56,7 +55,6 @@ require (
 	gitlab.com/elixxir/bloomfilter v0.0.0-20211222005329-7d931ceead6f // indirect
 	gitlab.com/elixxir/ekv v0.1.7 // indirect
 	gitlab.com/xx_network/ring v0.0.3-0.20220222211904-da613960ad93 // indirect
-	go.uber.org/ratelimit v0.2.0 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
 	golang.org/x/net v0.0.0-20220420153159-1850ba15e1be // indirect
 	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
