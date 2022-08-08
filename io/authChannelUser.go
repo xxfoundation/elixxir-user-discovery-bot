@@ -2,7 +2,6 @@ package io
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/channel"
@@ -54,30 +53,19 @@ func authorizeChannelUser(req *pb.ChannelAuthenticationRequest, s *storage.Stora
 		return nil, errors.New(errorUserBanned)
 	}
 
-	fmt.Println(1)
 	// If no lease, or if lease expired, issue new lease
 	// If lease unexpired, but within grace period, issue new lease
 	// Otherwise, use stored lease
 	var lease int64
-	if prevChanId != nil {
-		if prevChanId.Lease < req.Timestamp {
-			if prevChanId.Lease < req.Timestamp+param.LeaseGracePeriod.Nanoseconds() {
-				lease = prevChanId.Lease
-			} else {
-				lease = req.Timestamp + param.LeaseTime.Nanoseconds()
-			}
-		} else {
-			lease = req.Timestamp + param.LeaseTime.Nanoseconds()
-		}
+	if prevChanId != nil && prevChanId.Lease-param.LeaseGracePeriod.Nanoseconds() < req.Timestamp {
+		lease = prevChanId.Lease
 	} else {
 		lease = req.Timestamp + param.LeaseTime.Nanoseconds()
 	}
 
-	fmt.Println(2)
 	// Sign lease + user's public key
 	udSig := channel.SignResponse(req.UserEd25519PubKey, uint64(lease), param.Ed25519Key)
 
-	fmt.Println(3)
 	// Insert identity to database
 	err = s.InsertChannelIdentity(&storage.ChannelIdentity{
 		UserId:     req.UserID,

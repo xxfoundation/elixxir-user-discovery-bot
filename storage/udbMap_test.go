@@ -439,6 +439,7 @@ func TestMapImpl_Search(t *testing.T) {
 	}
 }
 
+// Unit test for inserting channel identity
 func TestMapImpl_InsertChannelIdentity(t *testing.T) {
 	mapImpl, err := newDatabase("", "", "", "", "")
 	if err != nil {
@@ -458,6 +459,7 @@ func TestMapImpl_InsertChannelIdentity(t *testing.T) {
 	}
 }
 
+// Unit test for getting channel identity
 func TestMapImpl_GetChannelIdentity(t *testing.T) {
 	mapImpl, err := newDatabase("", "", "", "", "")
 	if err != nil {
