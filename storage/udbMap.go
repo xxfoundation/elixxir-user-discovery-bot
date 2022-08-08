@@ -13,6 +13,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/xx_network/primitives/id"
+	"gorm.io/gorm"
 	"strings"
 	"time"
 )
@@ -199,4 +200,29 @@ func (m *MapImpl) StartFactManager(i time.Duration) chan chan bool {
 		}
 	}()
 	return stopChan
+}
+
+func (m *MapImpl) InsertChannelIdentity(identity *ChannelIdentity) error {
+	uid, err := id.Unmarshal(identity.UserId)
+	if err != nil {
+		return err
+	}
+	if _, ok := m.channelIdentities[*uid]; ok {
+		m.channelIdentities[*uid].Lease = identity.Lease
+	} else {
+		m.channelIdentities[*uid] = identity
+	}
+	return nil
+}
+
+func (m *MapImpl) GetChannelIdentity(idBytes []byte) (*ChannelIdentity, error) {
+	uid, err := id.Unmarshal(idBytes)
+	if err != nil {
+		return nil, err
+	}
+	cid, ok := m.channelIdentities[*uid]
+	if !ok {
+		return nil, gorm.ErrRecordNotFound
+	}
+	return cid, nil
 }

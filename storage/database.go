@@ -38,6 +38,9 @@ type database interface {
 	Search(factHashes [][]byte) ([]*User, error)
 
 	StartFactManager(i time.Duration) chan chan bool
+
+	InsertChannelIdentity(identity *ChannelIdentity) error
+	GetChannelIdentity(id []byte) (*ChannelIdentity, error)
 }
 
 // Struct implementing the Database Interface with an underlying DB
@@ -50,9 +53,10 @@ type factId [32]byte
 
 // Struct implementing the Database Interface with an underlying Map
 type MapImpl struct {
-	users     map[id.ID]*User
-	usernames map[id.ID]*Fact
-	facts     map[factId]*Fact
+	users             map[id.ID]*User
+	usernames         map[id.ID]*Fact
+	facts             map[factId]*Fact
+	channelIdentities map[id.ID]*ChannelIdentity
 	sync.RWMutex
 }
 
@@ -92,6 +96,13 @@ type Fact struct {
 	Verified       bool      `gorm:"not null"`
 	Timestamp      time.Time `gorm:"not null"`
 	ConfirmationId string
+}
+
+type ChannelIdentity struct {
+	UserId     []byte `gorm:"primaryKey"`
+	Ed25519Pub []byte `gorm:"not null"`
+	Lease      int64  `gorm:"not null"`
+	Banned     bool   `gorm:"default:false"`
 }
 
 // Initialize the Database interface with database backend
@@ -153,7 +164,7 @@ func newDatabase(username, password, dbName, address,
 
 	// Initialize the database schema
 	// WARNING: Order is important. Do not change without database testing
-	models := []interface{}{User{}, Fact{}}
+	models := []interface{}{User{}, Fact{}, ChannelIdentity{}}
 	for _, model := range models {
 		err = db.AutoMigrate(model)
 		if err != nil {

@@ -198,3 +198,12 @@ func (db *DatabaseImpl) StartFactManager(i time.Duration) chan chan bool {
 	}()
 	return stopChan
 }
+
+func (db *DatabaseImpl) InsertChannelIdentity(identity *ChannelIdentity) error {
+	return db.db.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "user_id"}}, DoUpdates: clause.AssignmentColumns([]string{"lease"})}).Create(identity).Error
+}
+
+func (db *DatabaseImpl) GetChannelIdentity(idBytes []byte) (*ChannelIdentity, error) {
+	ret := &ChannelIdentity{}
+	return ret, db.db.First(&ret, "id = ?", idBytes).Error
+}
