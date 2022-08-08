@@ -104,6 +104,7 @@ type ChannelIdentity struct {
 	Ed25519Pub []byte `gorm:"not null"`
 	Lease      int64  `gorm:"not null"`
 	Banned     bool   `gorm:"default:false"`
+	User       User   `gorm:"foreignKey:UserId;constraint:OnDelete:CASCADE;"`
 }
 
 // Initialize the Database interface with database backend
