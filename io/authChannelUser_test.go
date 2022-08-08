@@ -16,6 +16,8 @@ func TestAuthChannelUser(t *testing.T) {
 	// Initialize client and storage
 	clientId, clientKey := initClientFields(t)
 	store := storage.NewTestDB(t)
+	leaseTime := 100
+	leaseGracePeriod := 10
 
 	err := store.InsertUser(&storage.User{
 		Id:     clientId.Bytes(),
@@ -28,7 +30,7 @@ func TestAuthChannelUser(t *testing.T) {
 	rng := csprng.NewSystemRNG()
 	rng.SetSeed([]byte("seed"))
 
-	ts := time.Now().UnixNano()
+	ts := int64(1000)
 
 	udPub, udPriv, err := ed25519.GenerateKey(rng)
 	if err != nil {
@@ -53,8 +55,8 @@ func TestAuthChannelUser(t *testing.T) {
 		UserSignedEdPubKey: sig,
 	}, store, params.Channels{
 		Enabled:          true,
-		LeaseTime:        500 * time.Hour,
-		LeaseGracePeriod: 24 * time.Hour,
+		LeaseTime:        time.Duration(leaseTime),
+		LeaseGracePeriod: time.Duration(leaseGracePeriod),
 		Ed25519Key:       udPriv,
 	})
 	if err != nil {
@@ -64,5 +66,56 @@ func TestAuthChannelUser(t *testing.T) {
 	ok := channel.VerifyResponse(resp.UDSignedEdPubKey, userPub, uint64(resp.Lease), udPub)
 	if !ok {
 		t.Fatal("Failed to verify ud signature returned by authorizeChannelUser")
+	}
+
+	if resp.Lease != ts+int64(leaseTime) {
+		t.Errorf("Lease not calculated as expected: %+v", err)
+	}
+
+	ts2 := resp.Lease - 15
+	sig2, err := channel.SignRequest(userPub, ts2, clientKey, rng)
+	if err != nil {
+		t.Fatalf("Failed to sign user pub key: %+v", err)
+	}
+	resp2, err := authorizeChannelUser(&mixmessages.ChannelAuthenticationRequest{
+		UserID:             clientId.Bytes(),
+		UserEd25519PubKey:  userPub,
+		Timestamp:          ts2,
+		UserSignedEdPubKey: sig2,
+	}, store, params.Channels{
+		Enabled:          true,
+		LeaseTime:        time.Duration(leaseTime),
+		LeaseGracePeriod: time.Duration(leaseGracePeriod),
+		Ed25519Key:       udPriv,
+	})
+	if err != nil {
+		t.Fatalf("Failed to authorizeChannelUser: %+v", err)
+	}
+
+	if resp2.Lease != resp.Lease {
+		t.Errorf("Lease should not have changed\n\tExpected: %d\n\tReceived: %d\n", resp.Lease, resp2.Lease)
+	}
+
+	ts3 := resp.Lease - 3
+	sig3, err := channel.SignRequest(userPub, ts3, clientKey, rng)
+	if err != nil {
+		t.Fatalf("Failed to sign user pub key: %+v", err)
+	}
+	resp3, err := authorizeChannelUser(&mixmessages.ChannelAuthenticationRequest{
+		UserID:             clientId.Bytes(),
+		UserEd25519PubKey:  userPub,
+		Timestamp:          ts3,
+		UserSignedEdPubKey: sig3,
+	}, store, params.Channels{
+		Enabled:          true,
+		LeaseTime:        time.Duration(leaseTime),
+		LeaseGracePeriod: time.Duration(leaseGracePeriod),
+		Ed25519Key:       udPriv,
+	})
+	if err != nil {
+		t.Fatalf("Failed to authorizeChannelUser: %+v", err)
+	}
+	if resp3.Lease != ts3+int64(leaseTime) {
+		t.Errorf("Did not receive expected lease\n\tExpected: %d\n\tReceived: %d\n", ts3+int64(leaseTime), resp3.Lease)
 	}
 }

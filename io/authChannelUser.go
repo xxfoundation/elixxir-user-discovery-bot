@@ -57,7 +57,7 @@ func authorizeChannelUser(req *pb.ChannelAuthenticationRequest, s *storage.Stora
 	// If lease unexpired, but within grace period, issue new lease
 	// Otherwise, use stored lease
 	var lease int64
-	if prevChanId != nil && prevChanId.Lease-param.LeaseGracePeriod.Nanoseconds() < req.Timestamp {
+	if prevChanId != nil && prevChanId.Lease-param.LeaseGracePeriod.Nanoseconds() > req.Timestamp {
 		lease = prevChanId.Lease
 	} else {
 		lease = req.Timestamp + param.LeaseTime.Nanoseconds()
