@@ -37,7 +37,7 @@ func authorizeChannelUser(req *pb.ChannelAuthenticationRequest, s *storage.Stora
 	}
 
 	// Verify channel request authenticity based on public key from database
-	err = channel.VerifyRequest(req.UserSignedEdPubKey, req.UserEd25519PubKey, req.Timestamp, pubKey)
+	err = channel.VerifyChannelIdentityRequest(req.UserSignedEdPubKey, req.UserEd25519PubKey, req.Timestamp, pubKey)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func authorizeChannelUser(req *pb.ChannelAuthenticationRequest, s *storage.Stora
 	}
 
 	// Sign lease + user's public key
-	udSig := channel.SignResponse(req.UserEd25519PubKey, uint64(lease), param.Ed25519Key)
+	udSig := channel.SignChannelLease(req.UserEd25519PubKey, uint64(lease), param.Ed25519Key)
 
 	// Insert identity to database
 	err = s.InsertChannelIdentity(&storage.ChannelIdentity{

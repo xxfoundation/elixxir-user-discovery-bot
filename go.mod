@@ -11,7 +11,7 @@ require (
 	github.com/ttacon/libphonenumber v1.2.1
 	gitlab.com/elixxir/client v1.5.1-0.20220805140150-6452b2d0dc98
 	gitlab.com/elixxir/comms v0.0.4-0.20220805121030-b95005ac4528
-	gitlab.com/elixxir/crypto v0.0.7-0.20220805130509-72ba5fb86ae9
+	gitlab.com/elixxir/crypto v0.0.7-0.20220808171640-473891de4c46
 	gitlab.com/elixxir/primitives v0.0.3-0.20220606195757-40f7a589347f
 	gitlab.com/xx_network/comms v0.0.4-0.20220630163702-f3d372ef6acd
 	gitlab.com/xx_network/crypto v0.0.5-0.20220729193517-1e5e96f39f6e

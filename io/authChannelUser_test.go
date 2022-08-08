@@ -43,7 +43,7 @@ func TestAuthChannelUser(t *testing.T) {
 
 	}
 
-	sig, err := channel.SignRequest(userPub, ts, clientKey, rng)
+	sig, err := channel.SignChannelIdentityRequest(userPub, ts, clientKey, rng)
 	if err != nil {
 		t.Fatalf("Failed to sign user pub key: %+v", err)
 	}
@@ -63,7 +63,7 @@ func TestAuthChannelUser(t *testing.T) {
 		t.Fatalf("Failed to authorizeChannelUser: %+v", err)
 	}
 
-	ok := channel.VerifyResponse(resp.UDSignedEdPubKey, userPub, uint64(resp.Lease), udPub)
+	ok := channel.VerifyChannelLease(resp.UDSignedEdPubKey, userPub, uint64(resp.Lease), udPub)
 	if !ok {
 		t.Fatal("Failed to verify ud signature returned by authorizeChannelUser")
 	}
@@ -73,7 +73,7 @@ func TestAuthChannelUser(t *testing.T) {
 	}
 
 	ts2 := resp.Lease - 15
-	sig2, err := channel.SignRequest(userPub, ts2, clientKey, rng)
+	sig2, err := channel.SignChannelIdentityRequest(userPub, ts2, clientKey, rng)
 	if err != nil {
 		t.Fatalf("Failed to sign user pub key: %+v", err)
 	}
@@ -97,7 +97,7 @@ func TestAuthChannelUser(t *testing.T) {
 	}
 
 	ts3 := resp.Lease - 3
-	sig3, err := channel.SignRequest(userPub, ts3, clientKey, rng)
+	sig3, err := channel.SignChannelIdentityRequest(userPub, ts3, clientKey, rng)
 	if err != nil {
 		t.Fatalf("Failed to sign user pub key: %+v", err)
 	}
