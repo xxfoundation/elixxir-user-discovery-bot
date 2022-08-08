@@ -10,7 +10,6 @@
 package io
 
 import (
-	"crypto/ed25519"
 	"fmt"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/udb"
@@ -30,12 +29,12 @@ type Manager struct {
 	Storage                *storage.Storage
 	Twilio                 *twilio.Manager
 	Banned                 *banned.Manager
-	ChannelKey             ed25519.PrivateKey
+	ChannelParams          params.Channels
 	skipVerification       bool
 }
 
 // NewManager creates a new UserDiscovery Manager given a set of Params.
-func NewManager(p params.IO, id *id.ID, permissioningCert *rsa.PublicKey, ed25519Key ed25519.PrivateKey,
+func NewManager(p params.IO, id *id.ID, permissioningCert *rsa.PublicKey, chanParams params.Channels,
 	twilio *twilio.Manager, banned *banned.Manager,
 	storage *storage.Storage, skipVerification bool) *Manager {
 	m := &Manager{
@@ -44,7 +43,7 @@ func NewManager(p params.IO, id *id.ID, permissioningCert *rsa.PublicKey, ed2551
 		Twilio:                 twilio,
 		Banned:                 banned,
 		skipVerification:       skipVerification,
-		ChannelKey:             ed25519Key,
+		ChannelParams:          chanParams,
 	}
 	m.Comms = udb.StartServer(id, fmt.Sprintf("0.0.0.0:%s", p.Port),
 		newImplementation(m), p.Cert, p.Key)
@@ -78,7 +77,7 @@ func newImplementation(m *Manager) *udb.Implementation {
 	}
 
 	impl.Functions.RequestChannelAuthentication = func(msg *pb.ChannelAuthenticationRequest) (*pb.ChannelAuthenticationResponse, error) {
-		return authorizeChannelUser(msg, m.ChannelKey, m.Storage)
+		return authorizeChannelUser(msg, m.Storage, m.ChannelParams)
 	}
 
 	return impl

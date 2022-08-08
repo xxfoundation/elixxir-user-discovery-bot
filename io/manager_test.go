@@ -10,6 +10,7 @@ import (
 	"gitlab.com/xx_network/primitives/id"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestNewManager(t *testing.T) {
@@ -27,7 +28,12 @@ func TestNewManager(t *testing.T) {
 
 	_, edPriv, err := ed25519.GenerateKey(csprng.NewSystemRNG())
 
-	m := NewManager(p, id.NewIdFromString("zezima", id.User, t), nil, edPriv, tm, bannedManager, store, false)
+	m := NewManager(p, id.NewIdFromString("zezima", id.User, t), nil, params.Channels{
+		Enabled:          true,
+		LeaseTime:        500 * time.Hour,
+		LeaseGracePeriod: 24 * time.Hour,
+		Ed25519Key:       edPriv,
+	}, tm, bannedManager, store, false)
 	if m == nil || reflect.TypeOf(m) != reflect.TypeOf(&Manager{}) {
 		t.Errorf("Did not receive a manager")
 	}

@@ -1,8 +1,10 @@
 package storage
 
 import (
+	"bytes"
 	"gitlab.com/xx_network/primitives/id"
 	"testing"
+	"time"
 )
 
 // Hidden function for one-time unit testing database implementation
@@ -434,5 +436,50 @@ func TestMapImpl_Search(t *testing.T) {
 	}
 	if len(ulist) != 1 {
 		t.Errorf("Did not receive expected num users.  Received: %d, expected: %d", len(ulist), 1)
+	}
+}
+
+func TestMapImpl_InsertChannelIdentity(t *testing.T) {
+	mapImpl, err := newDatabase("", "", "", "", "")
+	if err != nil {
+		t.Errorf("Failed to create map impl")
+		t.FailNow()
+	}
+	uid := id.NewIdFromString("testuserid", id.User, t)
+	ci := &ChannelIdentity{
+		UserId:     uid.Marshal(),
+		Ed25519Pub: []byte("eidpub"),
+		Lease:      time.Now().UnixNano(),
+		Banned:     false,
+	}
+	err = mapImpl.InsertChannelIdentity(ci)
+	if err != nil {
+		t.Fatalf("Failed to insert channel Identity: %+v", err)
+	}
+}
+
+func TestMapImpl_GetChannelIdentity(t *testing.T) {
+	mapImpl, err := newDatabase("", "", "", "", "")
+	if err != nil {
+		t.Errorf("Failed to create map impl")
+		t.FailNow()
+	}
+	uid := id.NewIdFromString("testuserid", id.User, t)
+	ci := &ChannelIdentity{
+		UserId:     uid.Marshal(),
+		Ed25519Pub: []byte("eidpub"),
+		Lease:      time.Now().UnixNano(),
+		Banned:     false,
+	}
+	err = mapImpl.InsertChannelIdentity(ci)
+	if err != nil {
+		t.Fatalf("Failed to insert channel Identity: %+v", err)
+	}
+	ciLoaded, err := mapImpl.GetChannelIdentity(uid.Marshal())
+	if err != nil {
+		t.Fatalf("Failed to load channel identity: %+v", err)
+	}
+	if !bytes.Equal(ci.Ed25519Pub, ciLoaded.Ed25519Pub) {
+		t.Errorf("Did not receive expected data from map impl\n\tExpected: %+v\n\tReceived: %+v\n", ci, ciLoaded)
 	}
 }

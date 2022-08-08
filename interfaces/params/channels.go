@@ -4,20 +4,15 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// Handles Params-related functionality for the UserDiscovery layer
+// Handles Params-related functionality for the Channels endpoint
 
 package params
 
-type General struct {
-	SessionPath     string
-	ProtoUserJson   []byte
-	Ndf             string
-	PermCert        []byte
-	BannedUserList  string
-	BannedRegexList string
+import "time"
 
-	Database
-	IO
-	Twilio
-	Channels
+type Channels struct {
+	Enabled          bool
+	LeaseTime        time.Duration
+	LeaseGracePeriod time.Duration
+	Ed25519Key       []byte
 }

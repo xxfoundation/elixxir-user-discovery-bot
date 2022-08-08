@@ -108,6 +108,13 @@ func InitParams(vip *viper.Viper) params.General {
 		VerificationSid: viper.GetString("twilioVerification"),
 	}
 
+	channelParams := params.Channels{
+		Enabled:          viper.GetBool("channelsEnabled"),
+		LeaseTime:        viper.GetDuration("channelLeaseTime"),
+		LeaseGracePeriod: viper.GetDuration("channelLeaseGracePeriod"),
+		Ed25519Key:       ed25519Key,
+	}
+
 	jww.INFO.Printf("config: %+v", viper.ConfigFileUsed())
 	jww.INFO.Printf("Params: \n %+v", vip.AllSettings())
 	jww.INFO.Printf("UDB port: %s", ioparams.Port)
@@ -119,8 +126,8 @@ func InitParams(vip *viper.Viper) params.General {
 		IO:              ioparams,
 		Twilio:          twilioparams,
 		ProtoUserJson:   protoUserJson,
-		Ed25519Key:      ed25519Key,
 		BannedUserList:  string(bannedUserList),
 		BannedRegexList: string(bannedRegexList),
+		Channels:        channelParams,
 	}
 }

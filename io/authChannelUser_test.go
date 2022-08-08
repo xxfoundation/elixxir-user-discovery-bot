@@ -4,6 +4,7 @@ import (
 	"crypto/ed25519"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/channel"
+	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/xx_network/crypto/csprng"
 	"gitlab.com/xx_network/crypto/signature/rsa"
@@ -50,7 +51,12 @@ func TestAuthChannelUser(t *testing.T) {
 		UserEd25519PubKey:  userPub,
 		Timestamp:          ts,
 		UserSignedEdPubKey: sig,
-	}, udPriv, store)
+	}, store, params.Channels{
+		Enabled:          true,
+		LeaseTime:        500 * time.Hour,
+		LeaseGracePeriod: 24 * time.Hour,
+		Ed25519Key:       udPriv,
+	})
 	if err != nil {
 		t.Fatalf("Failed to authorizeChannelUser: %+v", err)
 	}

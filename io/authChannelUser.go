@@ -2,35 +2,32 @@ package io
 
 import (
 	"bytes"
-	"crypto/ed25519"
+	"fmt"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/channel"
+	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gorm.io/gorm"
-	"time"
 )
 
-// TODO make these configurable
-const leaseTime = time.Hour * 500
-const leaseGraceTime = time.Hour * 24
-const channelEndpointActive = true
-
 const (
-	errorChannelsNotActive = ""
-	errorUserBanned        = ""
-	errorPubkeyMismatch    = ""
+	errorChannelsNotActive = "error channels are not enabled in user discovery"
+	errorUserBanned        = "error user is banned from channels"
+	errorPubkeyMismatch    = "error cannot register second public key for user"
 )
 
 // Handle a request for channel authentication from a user.
 // Accepts pb.ChannelAuthenticationRequest, UD ed25519 private key, & UD storage interface
 // Returns a ChannelAuthenticationResponser
-func authorizeChannelUser(req *pb.ChannelAuthenticationRequest, udEd25519PrivKey ed25519.PrivateKey, s *storage.Storage) (*pb.ChannelAuthenticationResponse, error) {
-	if !channelEndpointActive {
+func authorizeChannelUser(req *pb.ChannelAuthenticationRequest, s *storage.Storage, param params.Channels) (*pb.ChannelAuthenticationResponse, error) {
+	// Return error if not configured to run this endpoint
+	if !param.Enabled {
 		return nil, errors.New(errorChannelsNotActive)
 	}
 
+	// Fetch user RSA public key from database
 	u, err := s.GetUser(req.UserID)
 	if err != nil {
 		return nil, err
@@ -40,40 +37,48 @@ func authorizeChannelUser(req *pb.ChannelAuthenticationRequest, udEd25519PrivKey
 		return nil, err
 	}
 
+	// Verify channel request authenticity based on public key from database
 	err = channel.VerifyRequest(req.UserSignedEdPubKey, req.UserEd25519PubKey, req.Timestamp, pubKey)
 	if err != nil {
 		return nil, err
 	}
 
+	// Check for previous registration, return error if banned or if attempting
+	// to use public key other than the one stored
 	prevChanId, err := s.GetChannelIdentity(req.UserID)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
-	} else if !bytes.Equal(prevChanId.Ed25519Pub, req.UserEd25519PubKey) {
+	} else if prevChanId != nil && !bytes.Equal(prevChanId.Ed25519Pub, req.UserEd25519PubKey) {
 		return nil, errors.New(errorPubkeyMismatch)
-	} else if prevChanId.Banned {
+	} else if prevChanId != nil && prevChanId.Banned {
 		return nil, errors.New(errorUserBanned)
 	}
 
+	fmt.Println(1)
+	// If no lease, or if lease expired, issue new lease
+	// If lease unexpired, but within grace period, issue new lease
+	// Otherwise, use stored lease
 	var lease int64
 	if prevChanId != nil {
 		if prevChanId.Lease < req.Timestamp {
-			if prevChanId.Lease < req.Timestamp+leaseGraceTime.Nanoseconds() {
+			if prevChanId.Lease < req.Timestamp+param.LeaseGracePeriod.Nanoseconds() {
 				lease = prevChanId.Lease
 			} else {
-				lease = req.Timestamp + leaseTime.Nanoseconds()
+				lease = req.Timestamp + param.LeaseTime.Nanoseconds()
 			}
 		} else {
-			lease = req.Timestamp + leaseTime.Nanoseconds()
+			lease = req.Timestamp + param.LeaseTime.Nanoseconds()
 		}
 	} else {
-		lease = req.Timestamp + leaseTime.Nanoseconds()
+		lease = req.Timestamp + param.LeaseTime.Nanoseconds()
 	}
 
-	udSig := channel.SignResponse(req.UserEd25519PubKey, uint64(lease), udEd25519PrivKey)
-	if err != nil {
-		return nil, err
-	}
+	fmt.Println(2)
+	// Sign lease + user's public key
+	udSig := channel.SignResponse(req.UserEd25519PubKey, uint64(lease), param.Ed25519Key)
 
+	fmt.Println(3)
+	// Insert identity to database
 	err = s.InsertChannelIdentity(&storage.ChannelIdentity{
 		UserId:     req.UserID,
 		Ed25519Pub: req.UserEd25519PubKey,
@@ -83,6 +88,7 @@ func authorizeChannelUser(req *pb.ChannelAuthenticationRequest, udEd25519PrivKey
 		return nil, err
 	}
 
+	// Return lease and signature
 	return &pb.ChannelAuthenticationResponse{
 		Lease:            lease,
 		UDSignedEdPubKey: udSig,

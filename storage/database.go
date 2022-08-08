@@ -98,6 +98,7 @@ type Fact struct {
 	ConfirmationId string
 }
 
+// ChannelIdentity represents the data which is stored by user discovery on a User's channel registration
 type ChannelIdentity struct {
 	UserId     []byte `gorm:"primaryKey"`
 	Ed25519Pub []byte `gorm:"not null"`
@@ -140,9 +141,10 @@ func newDatabase(username, password, dbName, address,
 		defer jww.INFO.Println("Map backend initialized successfully!")
 
 		mapImpl := &MapImpl{
-			users:     map[id.ID]*User{},
-			facts:     map[factId]*Fact{},
-			usernames: map[id.ID]*Fact{},
+			users:             map[id.ID]*User{},
+			facts:             map[factId]*Fact{},
+			usernames:         map[id.ID]*Fact{},
+			channelIdentities: map[id.ID]*ChannelIdentity{},
 		}
 
 		return database(mapImpl), nil
