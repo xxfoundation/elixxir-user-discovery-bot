@@ -48,11 +48,11 @@ func TestAuthChannelUser(t *testing.T) {
 		t.Fatalf("Failed to sign user pub key: %+v", err)
 	}
 
-	resp, err := authorizeChannelUser(&mixmessages.ChannelAuthenticationRequest{
-		UserID:             clientId.Bytes(),
-		UserEd25519PubKey:  userPub,
-		Timestamp:          ts,
-		UserSignedEdPubKey: sig,
+	resp, err := authorizeChannelUser(&mixmessages.ChannelLeaseRequest{
+		UserID:                 clientId.Bytes(),
+		UserEd25519PubKey:      userPub,
+		Timestamp:              ts,
+		UserPubKeyRSASignature: sig,
 	}, store, params.Channels{
 		Enabled:          true,
 		LeaseTime:        time.Duration(leaseTime),
@@ -63,7 +63,7 @@ func TestAuthChannelUser(t *testing.T) {
 		t.Fatalf("Failed to authorizeChannelUser: %+v", err)
 	}
 
-	ok := channel.VerifyChannelLease(resp.UDSignedEdPubKey, userPub, uint64(resp.Lease), udPub)
+	ok := channel.VerifyChannelLease(resp.UDLeaseEd25519Signature, userPub, uint64(resp.Lease), udPub)
 	if !ok {
 		t.Fatal("Failed to verify ud signature returned by authorizeChannelUser")
 	}
@@ -77,11 +77,11 @@ func TestAuthChannelUser(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to sign user pub key: %+v", err)
 	}
-	resp2, err := authorizeChannelUser(&mixmessages.ChannelAuthenticationRequest{
-		UserID:             clientId.Bytes(),
-		UserEd25519PubKey:  userPub,
-		Timestamp:          ts2,
-		UserSignedEdPubKey: sig2,
+	resp2, err := authorizeChannelUser(&mixmessages.ChannelLeaseRequest{
+		UserID:                 clientId.Bytes(),
+		UserEd25519PubKey:      userPub,
+		Timestamp:              ts2,
+		UserPubKeyRSASignature: sig2,
 	}, store, params.Channels{
 		Enabled:          true,
 		LeaseTime:        time.Duration(leaseTime),
@@ -101,11 +101,11 @@ func TestAuthChannelUser(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to sign user pub key: %+v", err)
 	}
-	resp3, err := authorizeChannelUser(&mixmessages.ChannelAuthenticationRequest{
-		UserID:             clientId.Bytes(),
-		UserEd25519PubKey:  userPub,
-		Timestamp:          ts3,
-		UserSignedEdPubKey: sig3,
+	resp3, err := authorizeChannelUser(&mixmessages.ChannelLeaseRequest{
+		UserID:                 clientId.Bytes(),
+		UserEd25519PubKey:      userPub,
+		Timestamp:              ts3,
+		UserPubKeyRSASignature: sig3,
 	}, store, params.Channels{
 		Enabled:          true,
 		LeaseTime:        time.Duration(leaseTime),

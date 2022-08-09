@@ -20,7 +20,7 @@ const (
 // Handle a request for channel authentication from a user.
 // Accepts pb.ChannelAuthenticationRequest, UD ed25519 private key, & UD storage interface
 // Returns a ChannelAuthenticationResponser
-func authorizeChannelUser(req *pb.ChannelAuthenticationRequest, s *storage.Storage, param params.Channels) (*pb.ChannelAuthenticationResponse, error) {
+func authorizeChannelUser(req *pb.ChannelLeaseRequest, s *storage.Storage, param params.Channels) (*pb.ChannelLeaseResponse, error) {
 	// Return error if not configured to run this endpoint
 	if !param.Enabled {
 		return nil, errors.New(errorChannelsNotActive)
@@ -37,7 +37,7 @@ func authorizeChannelUser(req *pb.ChannelAuthenticationRequest, s *storage.Stora
 	}
 
 	// Verify channel request authenticity based on public key from database
-	err = channel.VerifyChannelIdentityRequest(req.UserSignedEdPubKey, req.UserEd25519PubKey, req.Timestamp, pubKey)
+	err = channel.VerifyChannelIdentityRequest(req.UserPubKeyRSASignature, req.UserEd25519PubKey, req.Timestamp, pubKey)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func authorizeChannelUser(req *pb.ChannelAuthenticationRequest, s *storage.Stora
 	prevChanId, err := s.GetChannelIdentity(req.UserID)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
-	} else if prevChanId != nil && !bytes.Equal(prevChanId.Ed25519Pub, req.UserEd25519PubKey) {
+	} else if prevChanId != nil && !bytes.Equal(prevChanId.PublicKey, req.UserEd25519PubKey) {
 		return nil, errors.New(errorPubkeyMismatch)
 	} else if prevChanId != nil && prevChanId.Banned {
 		return nil, errors.New(errorUserBanned)
@@ -68,17 +68,18 @@ func authorizeChannelUser(req *pb.ChannelAuthenticationRequest, s *storage.Stora
 
 	// Insert identity to database
 	err = s.InsertChannelIdentity(&storage.ChannelIdentity{
-		UserId:     req.UserID,
-		Ed25519Pub: req.UserEd25519PubKey,
-		Lease:      lease,
+		UserId:    req.UserID,
+		PublicKey: req.UserEd25519PubKey,
+		Lease:     lease,
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	// Return lease and signature
-	return &pb.ChannelAuthenticationResponse{
-		Lease:            lease,
-		UDSignedEdPubKey: udSig,
+	return &pb.ChannelLeaseResponse{
+		Lease:                   lease,
+		UserEd25519PubKey:       req.UserEd25519PubKey,
+		UDLeaseEd25519Signature: udSig,
 	}, nil
 }

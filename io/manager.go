@@ -76,7 +76,7 @@ func newImplementation(m *Manager) *udb.Implementation {
 		return removeFact(msg, m.Storage)
 	}
 
-	impl.Functions.RequestChannelAuthentication = func(msg *pb.ChannelAuthenticationRequest) (*pb.ChannelAuthenticationResponse, error) {
+	impl.Functions.RequestChannelLease = func(msg *pb.ChannelLeaseRequest) (*pb.ChannelLeaseResponse, error) {
 		return authorizeChannelUser(msg, m.Storage, m.ChannelParams)
 	}
 

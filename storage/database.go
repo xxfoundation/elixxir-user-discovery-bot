@@ -100,11 +100,11 @@ type Fact struct {
 
 // ChannelIdentity represents the data which is stored by user discovery on a User's channel registration
 type ChannelIdentity struct {
-	UserId     []byte `gorm:"primaryKey"`
-	Ed25519Pub []byte `gorm:"not null"`
-	Lease      int64  `gorm:"not null"`
-	Banned     bool   `gorm:"default:false"`
-	User       User   `gorm:"foreignKey:UserId;constraint:OnDelete:CASCADE;"`
+	UserId    []byte `gorm:"primaryKey"`
+	PublicKey []byte `gorm:"not null"`
+	Lease     int64  `gorm:"not null"`
+	Banned    bool   `gorm:"default:false"`
+	User      User   `gorm:"foreignKey:UserId;constraint:OnDelete:CASCADE;"`
 }
 
 // Initialize the Database interface with database backend

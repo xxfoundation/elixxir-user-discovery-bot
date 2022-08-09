@@ -448,10 +448,10 @@ func TestMapImpl_InsertChannelIdentity(t *testing.T) {
 	}
 	uid := id.NewIdFromString("testuserid", id.User, t)
 	ci := &ChannelIdentity{
-		UserId:     uid.Marshal(),
-		Ed25519Pub: []byte("eidpub"),
-		Lease:      time.Now().UnixNano(),
-		Banned:     false,
+		UserId:    uid.Marshal(),
+		PublicKey: []byte("eidpub"),
+		Lease:     time.Now().UnixNano(),
+		Banned:    false,
 	}
 	err = mapImpl.InsertChannelIdentity(ci)
 	if err != nil {
@@ -468,10 +468,10 @@ func TestMapImpl_GetChannelIdentity(t *testing.T) {
 	}
 	uid := id.NewIdFromString("testuserid", id.User, t)
 	ci := &ChannelIdentity{
-		UserId:     uid.Marshal(),
-		Ed25519Pub: []byte("eidpub"),
-		Lease:      time.Now().UnixNano(),
-		Banned:     false,
+		UserId:    uid.Marshal(),
+		PublicKey: []byte("eidpub"),
+		Lease:     time.Now().UnixNano(),
+		Banned:    false,
 	}
 	err = mapImpl.InsertChannelIdentity(ci)
 	if err != nil {
@@ -481,7 +481,7 @@ func TestMapImpl_GetChannelIdentity(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to load channel identity: %+v", err)
 	}
-	if !bytes.Equal(ci.Ed25519Pub, ciLoaded.Ed25519Pub) {
+	if !bytes.Equal(ci.PublicKey, ciLoaded.PublicKey) {
 		t.Errorf("Did not receive expected data from map impl\n\tExpected: %+v\n\tReceived: %+v\n", ci, ciLoaded)
 	}
 }
