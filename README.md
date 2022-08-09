@@ -63,6 +63,16 @@ bannedRegexList: "bannedRegexList.txt"
 # Usernames should be separated by a Linux newline character ("\n").
 bannedUserList: "bannedUserList.txt"
 
+# Channel authentication endpoint configuration
+# setting channelsEnabled to false will cause the endpoint to return an error
+channelsEnabled: true
+# channelLeaseTime controls the duration of a lease given in channel authentication
+channelLeaseTime: "500h"
+# Grace period (from lease expiration) during which a lease can be renewed while it is still valid
+channelLeaseGracePeriod: "1h"
+# Path to key for signing channel lease
+ed25519Key: "udEd25519.key"
+
 ```
 
 ## Running

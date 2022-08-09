@@ -29,11 +29,12 @@ type Manager struct {
 	Storage                *storage.Storage
 	Twilio                 *twilio.Manager
 	Banned                 *banned.Manager
+	ChannelParams          params.Channels
 	skipVerification       bool
 }
 
 // NewManager creates a new UserDiscovery Manager given a set of Params.
-func NewManager(p params.IO, id *id.ID, permissioningCert *rsa.PublicKey,
+func NewManager(p params.IO, id *id.ID, permissioningCert *rsa.PublicKey, chanParams params.Channels,
 	twilio *twilio.Manager, banned *banned.Manager,
 	storage *storage.Storage, skipVerification bool) *Manager {
 	m := &Manager{
@@ -42,6 +43,7 @@ func NewManager(p params.IO, id *id.ID, permissioningCert *rsa.PublicKey,
 		Twilio:                 twilio,
 		Banned:                 banned,
 		skipVerification:       skipVerification,
+		ChannelParams:          chanParams,
 	}
 	m.Comms = udb.StartServer(id, fmt.Sprintf("0.0.0.0:%s", p.Port),
 		newImplementation(m), p.Cert, p.Key)
@@ -72,6 +74,10 @@ func newImplementation(m *Manager) *udb.Implementation {
 
 	impl.Functions.RemoveFact = func(msg *pb.FactRemovalRequest) (*messages.Ack, error) {
 		return removeFact(msg, m.Storage)
+	}
+
+	impl.Functions.RequestChannelLease = func(msg *pb.ChannelLeaseRequest) (*pb.ChannelLeaseResponse, error) {
+		return authorizeChannelUser(msg, m.Storage, m.ChannelParams)
 	}
 
 	return impl

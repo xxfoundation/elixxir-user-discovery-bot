@@ -75,7 +75,7 @@ var rootCmd = &cobra.Command{
 		jww.WARN.Printf("Skipping scheduling signature verification set to %v ", viper.GetBool("skipVerification"))
 
 		// Set up manager with the ability to contact permissioning
-		manager := io.NewManager(p.IO, &id.UDB, permCert, twilioManager,
+		manager := io.NewManager(p.IO, &id.UDB, permCert, p.Channels, twilioManager,
 			bannedManager, storage, viper.GetBool("skipVerification"))
 		hostParams := connect.GetDefaultHostParams()
 		hostParams.AuthEnabled = false

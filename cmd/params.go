@@ -57,6 +57,8 @@ func InitParams(vip *viper.Viper) params.General {
 		jww.WARN.Printf("Failed to read banned regex list: %v", err)
 	}
 
+	ed25519Key, err := utils.ReadFile(viper.GetString("ed25519KeyPath"))
+
 	// Only require proto user path if session does not exist
 	var protoUserJson []byte
 	protoUserPath := ""
@@ -106,6 +108,13 @@ func InitParams(vip *viper.Viper) params.General {
 		VerificationSid: viper.GetString("twilioVerification"),
 	}
 
+	channelParams := params.Channels{
+		Enabled:          viper.GetBool("channelsEnabled"),
+		LeaseTime:        viper.GetDuration("channelLeaseTime"),
+		LeaseGracePeriod: viper.GetDuration("channelLeaseGracePeriod"),
+		Ed25519Key:       ed25519Key,
+	}
+
 	jww.INFO.Printf("config: %+v", viper.ConfigFileUsed())
 	jww.INFO.Printf("Params: \n %+v", vip.AllSettings())
 	jww.INFO.Printf("UDB port: %s", ioparams.Port)
@@ -119,5 +128,6 @@ func InitParams(vip *viper.Viper) params.General {
 		ProtoUserJson:   protoUserJson,
 		BannedUserList:  string(bannedUserList),
 		BannedRegexList: string(bannedRegexList),
+		Channels:        channelParams,
 	}
 }
