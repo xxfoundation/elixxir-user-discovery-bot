@@ -16,12 +16,14 @@ func TestAuthChannelUser(t *testing.T) {
 	// Initialize client and storage
 	clientId, clientKey := initClientFields(t)
 	store := storage.NewTestDB(t)
-	leaseTime := 100
+	leaseTime := time.Nanosecond * 100
 	leaseGracePeriod := 10
 
+	username := "zezima"
 	err := store.InsertUser(&storage.User{
-		Id:     clientId.Bytes(),
-		RsaPub: string(rsa.CreatePublicKeyPem(clientKey.GetPublic())),
+		Id:       clientId.Bytes(),
+		Username: username,
+		RsaPub:   string(rsa.CreatePublicKeyPem(clientKey.GetPublic())),
 	})
 	if err != nil {
 		t.Fatalf("Failed to insert user: %+v", err)
@@ -30,7 +32,7 @@ func TestAuthChannelUser(t *testing.T) {
 	rng := csprng.NewSystemRNG()
 	rng.SetSeed([]byte("seed"))
 
-	ts := int64(1000)
+	ts := time.Now()
 
 	udPub, udPriv, err := ed25519.GenerateKey(rng)
 	if err != nil {
@@ -51,7 +53,7 @@ func TestAuthChannelUser(t *testing.T) {
 	resp, err := authorizeChannelUser(&mixmessages.ChannelLeaseRequest{
 		UserID:                 clientId.Bytes(),
 		UserEd25519PubKey:      userPub,
-		Timestamp:              ts,
+		Timestamp:              ts.UnixNano(),
 		UserPubKeyRSASignature: sig,
 	}, store, params.Channels{
 		Enabled:          true,
@@ -63,16 +65,12 @@ func TestAuthChannelUser(t *testing.T) {
 		t.Fatalf("Failed to authorizeChannelUser: %+v", err)
 	}
 
-	ok := channel.VerifyChannelLease(resp.UDLeaseEd25519Signature, userPub, uint64(resp.Lease), udPub)
+	ok := channel.VerifyChannelLease(resp.UDLeaseEd25519Signature, userPub, username, time.Unix(0, resp.Lease), udPub)
 	if !ok {
 		t.Fatal("Failed to verify ud signature returned by authorizeChannelUser")
 	}
 
-	if resp.Lease != ts+int64(leaseTime) {
-		t.Errorf("Lease not calculated as expected: %+v", err)
-	}
-
-	ts2 := resp.Lease - 15
+	ts2 := time.Unix(0, resp.Lease).Add(-15 * time.Nanosecond)
 	sig2, err := channel.SignChannelIdentityRequest(userPub, ts2, clientKey, rng)
 	if err != nil {
 		t.Fatalf("Failed to sign user pub key: %+v", err)
@@ -80,7 +78,7 @@ func TestAuthChannelUser(t *testing.T) {
 	resp2, err := authorizeChannelUser(&mixmessages.ChannelLeaseRequest{
 		UserID:                 clientId.Bytes(),
 		UserEd25519PubKey:      userPub,
-		Timestamp:              ts2,
+		Timestamp:              ts2.UnixNano(),
 		UserPubKeyRSASignature: sig2,
 	}, store, params.Channels{
 		Enabled:          true,
@@ -96,15 +94,15 @@ func TestAuthChannelUser(t *testing.T) {
 		t.Errorf("Lease should not have changed\n\tExpected: %d\n\tReceived: %d\n", resp.Lease, resp2.Lease)
 	}
 
-	ts3 := resp.Lease - 3
+	ts3 := time.Unix(0, resp.Lease).Add(-3 * time.Nanosecond)
 	sig3, err := channel.SignChannelIdentityRequest(userPub, ts3, clientKey, rng)
 	if err != nil {
 		t.Fatalf("Failed to sign user pub key: %+v", err)
 	}
-	resp3, err := authorizeChannelUser(&mixmessages.ChannelLeaseRequest{
+	_, err = authorizeChannelUser(&mixmessages.ChannelLeaseRequest{
 		UserID:                 clientId.Bytes(),
 		UserEd25519PubKey:      userPub,
-		Timestamp:              ts3,
+		Timestamp:              ts3.UnixNano(),
 		UserPubKeyRSASignature: sig3,
 	}, store, params.Channels{
 		Enabled:          true,
@@ -114,8 +112,5 @@ func TestAuthChannelUser(t *testing.T) {
 	})
 	if err != nil {
 		t.Fatalf("Failed to authorizeChannelUser: %+v", err)
-	}
-	if resp3.Lease != ts3+int64(leaseTime) {
-		t.Errorf("Did not receive expected lease\n\tExpected: %d\n\tReceived: %d\n", ts3+int64(leaseTime), resp3.Lease)
 	}
 }

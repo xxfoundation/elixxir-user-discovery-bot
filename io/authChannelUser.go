@@ -9,21 +9,23 @@ import (
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gorm.io/gorm"
+	"time"
 )
 
-const (
-	errorChannelsNotActive = "error channels are not enabled in user discovery"
-	errorUserBanned        = "error user is banned from channels"
-	errorPubkeyMismatch    = "error cannot register second public key for user"
+var (
+	errorChannelsNotActive = errors.New("error channels are not enabled in user discovery")
+	errorUserBanned        = errors.New("error user is banned from channels")
+	errorPubkeyMismatch    = errors.New("error cannot register second public key for user")
 )
 
 // Handle a request for channel authentication from a user.
-// Accepts pb.ChannelAuthenticationRequest, UD ed25519 private key, & UD storage interface
-// Returns a ChannelAuthenticationResponser
-func authorizeChannelUser(req *pb.ChannelLeaseRequest, s *storage.Storage, param params.Channels) (*pb.ChannelLeaseResponse, error) {
+// Accepts pb.ChannelLeaseRequest, UD ed25519 private key,
+// & UD storage interface.  Returns a ChannelLeaseResponse.
+func authorizeChannelUser(req *pb.ChannelLeaseRequest, s *storage.Storage,
+	param params.Channels) (*pb.ChannelLeaseResponse, error) {
 	// Return error if not configured to run this endpoint
 	if !param.Enabled {
-		return nil, errors.New(errorChannelsNotActive)
+		return nil, errorChannelsNotActive
 	}
 
 	// Fetch user RSA public key from database
@@ -36,8 +38,12 @@ func authorizeChannelUser(req *pb.ChannelLeaseRequest, s *storage.Storage, param
 		return nil, err
 	}
 
+	requestTimestamp := time.Unix(0, req.Timestamp)
+	now := time.Now()
+
 	// Verify channel request authenticity based on public key from database
-	err = channel.VerifyChannelIdentityRequest(req.UserPubKeyRSASignature, req.UserEd25519PubKey, req.Timestamp, pubKey)
+	err = channel.VerifyChannelIdentityRequest(req.UserPubKeyRSASignature,
+		req.UserEd25519PubKey, now, requestTimestamp, pubKey)
 	if err != nil {
 		return nil, err
 	}
@@ -47,30 +53,34 @@ func authorizeChannelUser(req *pb.ChannelLeaseRequest, s *storage.Storage, param
 	prevChanId, err := s.GetChannelIdentity(req.UserID)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
-	} else if prevChanId != nil && !bytes.Equal(prevChanId.PublicKey, req.UserEd25519PubKey) {
-		return nil, errors.New(errorPubkeyMismatch)
+	} else if prevChanId != nil && !bytes.Equal(prevChanId.PublicKey,
+		req.UserEd25519PubKey) {
+		return nil, errorPubkeyMismatch
 	} else if prevChanId != nil && prevChanId.Banned {
-		return nil, errors.New(errorUserBanned)
+		return nil, errorUserBanned
 	}
 
 	// If no lease, or if lease expired, issue new lease
 	// If lease unexpired, but within grace period, issue new lease
 	// Otherwise, use stored lease
-	var lease int64
-	if prevChanId != nil && prevChanId.Lease-param.LeaseGracePeriod.Nanoseconds() > req.Timestamp {
-		lease = prevChanId.Lease
+	var lease time.Time
+
+	if prevChanId != nil && requestTimestamp.Before(time.Unix(0,
+		prevChanId.Lease).Add(-1*param.LeaseGracePeriod)) {
+		lease = time.Unix(0, prevChanId.Lease)
 	} else {
-		lease = req.Timestamp + param.LeaseTime.Nanoseconds()
+		lease = now.Add(param.LeaseTime)
 	}
 
 	// Sign lease + user's public key
-	udSig := channel.SignChannelLease(req.UserEd25519PubKey, uint64(lease), param.Ed25519Key)
+	udSig := channel.SignChannelLease(req.UserEd25519PubKey, u.Username,
+		lease, param.Ed25519Key)
 
 	// Insert identity to database
 	err = s.InsertChannelIdentity(&storage.ChannelIdentity{
 		UserId:    req.UserID,
 		PublicKey: req.UserEd25519PubKey,
-		Lease:     lease,
+		Lease:     lease.UnixNano(),
 	})
 	if err != nil {
 		return nil, err
@@ -78,7 +88,7 @@ func authorizeChannelUser(req *pb.ChannelLeaseRequest, s *storage.Storage, param
 
 	// Return lease and signature
 	return &pb.ChannelLeaseResponse{
-		Lease:                   lease,
+		Lease:                   lease.UnixNano(),
 		UserEd25519PubKey:       req.UserEd25519PubKey,
 		UDLeaseEd25519Signature: udSig,
 	}, nil
