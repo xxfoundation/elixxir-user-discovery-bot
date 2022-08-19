@@ -13,7 +13,7 @@ import (
 	"gitlab.com/xx_network/primitives/id"
 )
 
-var (
+const (
 	invalidFactRegisterRequestError = "Unable to parse required fields in FactRegisterRequest."
 	factExistsError                 = "Cannot register fact that already exists."
 	noUserError                     = "User associated with fact not registered: %s"

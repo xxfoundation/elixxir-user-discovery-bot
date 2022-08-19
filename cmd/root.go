@@ -9,12 +9,15 @@ import (
 	"gitlab.com/elixxir/client/storage/user"
 	"gitlab.com/elixxir/client/xxdk"
 	"gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/crypto/fastRNG"
 	"gitlab.com/elixxir/user-discovery-bot/banned"
 	"gitlab.com/elixxir/user-discovery-bot/cmix"
 	"gitlab.com/elixxir/user-discovery-bot/io"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 	"gitlab.com/elixxir/user-discovery-bot/twilio"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/crypto/csprng"
+	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/crypto/tls"
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/ndf"
@@ -61,6 +64,11 @@ var rootCmd = &cobra.Command{
 			twilioManager = twilio.NewManager(p.Twilio, storage)
 		}
 
+		privKey, err := rsa.LoadPrivateKeyFromPem(p.Key)
+		if err != nil {
+			jww.FATAL.Panicf("Failed to load RSA private key: %v", err)
+		}
+
 		cert, err := tls.LoadCertificate(string(p.PermCert))
 		if err != nil {
 			jww.FATAL.Fatalf("Failed to load permissioning cert to pem: %+v", err)
@@ -74,9 +82,11 @@ var rootCmd = &cobra.Command{
 
 		jww.WARN.Printf("Skipping scheduling signature verification set to %v ", viper.GetBool("skipVerification"))
 
+		rngStreamGen := fastRNG.NewStreamGenerator(12, 1024, csprng.NewSystemRNG)
+
 		// Set up manager with the ability to contact permissioning
-		manager := io.NewManager(p.IO, &id.UDB, permCert, twilioManager,
-			bannedManager, storage, viper.GetBool("skipVerification"))
+		manager := io.NewManager(p.IO, &id.UDB, privKey, permCert, twilioManager,
+			bannedManager, storage, rngStreamGen, viper.GetBool("skipVerification"))
 		hostParams := connect.GetDefaultHostParams()
 		hostParams.AuthEnabled = false
 		permHost, err := manager.Comms.AddHost(&id.Permissioning,
