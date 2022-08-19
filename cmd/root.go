@@ -22,7 +22,8 @@ import (
 	"os"
 	"time"
 	"github.com/pkg/profile"
-
+	"os/signal"
+	"syscall"
 )
 
 var (
@@ -50,13 +51,7 @@ var rootCmd = &cobra.Command{
 		initLog()
 		p := InitParams(viper.GetViper())
 
-		memProfileOut := viper.GetString(profileMemFlag)
-		if memProfileOut != "" {
-			defer profile.Start(profile.MemProfile,
-				profile.ProfilePath(memProfileOut),
-				profile.NoShutdownHook).Stop()
-		}
-
+		startProfilersIfEnabled()
 
 		// Initialize storage
 		storage, err := storage.NewStorage(p.DbUsername, p.DbPassword, p.DbName, p.DbAddress, p.DbPort)
@@ -384,5 +379,36 @@ func initLog() {
 		fmt.Printf("Could not open log file %s!\n", logPath)
 	} else {
 		jww.SetLogOutput(logFile)
+	}
+}
+
+func startProfilersIfEnabled() {
+	// Set up channel on which to send signal notifications.
+	// We must use a buffered channel or risk missing the signal
+	// if we're not ready to receive when the signal is sent.
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+	defer os.Exit(0)
+
+	// Start our profilers
+	// cpuProfileOut := viper.GetString(profileCpuFlag)
+	// if cpuProfileOut != "" {
+	// 	defer profile.Start(profile.CPUProfile,
+	// 		profile.ProfilePath(cpuProfileOut),
+	// 		profile.NoShutdownHook).Stop()
+	// }
+	memProfileOut := viper.GetString(profileMemFlag)
+	if memProfileOut != "" {
+		defer profile.Start(profile.MemProfile,
+			profile.ProfilePath(memProfileOut),
+			profile.NoShutdownHook).Stop()
+	}
+
+	// Block forever to prevent the program ending
+	// Block until a signal is received, then stop profilers via defer when
+	// exiting
+	select {
+	case <-c:
+		jww.INFO.Printf("Received Exit (SIGTERM or SIGINT) signal...\n")
 	}
 }
