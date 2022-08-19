@@ -21,6 +21,8 @@ import (
 	"gitlab.com/xx_network/primitives/utils"
 	"os"
 	"time"
+	"github.com/pkg/profile"
+
 )
 
 var (
@@ -33,6 +35,10 @@ var (
 	sessionPass                     string
 )
 
+const (
+	profileMemFlag   = "profile-mem"
+)
+
 // RootCmd represents the base command when called without any sub-commands
 var rootCmd = &cobra.Command{
 	Use:   "UDB",
@@ -43,6 +49,14 @@ var rootCmd = &cobra.Command{
 		initConfig()
 		initLog()
 		p := InitParams(viper.GetViper())
+
+		memProfileOut := viper.GetString(profileMemFlag)
+		if memProfileOut != "" {
+			defer profile.Start(profile.MemProfile,
+				profile.ProfilePath(memProfileOut),
+				profile.NoShutdownHook).Stop()
+		}
+
 
 		// Initialize storage
 		storage, err := storage.NewStorage(p.DbUsername, p.DbPassword, p.DbName, p.DbAddress, p.DbPort)
@@ -289,6 +303,10 @@ func init() {
 			"when registering. The default behaviour is to check the signature.")
 	err = viper.BindPFlag("skipVerification", rootCmd.Flags().Lookup("skipVerification"))
 	handleBindingError(err, "skipVerification")
+
+	rootCmd.Flags().String(profileMemFlag, "",
+		"Enable memory profiling to this directory")
+	viper.BindPFlag(profileMemFlag, rootCmd.Flags().Lookup(profileMemFlag))
 
 }
 
