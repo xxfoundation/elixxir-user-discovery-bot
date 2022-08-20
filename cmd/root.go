@@ -51,7 +51,7 @@ var rootCmd = &cobra.Command{
 		initLog()
 		p := InitParams(viper.GetViper())
 
-		startProfilersIfEnabled()
+		go startProfilersIfEnabled()
 
 		// Initialize storage
 		storage, err := storage.NewStorage(p.DbUsername, p.DbPassword, p.DbName, p.DbAddress, p.DbPort)
