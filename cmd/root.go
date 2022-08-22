@@ -399,7 +399,7 @@ func startProfilersIfEnabled() {
 	// }
 	memProfileOut := viper.GetString(profileMemFlag)
 	if memProfileOut != "" {
-		defer profile.Start(profile.MemProfile,
+		defer profile.Start(profile.GoroutineProfile,
 			profile.ProfilePath(memProfileOut),
 			profile.NoShutdownHook).Stop()
 	}
