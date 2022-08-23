@@ -19,6 +19,7 @@ import (
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/ndf"
 	"gitlab.com/xx_network/primitives/utils"
+	"io/ioutil"
 	"os"
 	"time"
 )
@@ -172,6 +173,20 @@ func LoginWithProto(statePath string, statePass []byte,
 	if err != nil {
 		jww.FATAL.Panicf("%+v", err)
 	}
+
+	// Write legacy contact information
+	legacy, err := xxdk.MakeLegacyReceptionIdentity(net)
+	if err != nil {
+		jww.FATAL.Panicf("%+v", err)
+	}
+
+	outfilePath := "altUdbLegacy.contact"
+	err = ioutil.WriteFile(outfilePath, legacy.GetContact().Marshal(), 0644)
+	if err != nil {
+		jww.FATAL.Panicf("%+v", err)
+	}
+
+	jww.INFO.Printf("Legacy contact information: %+v", legacy.GetContact().Marshal())
 
 	// Store the updated base NDF
 	def, err := xxdk.ParseNDF(baseNdf)
