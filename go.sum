@@ -436,6 +436,8 @@ github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINE
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
+github.com/pkg/profile v1.6.0 h1:hUDfIISABYI59DyeB3OTay/HxSRwTQ8rB/H83k6r5dM=
+github.com/pkg/profile v1.6.0/go.mod h1:qBsxPvzyUincmltOk6iyRVxHYg4adc0OFOv72ZdLa18=
 github.com/pkg/sftp v1.10.1/go.mod h1:lYOWFsE0bwd1+KfKJaKeuokY15vzFx25BLbzYYoAxZI=
 github.com/pkg/sftp v1.13.1/go.mod h1:3HaPG6Dq1ILlpPZRO0HVMrsydcdLt6HRDccSgb87qRg=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
@@ -579,6 +581,8 @@ gitlab.com/elixxir/client v1.5.1-0.20220725172207-3ef87e8c794c h1:7HQy9zhD1O8Xh/
 gitlab.com/elixxir/client v1.5.1-0.20220725172207-3ef87e8c794c/go.mod h1:dRCeFJrIj5zuxSfcnsAYOCodyPrKVparJUREBIWKRcw=
 gitlab.com/elixxir/client v1.5.1-0.20220823183159-7d39a948b114 h1:tocY/bG3IJ6vID+N/iK4Qi/n5PbRlZ2En0fKtvuzN7c=
 gitlab.com/elixxir/client v1.5.1-0.20220823183159-7d39a948b114/go.mod h1:FwCS+R8IxQCgP9aicIJwTllJhjeFakMY+E7OHlgQe5I=
+gitlab.com/elixxir/client v1.5.1-0.20220823212020-e7736fde88fb h1:tCZF/MIBBZt7gAc67KyjW81sJP18o+dntZqp1ZWFmdA=
+gitlab.com/elixxir/client v1.5.1-0.20220823212020-e7736fde88fb/go.mod h1:SaGO6nLhpt8xlRXxfQvfnNaY7LqFyAq7O1quIIoRgSU=
 gitlab.com/elixxir/comms v0.0.4-0.20220603231314-e47e4af13326 h1:Zid8oNHtbOqF6ebrcGIccvIMabFNGh9dzY1b7mgIcF0=
 gitlab.com/elixxir/comms v0.0.4-0.20220603231314-e47e4af13326/go.mod h1:tlHSrtSliKWUxsck8z/Ql/VJkMdSONV2BeWaUAAXzgk=
 gitlab.com/elixxir/crypto v0.0.0-20200804182833-984246dea2c4/go.mod h1:ucm9SFKJo+K0N2GwRRpaNr+tKXMIOVWzmyUD0SbOu2c=
