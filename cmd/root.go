@@ -174,19 +174,7 @@ func LoginWithProto(statePath string, statePass []byte,
 		jww.FATAL.Panicf("%+v", err)
 	}
 
-	// Write legacy contact information
-	legacy, err := xxdk.MakeLegacyReceptionIdentity(net)
-	if err != nil {
-		jww.FATAL.Panicf("%+v", err)
-	}
-
-	outfilePath := "altUdbLegacy.contact"
-	err = ioutil.WriteFile(outfilePath, legacy.GetContact().Marshal(), 0644)
-	if err != nil {
-		jww.FATAL.Panicf("%+v", err)
-	}
-
-	jww.INFO.Printf("Legacy contact information: %+v", legacy.GetContact().Marshal())
+	writeLegacyContact(net)
 
 	// Store the updated base NDF
 	def, err := xxdk.ParseNDF(baseNdf)
@@ -224,6 +212,8 @@ func LoginWithNDF(statePath string, statePass []byte, baseNdf string,
 	}
 	net.GetStorage().SetNDF(def)
 
+	writeLegacyContact(net)
+
 	// Create a legacy identity
 	identity, err := xxdk.MakeLegacyReceptionIdentity(net)
 	if err != nil {
@@ -232,6 +222,23 @@ func LoginWithNDF(statePath string, statePass []byte, baseNdf string,
 
 	// Create and return a messenger
 	return xxdk.Login(net, xxdk.DefaultAuthCallbacks{}, identity, e2eParams)
+
+}
+
+func writeLegacyContact(net *xxdk.Cmix) {
+	// Write legacy contact information
+	legacy, err := xxdk.MakeLegacyReceptionIdentity(net)
+	if err != nil {
+		jww.FATAL.Panicf("%+v", err)
+	}
+
+	outfilePath := "altUdbLegacy.contact"
+	err = ioutil.WriteFile(outfilePath, legacy.GetContact().Marshal(), 0644)
+	if err != nil {
+		jww.FATAL.Panicf("%+v", err)
+	}
+
+	jww.INFO.Printf("Legacy contact information: %+v", legacy.GetContact().Marshal())
 
 }
 
