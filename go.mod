@@ -10,7 +10,6 @@ require (
 	github.com/spf13/viper v1.11.0
 	github.com/ttacon/libphonenumber v1.2.1
 	gitlab.com/elixxir/client v1.5.1-0.20220725172207-3ef87e8c794c
-	gitlab.com/elixxir/comms v0.0.4-0.20220819220424-f2328c8b26b1
 	gitlab.com/elixxir/crypto v0.0.7-0.20220818194137-973a70947df4
 	gitlab.com/elixxir/primitives v0.0.3-0.20220810173935-592f34a88326
 	gitlab.com/xx_network/comms v0.0.4-0.20220630163702-f3d372ef6acd
@@ -55,6 +54,7 @@ require (
 	github.com/tyler-smith/go-bip39 v1.1.0 // indirect
 	github.com/zeebo/blake3 v0.1.1 // indirect
 	gitlab.com/elixxir/bloomfilter v0.0.0-20211222005329-7d931ceead6f // indirect
+	gitlab.com/elixxir/comms v0.0.4-0.20220819220424-f2328c8b26b1 // indirect
 	gitlab.com/elixxir/ekv v0.1.7 // indirect
 	gitlab.com/xx_network/ring v0.0.3-0.20220222211904-da613960ad93 // indirect
 	go.uber.org/ratelimit v0.2.0 // indirect
