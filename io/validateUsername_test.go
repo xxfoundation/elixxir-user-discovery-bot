@@ -114,8 +114,8 @@ func TestValidateUsername_UsernameMismatch(t *testing.T) {
 
 	// Send a validation request using a username that does not belong to this user
 	_, err = validateUsername(validationRequest, store, rsaPrivKey, rand.Reader)
-	if err != nil { // This should return an error
-		t.Fatalf("Failed to validate username: %+v", err)
+	if err == nil { // This should return an error
+		t.Fatalf("Should not be able to validate username that is not ours")
 	}
 
 }
