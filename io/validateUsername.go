@@ -26,7 +26,7 @@ const (
 func validateUsername(request *pb.UsernameValidationRequest,
 	store *storage.Storage, privKey *rsa.PrivateKey, rng io.Reader) (*pb.UsernameValidation, error) {
 	// Return an error if the request is invalid
-	if request == nil || request.Username == "" || request.ReceptionPublicKeyPem == nil {
+	if request == nil || request.Username == "" {
 		return &pb.UsernameValidation{}, errors.New("Unable to parse required " +
 			"fields in registration message")
 	}
@@ -55,7 +55,7 @@ func validateUsername(request *pb.UsernameValidationRequest,
 
 	// Create a signature verifying the user owns their username
 	verificationSignature, err := crust.SignVerification(rng, privKey,
-		request.Username, request.ReceptionPublicKeyPem)
+		request.Username, []byte(user.RsaPub))
 	if err != nil {
 		return nil, errors.Errorf("Failed to create verification signature: %v", err)
 	}

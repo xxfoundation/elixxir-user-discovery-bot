@@ -54,7 +54,7 @@ require (
 	github.com/tyler-smith/go-bip39 v1.1.0 // indirect
 	github.com/zeebo/blake3 v0.1.1 // indirect
 	gitlab.com/elixxir/bloomfilter v0.0.0-20211222005329-7d931ceead6f // indirect
-	gitlab.com/elixxir/comms v0.0.4-0.20220819220424-f2328c8b26b1 // indirect
+	gitlab.com/elixxir/comms v0.0.4-0.20220826165747-4821117053d5 // indirect
 	gitlab.com/elixxir/ekv v0.1.7 // indirect
 	gitlab.com/xx_network/ring v0.0.3-0.20220222211904-da613960ad93 // indirect
 	go.uber.org/ratelimit v0.2.0 // indirect
