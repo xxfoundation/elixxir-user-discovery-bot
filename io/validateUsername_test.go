@@ -54,9 +54,7 @@ func TestValidateUsername(t *testing.T) {
 	username := registerMsg.Frs.Fact.Fact
 	pubKeyPem := []byte(registerMsg.RSAPublicPem)
 	validationRequest := &pb.UsernameValidationRequest{
-		Username:              username,
-		ReceptionPublicKeyPem: pubKeyPem,
-		UserId:                registerMsg.UID,
+		UserId: registerMsg.UID,
 	}
 
 	validationResponse, err := validateUsername(validationRequest, store, rsaPrivKey, rand.Reader)
@@ -102,20 +100,6 @@ func TestValidateUsername_UsernameMismatch(t *testing.T) {
 	_, err = registerUser(registerMsg, cert, store, bannedManager, false)
 	if err != nil {
 		t.Errorf("Failed happy path: %v", err)
-	}
-
-	// Test Validate username ----------------------------------------------------------------------
-	pubKeyPem := []byte(registerMsg.RSAPublicPem)
-	validationRequest := &pb.UsernameValidationRequest{
-		Username:              "admin",
-		ReceptionPublicKeyPem: pubKeyPem,
-		UserId:                registerMsg.UID,
-	}
-
-	// Send a validation request using a username that does not belong to this user
-	_, err = validateUsername(validationRequest, store, rsaPrivKey, rand.Reader)
-	if err == nil { // This should return an error
-		t.Fatalf("Should not be able to validate username that is not ours")
 	}
 
 }
