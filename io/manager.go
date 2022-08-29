@@ -26,12 +26,12 @@ import (
 // Manager is the main UserDiscovery instance object.
 type Manager struct {
 	Comms                  *udb.Comms
-	rng                    *fastRNG.StreamGenerator
+	Rng                    *fastRNG.StreamGenerator
 	PermissioningPublicKey *rsa.PublicKey
 	Storage                *storage.Storage
 	Twilio                 *twilio.Manager
 	Banned                 *banned.Manager
-	rsaPrivateKey          *rsa.PrivateKey
+	RsaPrivateKey          *rsa.PrivateKey
 	skipVerification       bool
 }
 
@@ -48,8 +48,8 @@ func NewManager(p params.IO, id *id.ID, rsaPrivateKey *rsa.PrivateKey,
 		Twilio:                 twilio,
 		Banned:                 banned,
 		skipVerification:       skipVerification,
-		rsaPrivateKey:          rsaPrivateKey,
-		rng:                    rng,
+		RsaPrivateKey:          rsaPrivateKey,
+		Rng:                    rng,
 	}
 
 	m.Comms = udb.StartServer(id, fmt.Sprintf("0.0.0.0:%s", p.Port),
@@ -84,9 +84,9 @@ func newImplementation(m *Manager) *udb.Implementation {
 	}
 
 	impl.Functions.ValidateUsername = func(request *pb.UsernameValidationRequest) (*pb.UsernameValidation, error) {
-		stream := m.rng.GetStream()
+		stream := m.Rng.GetStream()
 		defer stream.Close()
-		return validateUsername(request, m.Storage, m.rsaPrivateKey, stream)
+		return validateUsername(request, m.Storage, m.RsaPrivateKey, stream)
 	}
 
 	return impl
