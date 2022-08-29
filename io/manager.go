@@ -13,6 +13,7 @@ import (
 	"fmt"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/udb"
+	"gitlab.com/elixxir/crypto/fastRNG"
 	"gitlab.com/elixxir/user-discovery-bot/banned"
 	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
@@ -25,20 +26,26 @@ import (
 // The main UserDiscovery instance object
 type Manager struct {
 	Comms                  *udb.Comms
+	Rng                    *fastRNG.StreamGenerator
 	PermissioningPublicKey *rsa.PublicKey
 	Storage                *storage.Storage
 	Twilio                 *twilio.Manager
 	Banned                 *banned.Manager
+	RsaPrivateKey          *rsa.PrivateKey
 }
 
 // Create a new UserDiscovery Manager given a set of Params
 func NewManager(p params.IO, id *id.ID, permissioningCert *rsa.PublicKey,
-	twilio *twilio.Manager, banned *banned.Manager, storage *storage.Storage) *Manager {
+	rsaPrivateKey *rsa.PrivateKey,
+	twilio *twilio.Manager, banned *banned.Manager, storage *storage.Storage,
+	rng *fastRNG.StreamGenerator) *Manager {
 	m := &Manager{
 		Storage:                storage,
 		PermissioningPublicKey: permissioningCert,
 		Twilio:                 twilio,
 		Banned:                 banned,
+		Rng:                    rng,
+		RsaPrivateKey:          rsaPrivateKey,
 	}
 	m.Comms = udb.StartServer(id, fmt.Sprintf("0.0.0.0:%s", p.Port),
 		newImplementation(m), p.Cert, p.Key)
@@ -67,6 +74,12 @@ func newImplementation(m *Manager) *udb.Implementation {
 
 	impl.Functions.RemoveFact = func(msg *pb.FactRemovalRequest) (*messages.Ack, error) {
 		return removeFact(msg, m.Storage)
+	}
+
+	impl.Functions.ValidateUsername = func(request *pb.UsernameValidationRequest) (*pb.UsernameValidation, error) {
+		stream := m.Rng.GetStream()
+		defer stream.Close()
+		return validateUsername(request, m.Storage, m.RsaPrivateKey, stream)
 	}
 
 	return impl
