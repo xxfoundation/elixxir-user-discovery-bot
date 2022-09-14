@@ -151,6 +151,7 @@ func (m *MapImpl) Search(factHashes [][]byte) ([]*User, error) {
 					return nil, errors.New("no user associated with hash, this should not be possible")
 				}
 				users[*uid] = &User{
+					Username:              u.Username,
 					Id:                    u.Id,
 					RsaPub:                u.RsaPub,
 					DhPub:                 u.DhPub,
