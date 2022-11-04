@@ -72,6 +72,7 @@ github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuy
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
 github.com/alecthomas/units v0.0.0-20190717042225-c3de453c63f4/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
 github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d/go.mod h1:rBZYJk541a8SKzHPHnH3zbiI+7dagKZ0cgpgrD7Fyho=
+github.com/andres-erbsen/clock v0.0.0-20160526145045-9e14626cd129 h1:MzBOUgng9orim59UnfUTLRjMpd09C5uEVQ6RPGeCaVI=
 github.com/andres-erbsen/clock v0.0.0-20160526145045-9e14626cd129/go.mod h1:rFgpPQZYZ8vdbc+48xibu8ALc3yeyd64IhHS+PU6Yyg=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/apache/thrift v0.12.0/go.mod h1:cp2SuWMxlEZw2r+iP2GNCdIi4C1qmUzdZFSVb+bacwQ=
@@ -565,6 +566,7 @@ github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINE
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/profile v1.2.1/go.mod h1:hJw3o1OdXxsrSjjVksARp5W95eeEaEfptyVZyv6JUPA=
+github.com/pkg/profile v1.6.0 h1:hUDfIISABYI59DyeB3OTay/HxSRwTQ8rB/H83k6r5dM=
 github.com/pkg/profile v1.6.0/go.mod h1:qBsxPvzyUincmltOk6iyRVxHYg4adc0OFOv72ZdLa18=
 github.com/pkg/sftp v1.13.1/go.mod h1:3HaPG6Dq1ILlpPZRO0HVMrsydcdLt6HRDccSgb87qRg=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
@@ -710,12 +712,18 @@ gitlab.com/elixxir/bloomfilter v0.0.0-20211222005329-7d931ceead6f h1:yXGvNBqzZwA
 gitlab.com/elixxir/bloomfilter v0.0.0-20211222005329-7d931ceead6f/go.mod h1:H6jztdm0k+wEV2QGK/KYA+MY9nj9Zzatux/qIvDDv3k=
 gitlab.com/elixxir/client v1.5.1-0.20221027214841-c43fddb9a242 h1:vyoO87vVV7aFGkEIjIEgQhFtVEvUcOF9W0qpFX+ytro=
 gitlab.com/elixxir/client v1.5.1-0.20221027214841-c43fddb9a242/go.mod h1:as23IqjgFKv4MLoOrjBNDUy1BdUrTqR0CMDJ5kWVL4o=
+gitlab.com/elixxir/client v1.5.1-0.20221101221146-1eb4f51cb4bc h1:FkbJTz5UEhtLq6c9d7RQSAagngq4n9RpmU4oxZXSMnY=
+gitlab.com/elixxir/client v1.5.1-0.20221101221146-1eb4f51cb4bc/go.mod h1:7Ljq9IzSAfRgfl5lSlmWaqSnLulUdsF0RJ1goElJTRc=
 gitlab.com/elixxir/comms v0.0.4-0.20221027214216-31527f2bb34c h1:Xqi7zsiet2yvquYc6WuQ3fcpOAUYwHnigCRLH/e5H6I=
 gitlab.com/elixxir/comms v0.0.4-0.20221027214216-31527f2bb34c/go.mod h1:TkgvoInYGMz9x2FSv9rZHsfJ54/A30uWQuQ1AIx8sQI=
+gitlab.com/elixxir/comms v0.0.4-0.20221101221108-04995612dd3a h1:+unta81r33CTK5ln+PTejwFyWktRFKPa9V0SSllGSYY=
+gitlab.com/elixxir/comms v0.0.4-0.20221101221108-04995612dd3a/go.mod h1:b7YNYjcZ/qkTy1b86Fb/Ar4PQ8j5DGZV4BM/OxwJeac=
 gitlab.com/elixxir/crypto v0.0.0-20200804182833-984246dea2c4/go.mod h1:ucm9SFKJo+K0N2GwRRpaNr+tKXMIOVWzmyUD0SbOu2c=
 gitlab.com/elixxir/crypto v0.0.3/go.mod h1:ZNgBOblhYToR4m8tj4cMvJ9UsJAUKq+p0gCp07WQmhA=
 gitlab.com/elixxir/crypto v0.0.7-0.20221027040529-dbcb6eb2b087 h1:e9cVSSFMmvnTj4PVRa1kCKhwWCekMNTEbeUply4NUGc=
 gitlab.com/elixxir/crypto v0.0.7-0.20221027040529-dbcb6eb2b087/go.mod h1:NImDa7951+jSolkYN/BBUm6qG6f+k0hsFZOCIxBlLhE=
+gitlab.com/elixxir/crypto v0.0.7-0.20221028214442-29091a3c04b1 h1:a4hhtw6ZUQD1iCSJepvCTrjn0LQtcrwtxLWl8TQm72k=
+gitlab.com/elixxir/crypto v0.0.7-0.20221028214442-29091a3c04b1/go.mod h1:NImDa7951+jSolkYN/BBUm6qG6f+k0hsFZOCIxBlLhE=
 gitlab.com/elixxir/ekv v0.2.1 h1:dtwbt6KmAXG2Tik5d60iDz2fLhoFBgWwST03p7T+9Is=
 gitlab.com/elixxir/ekv v0.2.1/go.mod h1:USLD7xeDnuZEavygdrgzNEwZXeLQJK/w1a+htpN+JEU=
 gitlab.com/elixxir/primitives v0.0.0-20200731184040-494269b53b4d/go.mod h1:OQgUZq7SjnE0b+8+iIAT2eqQF+2IFHn73tOo+aV11mg=
@@ -727,6 +735,8 @@ gitlab.com/elixxir/primitives v0.0.3-0.20221025020430-f5d2eb330fbc/go.mod h1:2Jd
 gitlab.com/xx_network/comms v0.0.0-20200805174823-841427dd5023/go.mod h1:owEcxTRl7gsoM8c3RQ5KAm5GstxrJp5tn+6JfQ4z5Hw=
 gitlab.com/xx_network/comms v0.0.4-0.20221027213956-c8a8cf68ee4f h1:gwhm0a9S9wk5M79Z99xiVu5XAQu9JDe3Vb1jjru+Hd4=
 gitlab.com/xx_network/comms v0.0.4-0.20221027213956-c8a8cf68ee4f/go.mod h1:/RX6ZuRlQQL0IVnMdkgsS9RyXkVeNJcBDpAeEPUZqA4=
+gitlab.com/xx_network/comms v0.0.4-0.20221101215037-e226e7cf4222 h1:bGxMFGMfKDV1KBWHtTYMKiaupiOKCxOuO2DhExrcbCI=
+gitlab.com/xx_network/comms v0.0.4-0.20221101215037-e226e7cf4222/go.mod h1:KdVSbqa3CEKUiw2wsnW9ItMmaE+AhGlH5aiJ9IqaWQ8=
 gitlab.com/xx_network/crypto v0.0.3/go.mod h1:DF2HYvvCw9wkBybXcXAgQMzX+MiGbFPjwt3t17VRqRE=
 gitlab.com/xx_network/crypto v0.0.4/go.mod h1:+lcQEy+Th4eswFgQDwT0EXKp4AXrlubxalwQFH5O0Mk=
 gitlab.com/xx_network/crypto v0.0.5-0.20221025020316-517fa8f91d2c h1:MR2dwUhl3BFZRNkvd+UP1Ymiu+pxbAv5wk6OIsOXKvU=
@@ -767,6 +777,7 @@ go.uber.org/multierr v1.1.0/go.mod h1:wR5kodmAFQ0UK8QlbwjlSNy0Z68gJhDJUG5sjR94q/
 go.uber.org/multierr v1.3.0/go.mod h1:VgVr7evmIr6uPjLBxg28wmKNXyqE9akIJ5XnfpiKl+4=
 go.uber.org/multierr v1.5.0/go.mod h1:FeouvMocqHpRaaGuG9EjoKcStLC43Zu/fmqdUMPcKYU=
 go.uber.org/multierr v1.6.0/go.mod h1:cdWPpRnG4AhwMwsgIHip0KRBQjJy5kYEpYjJxpXp9iU=
+go.uber.org/ratelimit v0.2.0 h1:UQE2Bgi7p2B85uP5dC2bbRtig0C+OeNRnNEafLjsLPA=
 go.uber.org/ratelimit v0.2.0/go.mod h1:YYBV4e4naJvhpitQrWJu1vCpgB7CboMe0qhltKt6mUg=
 go.uber.org/tools v0.0.0-20190618225709-2cfd321de3ee/go.mod h1:vJERXedbb3MVM5f9Ejo0C68/HhF8uaILCdgjnY+goOA=
 go.uber.org/zap v1.9.1/go.mod h1:vwi/ZaCAaUcBkycHslxD9B2zi4UTXhF60s6SWpuDF0Q=

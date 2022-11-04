@@ -1,6 +1,6 @@
 module gitlab.com/elixxir/user-discovery-bot
 
-go 1.17
+go 1.19
 
 require (
 	github.com/golang/protobuf v1.5.2
@@ -9,11 +9,11 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.12.0
 	github.com/ttacon/libphonenumber v1.2.1
-	gitlab.com/elixxir/client v1.5.1-0.20221027214841-c43fddb9a242
-	gitlab.com/elixxir/comms v0.0.4-0.20221027214216-31527f2bb34c
-	gitlab.com/elixxir/crypto v0.0.7-0.20221027040529-dbcb6eb2b087
+	gitlab.com/elixxir/client v1.5.1-0.20221101221146-1eb4f51cb4bc
+	gitlab.com/elixxir/comms v0.0.4-0.20221101221108-04995612dd3a
+	gitlab.com/elixxir/crypto v0.0.7-0.20221028214442-29091a3c04b1
 	gitlab.com/elixxir/primitives v0.0.3-0.20221025020430-f5d2eb330fbc
-	gitlab.com/xx_network/comms v0.0.4-0.20221027213956-c8a8cf68ee4f
+	gitlab.com/xx_network/comms v0.0.4-0.20221101215037-e226e7cf4222
 	gitlab.com/xx_network/crypto v0.0.5-0.20221025020316-517fa8f91d2c
 	gitlab.com/xx_network/primitives v0.0.4-0.20221025020003-cbec15a71b8f
 	gorm.io/driver/postgres v1.1.2
@@ -22,6 +22,7 @@ require (
 
 require (
 	git.xx.network/elixxir/grpc-web-go-client v0.0.0-20221027213839-7343cd399f14 // indirect
+	github.com/andres-erbsen/clock v0.0.0-20160526145045-9e14626cd129 // indirect
 	github.com/badoux/checkmail v1.2.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cloudflare/circl v1.2.0 // indirect
@@ -51,6 +52,7 @@ require (
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.2 // indirect
+	github.com/pkg/profile v1.6.0 // indirect
 	github.com/rs/cors v1.8.2 // indirect
 	github.com/sethvargo/go-diceware v0.3.0 // indirect
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
@@ -66,6 +68,7 @@ require (
 	gitlab.com/elixxir/ekv v0.2.1 // indirect
 	gitlab.com/xx_network/ring v0.0.3-0.20220902183151-a7d3b15bc981 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
+	go.uber.org/ratelimit v0.2.0 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
 	golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c // indirect
 	golang.org/x/sys v0.0.0-20220731174439-a90be440212d // indirect
