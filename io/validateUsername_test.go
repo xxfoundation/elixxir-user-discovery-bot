@@ -13,6 +13,7 @@ import (
 	"gitlab.com/elixxir/crypto/partnerships/crust"
 	"gitlab.com/elixxir/user-discovery-bot/banned"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
+	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/ndf"
 	"testing"
 	"time"
@@ -62,8 +63,10 @@ func TestValidateUsername(t *testing.T) {
 		t.Fatalf("Failed to validate username: %+v", err)
 	}
 
+	clientPubKey, _ := rsa.LoadPublicKeyFromPem(pubKeyPem)
+
 	err = crust.VerifyVerificationSignature(rsaPrivKey.GetPublic(),
-		username, pubKeyPem, validationResponse.Signature)
+		crust.HashUsername(username), clientPubKey, validationResponse.Signature)
 	if err != nil {
 		t.Fatalf("validateUsername did not return a valid signature!")
 	}
