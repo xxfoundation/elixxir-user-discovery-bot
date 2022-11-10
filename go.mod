@@ -9,19 +9,19 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.12.0
 	github.com/ttacon/libphonenumber v1.2.1
-	gitlab.com/elixxir/client v1.5.1-0.20221101221146-1eb4f51cb4bc
-	gitlab.com/elixxir/comms v0.0.4-0.20221101221108-04995612dd3a
-	gitlab.com/elixxir/crypto v0.0.7-0.20221028214442-29091a3c04b1
-	gitlab.com/elixxir/primitives v0.0.3-0.20221025020430-f5d2eb330fbc
-	gitlab.com/xx_network/comms v0.0.4-0.20221101215037-e226e7cf4222
-	gitlab.com/xx_network/crypto v0.0.5-0.20221025020316-517fa8f91d2c
-	gitlab.com/xx_network/primitives v0.0.4-0.20221025020003-cbec15a71b8f
+	gitlab.com/elixxir/client v1.5.1-0.20221110181926-77324fd5245b
+	gitlab.com/elixxir/comms v0.0.4-0.20221110181420-84bca6216fe4
+	gitlab.com/elixxir/crypto v0.0.7-0.20221110181326-dd7e5293feb0
+	gitlab.com/elixxir/primitives v0.0.3-0.20221110181119-e83320a48b13
+	gitlab.com/xx_network/comms v0.0.4-0.20221110181111-4f0694876936
+	gitlab.com/xx_network/crypto v0.0.5-0.20221110181048-76f0c556fe95
+	gitlab.com/xx_network/primitives v0.0.4-0.20221110180011-fd6ea3058225
 	gorm.io/driver/postgres v1.1.2
 	gorm.io/gorm v1.21.15
 )
 
 require (
-	git.xx.network/elixxir/grpc-web-go-client v0.0.0-20221027213839-7343cd399f14 // indirect
+	git.xx.network/elixxir/grpc-web-go-client v0.0.0-20221102223039-dc1f37d94e70 // indirect
 	github.com/andres-erbsen/clock v0.0.0-20160526145045-9e14626cd129 // indirect
 	github.com/badoux/checkmail v1.2.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
