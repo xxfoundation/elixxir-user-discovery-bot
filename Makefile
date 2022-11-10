@@ -22,7 +22,7 @@ update_release:
 	GOFLAGS="" go get gitlab.com/xx_network/crypto@release
 	GOFLAGS="" go get gitlab.com/elixxir/comms@release
 	GOFLAGS="" go get gitlab.com/xx_network/comms@release
-	GOFLAGS="" go get gitlab.com/elixxir/client@release
+	GOFLAGS="" go get gitlab.com/elixxir/client/v5@release
 
 update_master:
 	GOFLAGS="" go get gitlab.com/elixxir/primitives@master
