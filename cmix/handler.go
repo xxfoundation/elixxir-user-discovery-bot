@@ -9,9 +9,9 @@ package cmix
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/client/single"
-	"gitlab.com/elixxir/client/ud"
-	"gitlab.com/elixxir/client/xxdk"
+	"gitlab.com/elixxir/client/v5/single"
+	"gitlab.com/elixxir/client/v5/ud"
+	"gitlab.com/elixxir/client/v5/xxdk"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
 )
 

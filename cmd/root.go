@@ -13,8 +13,8 @@ import (
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
-	"gitlab.com/elixxir/client/storage/user"
-	"gitlab.com/elixxir/client/xxdk"
+	"gitlab.com/elixxir/client/v5/storage/user"
+	"gitlab.com/elixxir/client/v5/xxdk"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/user-discovery-bot/banned"
 	"gitlab.com/elixxir/user-discovery-bot/cmix"
@@ -122,7 +122,7 @@ var rootCmd = &cobra.Command{
 
 		var user *xxdk.E2e
 		cMixParams := xxdk.GetDefaultCMixParams()
-		cMixParams.Network = cMixParams.Network.SetRealtimeOnlyAll()
+		// cMixParams.Network = cMixParams.Network.SetRealtimeOnlyAll()
 		e2eParams := xxdk.GetDefaultE2EParams()
 		if p.SessionPath != "" && utils.Exists(p.SessionPath) {
 			// Construct a user using the NDF as a base

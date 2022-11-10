@@ -8,10 +8,10 @@
 package cmix
 
 import (
-	"gitlab.com/elixxir/client/cmix"
-	"gitlab.com/elixxir/client/cmix/identity/receptionID"
-	cMixMsg "gitlab.com/elixxir/client/cmix/message"
-	"gitlab.com/elixxir/client/cmix/rounds"
+	"gitlab.com/elixxir/client/v5/cmix"
+	"gitlab.com/elixxir/client/v5/cmix/identity/receptionID"
+	cMixMsg "gitlab.com/elixxir/client/v5/cmix/message"
+	"gitlab.com/elixxir/client/v5/cmix/rounds"
 	"gitlab.com/elixxir/comms/network"
 	"gitlab.com/elixxir/primitives/format"
 	"gitlab.com/xx_network/comms/connect"
