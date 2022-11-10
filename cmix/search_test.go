@@ -10,8 +10,8 @@ package cmix
 import (
 	"bytes"
 	"github.com/golang/protobuf/proto"
-	"gitlab.com/elixxir/client/v5/single"
-	"gitlab.com/elixxir/client/v5/ud"
+	"gitlab.com/elixxir/client/v4/single"
+	"gitlab.com/elixxir/client/v4/ud"
 	"gitlab.com/elixxir/crypto/contact"
 	"gitlab.com/elixxir/crypto/cyclic"
 	"gitlab.com/elixxir/crypto/diffieHellman"
