@@ -66,6 +66,7 @@ func validateUsername(request *pb.UsernameValidationRequest,
 
 	// Return signature to user
 	return &pb.UsernameValidation{
+		Username:              user.Username,
 		Signature:             verificationSignature,
 		ReceptionPublicKeyPem: []byte(user.RsaPub),
 	}, nil
