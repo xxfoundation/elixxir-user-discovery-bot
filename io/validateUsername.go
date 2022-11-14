@@ -46,9 +46,14 @@ func validateUsername(request *pb.UsernameValidationRequest,
 			userID)
 	}
 
+	userPub, err := rsa.LoadPublicKeyFromPem([]byte(user.RsaPub))
+	if err != nil {
+		return nil, err
+	}
+
 	// Create a signature verifying the user owns their username
 	verificationSignature, err := crust.SignVerification(rng, privKey,
-		user.Username, []byte(user.RsaPub))
+		user.Username, userPub)
 	if err != nil {
 		return nil, errors.Errorf("Failed to create verification signature: %v", err)
 	}
