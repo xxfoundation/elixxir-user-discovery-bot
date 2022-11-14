@@ -9,6 +9,7 @@ package io
 
 import (
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/partnerships/crust"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
@@ -37,6 +38,8 @@ func validateUsername(request *pb.UsernameValidationRequest,
 		return &pb.UsernameValidation{}, errors.WithMessage(err, invalidUserIdError)
 	}
 
+	jww.INFO.Printf("[CRUST] Validating username for %s", userID)
+
 	// Return an error if the user is not registered
 	user, err := store.GetUser(request.UserId)
 	if err != nil {
@@ -57,6 +60,8 @@ func validateUsername(request *pb.UsernameValidationRequest,
 	if err != nil {
 		return nil, errors.Errorf("Failed to create verification signature: %v", err)
 	}
+
+	jww.INFO.Printf("[CRUST] Validated username for %s", userID)
 
 	// Return signature to user
 	return &pb.UsernameValidation{
