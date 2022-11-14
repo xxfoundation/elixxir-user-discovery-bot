@@ -13,7 +13,7 @@ require (
 	gitlab.com/elixxir/comms v0.0.4-0.20220829165948-2ce12b04735e
 	gitlab.com/elixxir/crypto v0.0.7-0.20220916223346-662b76b44a5a
 	gitlab.com/elixxir/primitives v0.0.3-0.20220323183834-b98f255361b8
-	gitlab.com/xx_network/comms v0.0.4-0.20220315161313-76acb14429ac
+	gitlab.com/xx_network/comms v0.0.4-0.20221012180815-a37db096db37
 	gitlab.com/xx_network/crypto v0.0.5-0.20220317171841-084640957d71
 	gitlab.com/xx_network/primitives v0.0.4-0.20220324193139-b292d1ae6e7e
 	gorm.io/driver/postgres v1.1.2
