@@ -52,7 +52,6 @@ func TestValidateUsername(t *testing.T) {
 
 	// Test Validate username ----------------------------------------------------------------------
 	username := registerMsg.Frs.Fact.Fact
-	pubKeyPem := []byte(registerMsg.RSAPublicPem)
 	validationRequest := &pb.UsernameValidationRequest{
 		UserId: registerMsg.UID,
 	}
@@ -63,7 +62,7 @@ func TestValidateUsername(t *testing.T) {
 	}
 
 	err = crust.VerifyVerificationSignature(rsaPrivKey.GetPublic(),
-		username, pubKeyPem, validationResponse.Signature)
+		crust.HashUsername(username), rsaPrivKey.GetPublic(), validationResponse.Signature)
 	if err != nil {
 		t.Fatalf("validateUsername did not return a valid signature!")
 	}
