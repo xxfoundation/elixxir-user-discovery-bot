@@ -110,7 +110,7 @@ func (m *mockCmix) DeleteClientFingerprints(identity *id.ID) {
 	delete(m.handler.fingerprints, *identity)
 }
 
-func (m *mockCmix) AddIdentity(id *id.ID, validUntil time.Time, persistent bool) {
+func (m *mockCmix) AddIdentity(id *id.ID, validUntil time.Time, persistent bool, fallthroughProcessor cMixMsg.Processor) {
 	return
 }
 
