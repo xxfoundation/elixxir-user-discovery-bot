@@ -9,21 +9,19 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.12.0
 	github.com/ttacon/libphonenumber v1.2.1
-	gitlab.com/elixxir/client/v4 v4.3.12-0.20230213192642-f7a13faa4b77
-	gitlab.com/elixxir/comms v0.0.4-0.20230213192311-741e7d33ba9d
-	gitlab.com/elixxir/crypto v0.0.7-0.20230213192226-f368ead5388b
-	gitlab.com/elixxir/primitives v0.0.3-0.20230213192156-9265807064bb
-	gitlab.com/xx_network/comms v0.0.4-0.20230213192145-36977304ceef
-	gitlab.com/xx_network/crypto v0.0.5-0.20230213192124-20f056b9cc7d
+	gitlab.com/elixxir/client/v4 v4.3.12-0.20230213195914-7f32e9b09c86
+	gitlab.com/elixxir/comms v0.0.4-0.20230213195359-6e5bcdb8fe81
+	gitlab.com/elixxir/crypto v0.0.7-0.20230213195303-2cb8d3c1ea05
+	gitlab.com/elixxir/primitives v0.0.3-0.20230213194606-08e65dd1a646
+	gitlab.com/xx_network/comms v0.0.4-0.20230213195240-a34baf4a722a
+	gitlab.com/xx_network/crypto v0.0.5-0.20230213194530-577973730e2e
 	gitlab.com/xx_network/primitives v0.0.4-0.20230203173415-81c2cb07da44
 	gorm.io/driver/postgres v1.1.2
 	gorm.io/gorm v1.24.3
 )
 
 require (
-	filippo.io/edwards25519 v1.0.0 // indirect
-	git.xx.network/elixxir/grpc-web-go-client v0.0.0-20221221204132-2ed1fec765f1 // indirect
-	github.com/andres-erbsen/clock v0.0.0-20160526145045-9e14626cd129 // indirect
+	git.xx.network/elixxir/grpc-web-go-client v0.0.0-20230213195139-913e760b9cdd // indirect
 	github.com/badoux/checkmail v1.2.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cloudflare/circl v1.2.0 // indirect
@@ -52,11 +50,8 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
-	github.com/oasisprotocol/curve25519-voi v0.0.0-20221003100820-41fad3beba17 // indirect
-	github.com/oasisprotocol/deoxysii v0.0.0-20220228165953-2091330c22b7 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.2 // indirect
-	github.com/pkg/profile v1.6.0 // indirect
 	github.com/rivo/uniseg v0.4.3 // indirect
 	github.com/rs/cors v1.8.2 // indirect
 	github.com/sethvargo/go-diceware v0.3.0 // indirect
@@ -72,11 +67,7 @@ require (
 	gitlab.com/elixxir/bloomfilter v0.0.0-20211222005329-7d931ceead6f // indirect
 	gitlab.com/elixxir/ekv v0.2.1 // indirect
 	gitlab.com/xx_network/ring v0.0.3-0.20220902183151-a7d3b15bc981 // indirect
-	gitlab.com/yawning/bsaes.git v0.0.0-20190805113838-0a714cd429ec // indirect
-	gitlab.com/yawning/nyquist.git v0.0.0-20221003103146-de5645224a22 // indirect
-	gitlab.com/yawning/x448.git v0.0.0-20221003101044-617eb9b7d9b7 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
-	go.uber.org/ratelimit v0.2.0 // indirect
 	golang.org/x/crypto v0.5.0 // indirect
 	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/sys v0.4.0 // indirect
