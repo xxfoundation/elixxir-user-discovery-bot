@@ -9,21 +9,19 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.12.0
 	github.com/ttacon/libphonenumber v1.2.1
-	gitlab.com/elixxir/client/v4 v4.3.12-0.20230113232719-be4089d7aa4c
-	gitlab.com/elixxir/comms v0.0.4-0.20230113232310-712ff1217195
-	gitlab.com/elixxir/crypto v0.0.7-0.20230113231934-c833bffda448
-	gitlab.com/elixxir/primitives v0.0.3-0.20230109222259-f62b2a90b62c
-	gitlab.com/xx_network/comms v0.0.4-0.20230113193654-a3a18c6bbb90
-	gitlab.com/xx_network/crypto v0.0.5-0.20230113190331-06f2eb12b97f
-	gitlab.com/xx_network/primitives v0.0.4-0.20221219230308-4b5550a9247d
+	gitlab.com/elixxir/client/v4 v4.3.12-0.20230214180646-893f6e2dab8d
+	gitlab.com/elixxir/comms v0.0.4-0.20230214180204-3aba2e6795af
+	gitlab.com/elixxir/crypto v0.0.7-0.20230214180106-72841fd1e426
+	gitlab.com/elixxir/primitives v0.0.3-0.20230214180039-9a25e2d3969c
+	gitlab.com/xx_network/comms v0.0.4-0.20230214180029-5387fb85736d
+	gitlab.com/xx_network/crypto v0.0.5-0.20230214003943-8a09396e95dd
+	gitlab.com/xx_network/primitives v0.0.4-0.20230203173415-81c2cb07da44
 	gorm.io/driver/postgres v1.1.2
-	gorm.io/gorm v1.21.15
+	gorm.io/gorm v1.24.3
 )
 
 require (
-	filippo.io/edwards25519 v1.0.0 // indirect
-	git.xx.network/elixxir/grpc-web-go-client v0.0.0-20221221204132-2ed1fec765f1 // indirect
-	github.com/andres-erbsen/clock v0.0.0-20160526145045-9e14626cd129 // indirect
+	git.xx.network/elixxir/grpc-web-go-client v0.0.0-20230214175953-5b5a8c33d28a // indirect
 	github.com/badoux/checkmail v1.2.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cloudflare/circl v1.2.0 // indirect
@@ -45,18 +43,15 @@ require (
 	github.com/jackc/pgtype v1.8.1 // indirect
 	github.com/jackc/pgx/v4 v4.13.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.2 // indirect
-	github.com/klauspost/compress v1.11.7 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/klauspost/cpuid/v2 v2.1.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
-	github.com/oasisprotocol/curve25519-voi v0.0.0-20221003100820-41fad3beba17 // indirect
-	github.com/oasisprotocol/deoxysii v0.0.0-20220228165953-2091330c22b7 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.2 // indirect
-	github.com/pkg/profile v1.6.0 // indirect
 	github.com/rivo/uniseg v0.4.3 // indirect
 	github.com/rs/cors v1.8.2 // indirect
 	github.com/sethvargo/go-diceware v0.3.0 // indirect
@@ -72,11 +67,7 @@ require (
 	gitlab.com/elixxir/bloomfilter v0.0.0-20211222005329-7d931ceead6f // indirect
 	gitlab.com/elixxir/ekv v0.2.1 // indirect
 	gitlab.com/xx_network/ring v0.0.3-0.20220902183151-a7d3b15bc981 // indirect
-	gitlab.com/yawning/bsaes.git v0.0.0-20190805113838-0a714cd429ec // indirect
-	gitlab.com/yawning/nyquist.git v0.0.0-20221003103146-de5645224a22 // indirect
-	gitlab.com/yawning/x448.git v0.0.0-20221003101044-617eb9b7d9b7 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
-	go.uber.org/ratelimit v0.2.0 // indirect
 	golang.org/x/crypto v0.5.0 // indirect
 	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/sys v0.4.0 // indirect
