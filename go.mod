@@ -9,20 +9,19 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/viper v1.12.0
 	github.com/ttacon/libphonenumber v1.2.1
-	gitlab.com/elixxir/client/v4 v4.3.12-0.20230123172054-c18ca9ead0c4
-	gitlab.com/elixxir/comms v0.0.4-0.20230203172016-37d6dc2bac60
-	gitlab.com/elixxir/crypto v0.0.7-0.20230120181912-b9c6cae57f5b
-	gitlab.com/elixxir/primitives v0.0.3-0.20230109222259-f62b2a90b62c
-	gitlab.com/xx_network/comms v0.0.4-0.20230113193654-a3a18c6bbb90
-	gitlab.com/xx_network/crypto v0.0.5-0.20230113190331-06f2eb12b97f
-	gitlab.com/xx_network/primitives v0.0.4-0.20230203171907-f22171f9374c
-	gorm.io/driver/postgres v1.4.6
+	gitlab.com/elixxir/client/v4 v4.3.12-0.20230214180646-893f6e2dab8d
+	gitlab.com/elixxir/comms v0.0.4-0.20230215185442-4f3e75a1d704
+	gitlab.com/elixxir/crypto v0.0.7-0.20230214180106-72841fd1e426
+	gitlab.com/elixxir/primitives v0.0.3-0.20230214180039-9a25e2d3969c
+	gitlab.com/xx_network/comms v0.0.4-0.20230214180029-5387fb85736d
+	gitlab.com/xx_network/crypto v0.0.5-0.20230214003943-8a09396e95dd
+	gitlab.com/xx_network/primitives v0.0.4-0.20230215185311-cb80e2bfbfeb
+	gorm.io/driver/postgres v1.4.7
 	gorm.io/gorm v1.24.3
 )
 
 require (
-	filippo.io/edwards25519 v1.0.0 // indirect
-	git.xx.network/elixxir/grpc-web-go-client v0.0.0-20221221204132-2ed1fec765f1 // indirect
+	git.xx.network/elixxir/grpc-web-go-client v0.0.0-20230214175953-5b5a8c33d28a // indirect
 	github.com/badoux/checkmail v1.2.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cloudflare/circl v1.2.0 // indirect
@@ -40,7 +39,7 @@ require (
 	github.com/jackc/pgx/v5 v5.2.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/klauspost/compress v1.11.7 // indirect
+	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/klauspost/cpuid/v2 v2.1.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
