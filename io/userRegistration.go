@@ -1,7 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2020 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
 ////////////////////////////////////////////////////////////////////////////////
 
 package io
@@ -25,7 +26,8 @@ import (
 
 // Endpoint which handles a users attempt to register
 func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
-	store *storage.Storage, bannedManager *banned.Manager) (*messages.Ack, error) {
+	store *storage.Storage, bannedManager *banned.Manager,
+	skipVerification bool) (*messages.Ack, error) {
 
 	// Nil checks
 	if msg == nil || msg.Frs == nil || msg.Frs.Fact == nil ||
@@ -65,13 +67,19 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 			"Please try again", username)
 	}
 
-	// Verify the Permissioning signature provided
-	err = registration.VerifyWithTimestamp(permPublicKey, msg.Timestamp, msg.RSAPublicPem, msg.PermissioningSignature)
-	if err != nil {
-		return &messages.Ack{}, errors.Errorf(
-			"Could not verify permissioning signature. "+
-				"Data: %s, Signature: %s, %+v",
-			msg.RSAPublicPem, msg.PermissioningSignature, err)
+	if skipVerification {
+		jww.WARN.Printf("Skipping scheduling signature verification for "+
+			"user %s...", uid)
+	} else {
+		// Verify the Permissioning signature provided
+		err = registration.VerifyWithTimestamp(permPublicKey, msg.Timestamp, msg.RSAPublicPem,
+			msg.PermissioningSignature)
+		if err != nil {
+			return &messages.Ack{}, errors.Errorf(
+				"Could not verify permissioning signature. "+
+					"Data: %s, Signature: %s, %+v",
+				msg.RSAPublicPem, msg.PermissioningSignature, err)
+		}
 	}
 
 	// Parse the client's public key

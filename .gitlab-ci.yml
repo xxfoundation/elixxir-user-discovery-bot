@@ -68,3 +68,13 @@ build:
   artifacts:
     paths:
      - release/
+
+tag:
+  stage: trigger_integration
+  only:
+    - master
+  image: $DOCKER_IMAGE
+  script:
+    - git remote add origin_tags git@$GITLAB_SERVER:elixxir/client.git || true
+    - git tag $(release/client.linux64 version | grep "Elixxir Client v"| cut -d ' ' -f3) -f
+    - git push origin_tags -f --tags

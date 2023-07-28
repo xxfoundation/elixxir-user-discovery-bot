@@ -1,7 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2020 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
 ////////////////////////////////////////////////////////////////////////////////
 
 // Handles the Map backend for udb storage
@@ -150,6 +151,7 @@ func (m *MapImpl) Search(factHashes [][]byte) ([]*User, error) {
 					return nil, errors.New("no user associated with hash, this should not be possible")
 				}
 				users[*uid] = &User{
+					Username:              u.Username,
 					Id:                    u.Id,
 					RsaPub:                u.RsaPub,
 					DhPub:                 u.DhPub,

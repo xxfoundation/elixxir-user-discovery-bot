@@ -1,13 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
+////////////////////////////////////////////////////////////////////////////////
+
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
-	"gitlab.com/elixxir/client/api"
-	"gitlab.com/elixxir/client/interfaces/params"
-	"gitlab.com/elixxir/client/single"
+	"gitlab.com/elixxir/client/v4/storage/user"
+	"gitlab.com/elixxir/client/v4/xxdk"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/fastRNG"
 	"gitlab.com/elixxir/user-discovery-bot/banned"
@@ -75,6 +82,8 @@ var rootCmd = &cobra.Command{
 			jww.FATAL.Panicf("Failed to construct ban manager: %v", err)
 		}
 
+		jww.WARN.Printf("Skipping scheduling signature verification set to %v ", viper.GetBool("skipVerification"))
+
 		// Extract private key
 		privKey, err := rsa.LoadPrivateKeyFromPem(p.Key)
 		if err != nil {
@@ -84,8 +93,8 @@ var rootCmd = &cobra.Command{
 		rngStreamGen := fastRNG.NewStreamGenerator(12, 1024, csprng.NewSystemRNG)
 
 		// Set up manager with the ability to contact permissioning
-		manager := io.NewManager(p.IO, &id.UDB, permCert, privKey,
-			twilioManager, bannedManager, storage, rngStreamGen)
+		manager := io.NewManager(p.IO, &id.UDB, permCert, twilioManager,
+			bannedManager, storage, viper.GetBool("skipVerification"), privKey, rngStreamGen)
 		hostParams := connect.GetDefaultHostParams()
 		hostParams.AuthEnabled = false
 		permHost, err := manager.Comms.AddHost(&id.Permissioning,
@@ -122,37 +131,111 @@ var rootCmd = &cobra.Command{
 			break
 		}
 
-		// Pass NDF directly into client library
-		var client *api.Client
-		nwParams := params.GetDefaultNetwork()
-		nwParams = nwParams.SetRealtimeOnlyAll()
+		var user *xxdk.E2e
+		cMixParams := xxdk.GetDefaultCMixParams()
+		// cMixParams.Network = cMixParams.Network.SetRealtimeOnlyAll()
+		e2eParams := xxdk.GetDefaultE2EParams()
 		if p.SessionPath != "" && utils.Exists(p.SessionPath) {
-			client, err = api.LoginWithNewBaseNDF_UNSAFE(p.SessionPath,
-				[]byte(sessionPass), string(returnedNdf.GetNdf()), nwParams)
+			// Construct a user using the NDF as a base
+			user, err = LoginWithNDF(p.SessionPath, []byte(sessionPass),
+				string(returnedNdf.GetNdf()),
+				cMixParams, e2eParams)
 			if err != nil {
-				jww.FATAL.Fatalf("Failed to create client: %+v", err)
+				jww.FATAL.Fatalf("Failed to create user: %+v", err)
 			}
 		} else {
-			client, err = api.LoginWithProtoClient(p.SessionPath,
-				[]byte(sessionPass), p.ProtoUserJson, string(returnedNdf.GetNdf()), nwParams)
+			user, err = LoginWithProto(p.SessionPath, []byte(sessionPass),
+				p.ProtoUserJson, string(returnedNdf.GetNdf()),
+				cMixParams, e2eParams)
 			if err != nil {
-				jww.FATAL.Fatalf("Failed to create client: %+v", err)
+				jww.FATAL.Fatalf("Failed to create user: %+v", err)
 			}
 		}
 
-		err = client.StartNetworkFollower(5 * time.Second)
+		m := cmix.NewManager(user, storage)
+		m.Start()
+
+		err = user.StartNetworkFollower(5 * time.Second)
 		if err != nil {
 			jww.FATAL.Fatal(err)
 		}
 
-		m := cmix.NewManager(single.NewManager(client), storage)
-		err = client.AddService(m.Start)
 		if err != nil {
 			jww.FATAL.Panicf("%v", err)
 		}
 		// Wait forever
+
 		select {}
 	},
+}
+
+// LoginWithProto is a login function which constructs an xxdk.E2e object
+// using a user.Proto which has been JSON marshalled.
+func LoginWithProto(statePath string, statePass []byte,
+	protoJson []byte, baseNdf string,
+	cmixParams xxdk.CMIXParams, e2eParams xxdk.E2EParams) (*xxdk.E2e, error) {
+
+	// Unmarshal the proto user JSON
+	protoUser := &user.Proto{}
+	err := json.Unmarshal(protoJson, protoUser)
+	if err != nil {
+		return nil, err
+	}
+
+	// Construct a network object
+	err = xxdk.NewProtoCmix_Unsafe(baseNdf, statePath,
+		statePass, protoUser)
+	net, err := xxdk.LoadCmix(statePath,
+		statePass, cmixParams)
+	if err != nil {
+		jww.FATAL.Panicf("%+v", err)
+	}
+
+	// Store the updated base NDF
+	def, err := xxdk.ParseNDF(baseNdf)
+	if err != nil {
+		return nil, err
+	}
+	net.GetStorage().SetNDF(def)
+
+	// Create a legacy identity
+	identity, err := xxdk.MakeLegacyReceptionIdentity(net)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create and return a messenger
+	return xxdk.Login(net, xxdk.DefaultAuthCallbacks{}, identity, e2eParams)
+}
+
+// LoginWithNDF is a login function which creates an
+// xxdk.E2e instance using a base NDF.
+func LoginWithNDF(statePath string, statePass []byte, baseNdf string,
+	cmixParams xxdk.CMIXParams, e2eParams xxdk.E2EParams) (*xxdk.E2e, error) {
+	jww.INFO.Printf("LoginWithNDF()")
+
+	// Construct a network object
+	net, err := xxdk.LoadCmix(statePath, statePass, cmixParams)
+	if err != nil {
+		return nil, err
+	}
+
+	// Store the base NDF
+	def, err := xxdk.ParseNDF(baseNdf)
+	if err != nil {
+		return nil, err
+	}
+	net.GetStorage().SetNDF(def)
+
+	// Create a legacy identity
+	identity, err := xxdk.MakeLegacyReceptionIdentity(net)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create and return a messenger
+	return xxdk.Login(net, xxdk.DefaultAuthCallbacks{}, identity, e2eParams)
+
 }
 
 func Execute() {
@@ -218,6 +301,12 @@ func init() {
 		"Path for ProtoUser file containing user primitives")
 	err = viper.BindPFlag("protoUserPath", rootCmd.Flags().Lookup("protoUserPath"))
 	handleBindingError(err, "protoUserPath")
+
+	rootCmd.Flags().Bool("skipVerification", true,
+		"Determines whether UD will verify a client's network signature "+
+			"when registering. The default behaviour is to check the signature.")
+	err = viper.BindPFlag("skipVerification", rootCmd.Flags().Lookup("skipVerification"))
+	handleBindingError(err, "skipVerification")
 
 }
 

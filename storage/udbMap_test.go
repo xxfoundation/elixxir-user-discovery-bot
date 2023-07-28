@@ -1,3 +1,10 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
+////////////////////////////////////////////////////////////////////////////////
+
 package storage
 
 import (
@@ -405,6 +412,7 @@ func TestMapImpl_Search(t *testing.T) {
 	uid := id.NewIdFromString("testuserid", id.User, t)
 	user := &User{
 		Id:        uid.Marshal(),
+		Username:  "zezima",
 		RsaPub:    "testrsa",
 		DhPub:     []byte("testdh"),
 		Salt:      []byte("testsalt"),
@@ -434,5 +442,8 @@ func TestMapImpl_Search(t *testing.T) {
 	}
 	if len(ulist) != 1 {
 		t.Errorf("Did not receive expected num users.  Received: %d, expected: %d", len(ulist), 1)
+	}
+	if user.Username != ulist[0].Username {
+		t.Errorf("Search did not return expected username\n\tExpected: %s\n\tReceived: %s\n", user.Username, ulist[0].Username)
 	}
 }

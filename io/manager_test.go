@@ -1,3 +1,10 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
+////////////////////////////////////////////////////////////////////////////////
+
 package io
 
 import (
@@ -23,7 +30,7 @@ func TestNewManager(t *testing.T) {
 		t.Fatalf("Failed to construct ban manager: %v", err)
 	}
 
-	m := NewManager(p, id.NewIdFromString("zezima", id.User, t), nil, nil, tm, bannedManager, store, nil)
+	m := NewManager(p, id.NewIdFromString("zezima", id.User, t), nil, tm, bannedManager, store, false, nil, nil)
 	if m == nil || reflect.TypeOf(m) != reflect.TypeOf(&Manager{}) {
 		t.Errorf("Did not receive a manager")
 	}

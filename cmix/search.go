@@ -1,3 +1,10 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
+////////////////////////////////////////////////////////////////////////////////
+
 package cmix
 
 import (
@@ -5,45 +12,42 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/client/single"
-	"gitlab.com/elixxir/client/ud"
+	"gitlab.com/elixxir/client/v4/cmix"
+	"gitlab.com/elixxir/client/v4/cmix/identity/receptionID"
+	"gitlab.com/elixxir/client/v4/cmix/rounds"
+	"gitlab.com/elixxir/client/v4/single"
+	"gitlab.com/elixxir/client/v4/ud"
 	"gitlab.com/elixxir/primitives/fact"
 	"gitlab.com/xx_network/primitives/id"
 	"time"
 )
 
-func (m *Manager) searchCallback(payload []byte, c single.Contact) {
-	searchMsg := &ud.SearchSend{}
-	if err := proto.Unmarshal(payload, searchMsg); err != nil {
-		jww.ERROR.Printf("Failed to unmarshal search request from %s: %+v",
-			c.GetPartner(), err)
-		return
-	}
-
-	jww.INFO.Printf("Search request from %s: %v", c.GetPartner(), payload)
-
-	response := m.handleSearch(searchMsg, c)
-
-	jww.INFO.Printf("Search for %+v completed & found %+v", searchMsg.Fact, response.Contacts)
-
-	marshaledResponse, err := proto.Marshal(response)
-	if err != nil {
-		jww.ERROR.Printf("Failed to marshal request to search request from "+
-			"%s: %+v", c.GetPartner(), err)
-		return
-	}
-
-	// TODO: make timeout come from config file, default to 1 minute
-	err = m.singleUse.RespondSingleUse(c, marshaledResponse, 1*time.Minute)
-	if err != nil {
-		jww.ERROR.Printf("Failed to send single-use response to to search "+
-			"request from %s: %+v", c.GetPartner(), err)
-		return
-	}
+type searchManager struct {
+	m *Manager
 }
 
-func (m *Manager) handleSearch(msg *ud.SearchSend, c single.Contact) *ud.SearchResponse {
+func (sm *searchManager) Callback(req *single.Request, eid receptionID.EphemeralIdentity, rids []rounds.Round) {
+	jww.INFO.Printf("Received search request from %s [%+v] on rids %+v", req.GetPartner(), eid, rids)
+	resp := sm.handleSearch(req)
+	marshaledResponse, err := proto.Marshal(resp)
+	if err != nil {
+		jww.ERROR.Printf("Failed to marshal request to lookup request from "+
+			"%s: %+v", req.GetPartner(), err)
+		return
+	}
+	rid, err := req.Respond(marshaledResponse, cmix.GetDefaultCMIXParams(), time.Minute)
+	jww.INFO.Printf("Responded to search request from %s over round %d", req.GetPartner(), rid)
+}
+
+func (sm *searchManager) handleSearch(req *single.Request) *ud.SearchResponse {
 	response := &ud.SearchResponse{}
+
+	msg := &ud.SearchSend{}
+	if err := proto.Unmarshal(req.GetPayload(), msg); err != nil {
+		jww.ERROR.Printf("Failed to unmarshal search request from %s: %+v",
+			req.GetPartner(), err)
+		return response
+	}
 
 	var factHashes [][]byte
 	facts := msg.GetFact()
@@ -56,7 +60,7 @@ func (m *Manager) handleSearch(msg *ud.SearchSend, c single.Contact) *ud.SearchR
 		factHashes = append(factHashes, f.Hash)
 	}
 
-	users, err := m.db.Search(factHashes)
+	users, err := sm.m.db.Search(factHashes)
 	if err != nil {
 		response.Error = errors.WithMessage(err, "failed to execute search").Error()
 		jww.WARN.Printf("Failed to handle search response: %+v", response.Error)
