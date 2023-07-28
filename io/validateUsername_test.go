@@ -45,7 +45,7 @@ func TestValidateUsername(t *testing.T) {
 		t.Fatalf("Failed to construct ban manager: %v", err)
 	}
 
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	_, err = registerUser(registerMsg, cert, store, bannedManager, false)
 	if err != nil {
 		t.Errorf("Failed happy path: %v", err)
 	}
@@ -96,7 +96,7 @@ func TestValidateUsername_UsernameMismatch(t *testing.T) {
 		t.Fatalf("Failed to construct ban manager: %v", err)
 	}
 
-	_, err = registerUser(registerMsg, cert, store, bannedManager)
+	_, err = registerUser(registerMsg, cert, store, bannedManager, false)
 	if err != nil {
 		t.Errorf("Failed happy path: %v", err)
 	}

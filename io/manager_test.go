@@ -30,7 +30,7 @@ func TestNewManager(t *testing.T) {
 		t.Fatalf("Failed to construct ban manager: %v", err)
 	}
 
-	m := NewManager(p, id.NewIdFromString("zezima", id.User, t), nil, tm, bannedManager, store, false)
+	m := NewManager(p, id.NewIdFromString("zezima", id.User, t), nil, tm, bannedManager, store, false, nil, nil)
 	if m == nil || reflect.TypeOf(m) != reflect.TypeOf(&Manager{}) {
 		t.Errorf("Did not receive a manager")
 	}

@@ -32,18 +32,21 @@ type Manager struct {
 	Twilio                 *twilio.Manager
 	Banned                 *banned.Manager
 	skipVerification       bool
+	RsaPrivateKey          *rsa.PrivateKey
 }
 
 // NewManager creates a new UserDiscovery Manager given a set of Params.
 func NewManager(p params.IO, id *id.ID, permissioningCert *rsa.PublicKey,
 	twilio *twilio.Manager, banned *banned.Manager,
-	storage *storage.Storage, skipVerification bool) *Manager {
+	storage *storage.Storage, skipVerification bool, key *rsa.PrivateKey, streamGen *fastRNG.StreamGenerator) *Manager {
 	m := &Manager{
 		Storage:                storage,
 		PermissioningPublicKey: permissioningCert,
 		Twilio:                 twilio,
 		Banned:                 banned,
 		skipVerification:       skipVerification,
+		RsaPrivateKey:          key,
+		Rng:                    streamGen,
 	}
 	m.Comms = udb.StartServer(id, fmt.Sprintf("0.0.0.0:%s", p.Port),
 		newImplementation(m), p.Cert, p.Key)

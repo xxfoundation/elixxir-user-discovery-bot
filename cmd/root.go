@@ -84,9 +84,17 @@ var rootCmd = &cobra.Command{
 
 		jww.WARN.Printf("Skipping scheduling signature verification set to %v ", viper.GetBool("skipVerification"))
 
+		// Extract private key
+		privKey, err := rsa.LoadPrivateKeyFromPem(p.Key)
+		if err != nil {
+			jww.FATAL.Panicf("Failed to load RSA private key: %v", err)
+		}
+
+		rngStreamGen := fastRNG.NewStreamGenerator(12, 1024, csprng.NewSystemRNG)
+
 		// Set up manager with the ability to contact permissioning
 		manager := io.NewManager(p.IO, &id.UDB, permCert, twilioManager,
-			bannedManager, storage, viper.GetBool("skipVerification"))
+			bannedManager, storage, viper.GetBool("skipVerification"), privKey, rngStreamGen)
 		hostParams := connect.GetDefaultHostParams()
 		hostParams.AuthEnabled = false
 		permHost, err := manager.Comms.AddHost(&id.Permissioning,
