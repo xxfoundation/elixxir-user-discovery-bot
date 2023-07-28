@@ -75,6 +75,6 @@ tag:
     - master
   image: $DOCKER_IMAGE
   script:
-    - git remote add origin_tags git@$GITLAB_SERVER:elixxir/client.git || true
-    - git tag $(release/client.linux64 version | grep "Elixxir Client v"| cut -d ' ' -f3) -f
+    - git remote add origin_tags git@$GITLAB_SERVER:elixxir/user-discovery-bot.git || true
+    - release/udb.linux64 version | grep "xx network User Discovery v"| cut -d ' ' -f5
     - git push origin_tags -f --tags
