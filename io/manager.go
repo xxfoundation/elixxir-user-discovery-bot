@@ -13,6 +13,7 @@ import (
 	"fmt"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/udb"
+	"gitlab.com/elixxir/crypto/fastRNG"
 	"gitlab.com/elixxir/user-discovery-bot/banned"
 	"gitlab.com/elixxir/user-discovery-bot/interfaces/params"
 	"gitlab.com/elixxir/user-discovery-bot/storage"
@@ -25,6 +26,7 @@ import (
 // Manager is the main UserDiscovery instance object.
 type Manager struct {
 	Comms                  *udb.Comms
+	Rng                    *fastRNG.StreamGenerator
 	PermissioningPublicKey *rsa.PublicKey
 	Storage                *storage.Storage
 	Twilio                 *twilio.Manager
@@ -72,6 +74,12 @@ func newImplementation(m *Manager) *udb.Implementation {
 
 	impl.Functions.RemoveFact = func(msg *pb.FactRemovalRequest) (*messages.Ack, error) {
 		return removeFact(msg, m.Storage)
+	}
+
+	impl.Functions.ValidateUsername = func(request *pb.UsernameValidationRequest) (*pb.UsernameValidation, error) {
+		stream := m.Rng.GetStream()
+		defer stream.Close()
+		return validateUsername(request, m.Storage, m.RsaPrivateKey, stream)
 	}
 
 	return impl

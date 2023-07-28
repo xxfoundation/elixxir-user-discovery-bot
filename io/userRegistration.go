@@ -44,6 +44,8 @@ func registerUser(msg *pb.UDBUserRegistration, permPublicKey *rsa.PublicKey,
 			"Please try again")
 	}
 
+	jww.INFO.Printf("Registering user %s, %s", uid, username)
+
 	canonicalUsername := validation.Canonicalize(username)
 
 	// Check if username is valid
